@@ -18,7 +18,7 @@ public class genshinHelp {
         String content = message.getContentRaw();
         ArrayList<String> words = splitString(content);
 
-        System.out.println(words.size());
+
         StringBuilder outPut = new StringBuilder();
         genshinCommands commandClass = new genshinCommands();
         HashMap<String, String> commands = commandClass.getCommands();

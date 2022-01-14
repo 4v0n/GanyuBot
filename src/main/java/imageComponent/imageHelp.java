@@ -18,7 +18,6 @@ public class imageHelp {
         String content = message.getContentRaw();
         ArrayList<String> words = splitString(content);
 
-        System.out.println(words.size());
         StringBuilder outPut = new StringBuilder();
         imageCommands commandClass = new imageCommands();
         HashMap<String, String> commands = commandClass.getCommands();

@@ -1,7 +1,6 @@
 package blackJack;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import org.apache.commons.lang3.ArrayUtils;
 
 public class Card {
     private String suit;
@@ -17,9 +16,14 @@ public class Card {
     }
 
     public int getValue(){
-        String[] ranks = new String[]{"Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King"};
-        ArrayList<String> tempRanks = new ArrayList<>(Arrays.asList(ranks));
+        String[] referenceRanks = new Deck().getRanks();
+        int[] values = new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10};
 
-        return tempRanks.indexOf(rank);
+        return values[ArrayUtils.indexOf(referenceRanks, rank)];
+
+    }
+
+    public String showCard(){
+        return (rank + " of " + suit);
     }
 }

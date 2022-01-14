@@ -50,7 +50,7 @@ public class BlackJackHandler{
                         EmbedBuilder embed = new EmbedBuilder();
                         embed.setDescription("You are already playing a minigame in this channel!");
                         embed.setColor(new Color(255, 0, 0));
-                        channel.sendMessageEmbeds(embed.build()).queue();
+                        channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();
                     } else startGame(event);
 
                     break;
@@ -62,7 +62,7 @@ public class BlackJackHandler{
                             "\nUse the 'help' command to get a list of usable commands." +
                             "\nAll commands are also lower case.");
                     embed.setColor(new Color(255, 0, 0));
-                    channel.sendMessageEmbeds(embed.build()).queue();
+                    channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();
             }
         } else {
             MessageChannel channel = event.getChannel();
@@ -72,7 +72,7 @@ public class BlackJackHandler{
                     "\nAll commands are also lower case.");
             embed.setColor(new Color(255, 0, 0));
 
-            channel.sendMessageEmbeds(embed.build()).queue();
+            channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();
         }
     }
 
@@ -81,11 +81,10 @@ public class BlackJackHandler{
         EmbedBuilder embed = new EmbedBuilder();
         embed.setDescription("The game will be starting soon!");
         embed.setColor(new Color(255, 255, 150));
-        channel.sendMessageEmbeds(embed.build()).queue(newMessage -> {
+        channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue(newMessage -> {
             bot.addActivity(new Game(event, bot, newMessage.getId()));
         });
 
-        System.out.println(bot.getActivities());
     }
 
     private ArrayList<String> splitString(String string) {

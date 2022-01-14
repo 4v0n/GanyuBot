@@ -34,7 +34,7 @@ public class Help {
                     "The prefix is - ***" + prefix + "***\n>>> " + outPut);
             embed.setColor(new Color(0, 255, 150));
 
-            channel.sendMessageEmbeds(embed.build()).queue();
+            channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();
 
         } else if (words.get(2).equals("genshin")){
             genshinHelp help = new genshinHelp();
@@ -51,7 +51,7 @@ public class Help {
                     "\nThere may be no further help for the command or the command may not exist." +
                     "\nAll commands are also lower case.");
             embed.setColor(new Color(255, 0, 0));
-            channel.sendMessageEmbeds(embed.build()).queue();
+            channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();
         }
     }
 

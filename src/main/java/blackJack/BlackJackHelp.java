@@ -1,6 +1,5 @@
 package blackJack;
 
-import imageComponent.imageCommands;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -20,7 +19,6 @@ public class BlackJackHelp {
         String content = message.getContentRaw();
         ArrayList<String> words = splitString(content);
 
-        System.out.println(words.size());
         StringBuilder outPut = new StringBuilder();
         BlackJackCommands commandClass = new BlackJackCommands();
         HashMap<String, String> commands = commandClass.getCommands();
@@ -35,7 +33,7 @@ public class BlackJackHelp {
                 "The prefix is - ***" + prefix + "***\n>>> " + outPut);
         embed.setColor(new Color(0, 255, 150));
 
-        channel.sendMessageEmbeds(embed.build()).queue();
+        channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();
     }
 
     private ArrayList<String> splitString(String string) {

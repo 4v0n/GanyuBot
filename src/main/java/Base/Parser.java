@@ -86,16 +86,18 @@ public class Parser extends ListenerAdapter {
                     blackjack.parse(event);
                     break;
                 default:
-                    if (bot.getActivities().containsKey(event.getAuthor().getId() + event.getChannel().getId())) {
+                    if ((bot.getActivities().containsKey(event.getAuthor().getId() + event.getChannel().getId()))) {
                         Activity activity = bot.getActivities().get(event.getAuthor().getId() + event.getChannel().getId());
-                        activity.parse(event, bot);
+                        if (activity.getParser().getCommandList().contains(commandWord)) {
+                            activity.parse(event, bot);
+                        }
                     } else {
                         EmbedBuilder embed = new EmbedBuilder();
                         embed.setDescription("There is no ' " + commandWord + "' command!" +
                                 "\nUse the 'help' command to get a list of usable commands." +
                                 "\nAll commands are also lower case.");
                         embed.setColor(new Color(255, 0, 0));
-                        channel.sendMessageEmbeds(embed.build()).queue();
+                        channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();
                     }
             }
         } else {
@@ -104,7 +106,7 @@ public class Parser extends ListenerAdapter {
                     "\nUse the 'help' command to get a list of usable commands." +
                     "\nAll commands are also lower case.");
             embed.setColor(new Color(255, 0, 0));
-            channel.sendMessageEmbeds(embed.build()).queue();
+            channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();
         }
     }
 }

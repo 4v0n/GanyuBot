@@ -1,6 +1,7 @@
 package Base;
 
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.HashMap;
@@ -11,6 +12,8 @@ public class Bot {
     private String token;
     private String prefix;
     private HashMap<String, Activity> activities;
+    private User user;
+    private String pfpURL;
 
     public Bot(){
         activities = new HashMap<>();
@@ -36,8 +39,10 @@ public class Bot {
         return userID;
     }
 
+
     public void setUserID(String userID) {
         this.userID = userID;
+        user = User.fromId(userID);
     }
 
     public String getPrefix() {
@@ -56,6 +61,10 @@ public class Bot {
         return (activity.getUserID() + activity.getChannel().getId());
     }
 
+    public User getUser() {
+        return user;
+    }
+
     public void addActivity(Activity activity){
         activities.put(getKey(activity), activity);
     }
@@ -67,5 +76,13 @@ public class Bot {
     public Activity getRelevantActivity(MessageReceivedEvent event){
         String key = (event.getAuthor().getId() + event.getChannel().getId());
         return activities.get(key);
+    }
+
+    public String getPfpURL() {
+        return pfpURL;
+    }
+
+    public void setPfpURL(String pfpURL) {
+        this.pfpURL = pfpURL;
     }
 }

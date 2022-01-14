@@ -3,11 +3,13 @@ package Base;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.util.ArrayList;
+
 public class Activity {
     private final MessageChannel channel;
     private final String userID;
     private final CommandHandler parser;
-
+    private ArrayList<String> commandList;
 
     public Activity(MessageReceivedEvent event, CommandHandler parser){
         this.channel = event.getChannel();
@@ -15,6 +17,10 @@ public class Activity {
         //System.out.println(channel);
         //System.out.println(userID);
         this.parser = parser;
+    }
+
+    public CommandHandler getParser() {
+        return parser;
     }
 
     public void parse(MessageReceivedEvent event, Bot bot){
@@ -28,4 +34,5 @@ public class Activity {
     public MessageChannel getChannel(){
         return channel;
     }
+
 }

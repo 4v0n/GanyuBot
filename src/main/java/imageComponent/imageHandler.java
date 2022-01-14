@@ -106,7 +106,7 @@ public class imageHandler {
             for (BoardImage image : safebooruImages) {
                 images.add(image);
             }
-            System.out.println(images.size());
+
             if (images.size() > 0) {
                 Random random = new Random();
                 int choice = random.nextInt(images.size()-1);
@@ -119,7 +119,7 @@ public class imageHandler {
                 embed.setImage("https://cdn.betterttv.net/emote/5e8c3a008fb1ca5cde58723f/3x");
                 embed.setFooter("Perhaps the tags may be incorrectly spelt or formated.");
                 embed.setColor(new Color(255, 0, 0));
-                channel.sendMessageEmbeds(embed.build()).queue();
+                channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();
             }
         });
     }
@@ -133,7 +133,7 @@ public class imageHandler {
                 for (BoardImage image : rule34Images) {
                     images.add(image);
                 }
-                System.out.println(images.size());
+
                 if (images.size() > 0) {
                     Random random = new Random();
                     int choice = random.nextInt(images.size() - 1);
@@ -146,7 +146,7 @@ public class imageHandler {
                     embed.setImage("https://cdn.betterttv.net/emote/5e8c3a008fb1ca5cde58723f/3x");
                     embed.setFooter("Perhaps the tags may be incorrectly spelt or formated.");
                     embed.setColor(new Color(255, 0, 0));
-                    channel.sendMessageEmbeds(embed.build()).queue();
+                    channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();
                 }
             });
         } else {
@@ -155,12 +155,12 @@ public class imageHandler {
             embed.setImage("https://cdn.frankerfacez.com/emoticon/555265/4");
             embed.setFooter("Use this command in an NSFW channel or use the SFW command instead.");
             embed.setColor(new Color(255, 0, 0));
-            channel.sendMessageEmbeds(embed.build()).queue();
+            channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();
         }
     }
 
     private void displayImage(String tags, BoardImage image, MessageReceivedEvent event) {
-        System.out.println("image shown");
+
         MessageChannel channel = event.getChannel();
         EmbedBuilder embed = new EmbedBuilder();
         String url = image.getURL();
@@ -180,7 +180,7 @@ public class imageHandler {
         embed.setImage(url);
         embed.setColor(new Color(0, 255, 150));
 
-        channel.sendMessageEmbeds(embed.build()).queue();
+        channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();
     }
 
     private String join(String[] array, String splitter){

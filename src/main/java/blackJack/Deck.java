@@ -15,7 +15,7 @@ public class Deck {
         buildDeck();
     }
 
-    public void buildDeck(){
+    private void buildDeck(){
         for (String suit : suits){
             for (String rank : ranks){
                 cards.add(new Card(suit, rank));
@@ -38,5 +38,9 @@ public class Deck {
     public void printDeck(){
         System.out.println(Arrays.toString(suits));
         System.out.println(Arrays.toString(ranks));
+    }
+
+    public String[] getRanks(){
+        return ranks;
     }
 }
