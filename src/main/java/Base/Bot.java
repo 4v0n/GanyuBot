@@ -3,7 +3,6 @@ package Base;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.util.AbstractMap;
 import java.util.HashMap;
 
 public class Bot {
@@ -11,7 +10,7 @@ public class Bot {
     private String userID;
     private String token;
     private String prefix;
-    private HashMap<String[], Activity> activities;
+    private HashMap<String, Activity> activities;
 
     public Bot(){
         activities = new HashMap<>();
@@ -49,21 +48,24 @@ public class Bot {
         this.prefix = prefix;
     }
 
-    public AbstractMap<String[], Activity> getActivities() {
+    public HashMap<String, Activity> getActivities() {
         return activities;
     }
 
+    private String getKey(Activity activity){
+        return (activity.getUserID() + activity.getChannel().getId());
+    }
+
     public void addActivity(Activity activity){
-        if (!(activities.containsKey(new String[]{activity.getUserID(), activity.getChannel().getId()}))) {
-            activities.put(new String[]{activity.getUserID(), activity.getChannel().getId()}, activity);
-        }
+        activities.put(getKey(activity), activity);
     }
 
     public void removeActivity(Activity activity){
-        activities.remove(new String[]{activity.getUserID(), activity.getChannel().getId()});
+        activities.remove(getKey(activity), activity);
     }
 
     public Activity getRelevantActivity(MessageReceivedEvent event){
-        return activities.get(new String[]{event.getAuthor().getId(), event.getChannel().getId()});
+        String key = (event.getAuthor().getId() + event.getChannel().getId());
+        return activities.get(key);
     }
 }

@@ -18,7 +18,7 @@ public class Game extends Activity {
     private EmbedBuilder embed;
 
     public Game(MessageReceivedEvent event, Bot bot){
-        super(event);
+        super(event, new BlackJackParser(bot));
         //Make this read from database or some other method instead of hard coding
         this.dealer = new Dealer("926821629324046407");
         this.bot = bot;
@@ -39,7 +39,7 @@ public class Game extends Activity {
     }
 
     public Game(MessageReceivedEvent event, Bot bot, String messageID){
-        super(event);
+        super(event, new BlackJackParser(bot));
         this.dealer = new Dealer(bot.getUserID());
         this.bot = bot;
         this.embed = new EmbedBuilder();

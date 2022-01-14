@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
-public class BlackJackHandler {
+public class BlackJackHandler{
     private Bot bot;
 
     public BlackJackHandler(Bot bot) {
@@ -41,12 +41,10 @@ public class BlackJackHandler {
 
         if (commandWord != null) {
             // if there is a commandWord
-
-
             String tags;
             switch (commandWord) {
                 case "play":
-                    Activity activity = bot.getActivities().get(new String[]{event.getAuthor().getId(), event.getChannel().getId()});
+                    Activity activity = bot.getActivities().get(event.getAuthor().getId() + event.getChannel().getId());
                     if (activity != null) {
                         MessageChannel channel = event.getChannel();
                         EmbedBuilder embed = new EmbedBuilder();

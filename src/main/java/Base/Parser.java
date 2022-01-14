@@ -86,8 +86,9 @@ public class Parser extends ListenerAdapter {
                     blackjack.parse(event);
                     break;
                 default:
-                    if ((bot.getActivities().containsKey(event.getAuthor().getId()))) {
-
+                    if (bot.getActivities().containsKey(event.getAuthor().getId() + event.getChannel().getId())) {
+                        Activity activity = bot.getActivities().get(event.getAuthor().getId() + event.getChannel().getId());
+                        activity.parse(event, bot);
                     } else {
                         EmbedBuilder embed = new EmbedBuilder();
                         embed.setDescription("There is no ' " + commandWord + "' command!" +
