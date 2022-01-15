@@ -8,7 +8,7 @@ public class BlackJackCommands {
     public BlackJackCommands(){
         // base commands
         commands = new HashMap<>();
-        commands.put("play","starts a game of blackjack");
+        commands.put("play","starts a game of blackjack. Usage: `>g blackjack play`");
     }
 
     public HashMap<String, String> getCommands(){

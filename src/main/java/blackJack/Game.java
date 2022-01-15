@@ -122,6 +122,7 @@ public class Game extends Activity {
         evaluatePlayer(player);
         evaluatePlayer(dealer);
         comparePlayers(player, dealer);
+        compareHands(player, dealer);
 
         if (!player.hasLost() && dealer.hasLost()){
             e.setThumbnail(player.getUser().getAvatarUrl());
@@ -136,6 +137,16 @@ public class Game extends Activity {
             e.setColor(new Color(255, 100, 100));
         }
         channel.sendMessageEmbeds(e.build()).queue();
+    }
+
+    private void compareHands(Player player1, Player player2) {
+        if (player1.hasLost() == player2.hasLost()) {
+            if (player1.getHand().size() > player2.getHand().size()) {
+                player1.setLost(true);
+            } else if (player1.getHand().size() < player2.getHand().size()) {
+                player2.setLost(true);
+            }
+        }
     }
 
     public void finish(){

@@ -2,8 +2,10 @@ package blackJack;
 
 import Base.Bot;
 import Base.CommandHandler;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.awt.*;
 import java.util.ArrayList;
 
 public class BlackJackParser extends CommandHandler {
@@ -35,6 +37,13 @@ public class BlackJackParser extends CommandHandler {
                 case "stand":
                     game.finish();
                     break;
+                default:
+                    EmbedBuilder embed = new EmbedBuilder();
+                    embed.setDescription("There is no ' " + commandWord + "' command!" +
+                            "\nUse the 'help' command to get a list of usable commands." +
+                            "\nAll commands are also lower case.");
+                    embed.setColor(new Color(255, 0, 0));
+                    event.getChannel().sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();
             }
         } else {
             game.finish();

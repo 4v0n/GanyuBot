@@ -25,7 +25,7 @@ public class Deck {
 
     public Card dealCard(){
         Random random = new Random();
-        int choice = random.nextInt(cards.size() - 1);
+        int choice = random.nextInt((cards.size() - 1));
         Card dealtCard = cards.get(choice);
         cards.remove(choice);
         return dealtCard;

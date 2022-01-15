@@ -1,6 +1,5 @@
 package blackJack;
 
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 
 import java.util.ArrayList;
@@ -12,11 +11,13 @@ public class Player {
     private String discordAt;
     private ArrayList<Card> hand;
     private boolean hasLost;
+    private ArrayList<Card> fullAces;
 
     public Player(String playerID){
         this.hasLost = false;
         this.playerID = playerID;
         this.discordAt = ("<@" + playerID + ">");
+        this.fullAces = new ArrayList<>();
         hand = new ArrayList<>();
     }
 
@@ -25,11 +26,15 @@ public class Player {
         this.playerID = playerID;
         this.user = user;
         this.discordAt = ("<@" + playerID + ">");
+        this.fullAces = new ArrayList<>();
         hand = new ArrayList<>();
     }
 
     public void addCard(Card card){
         hand.add(card);
+        if (card.getValue() == 11){
+            fullAces.add(card);
+        }
     }
 
     public ArrayList<Card> getHand(){
@@ -54,15 +59,14 @@ public class Player {
         int value = 0;
         for (Card card : hand){
             int tempValue = card.getValue();
-            if (tempValue >= 10){
-                tempValue = 10;
-            }
-            if (tempValue == 1){
-                if (value < 21){
-                    tempValue = 11;
-                }
-            }
             value = value + tempValue;
+        }
+        int count = 0;
+        ArrayList<Card> aces = fullAces;
+        while ((value > 21) && !aces.isEmpty()){
+            value = value - 10*count;
+            aces.remove(count);
+            count++;
         }
         return value;
     }
@@ -89,9 +93,5 @@ public class Player {
 
     public User getUser() {
         return user;
-    }
-
-    public void turn(Message message){
-
     }
 }
