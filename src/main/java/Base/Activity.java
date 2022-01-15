@@ -12,11 +12,13 @@ public class Activity {
     private final CommandHandler parser;
     private final Message message;
     private ArrayList<String> commandList;
+    private final Bot bot;
 
-    public Activity(MessageReceivedEvent event, CommandHandler parser, Message message){
+    public Activity(MessageReceivedEvent event, CommandHandler parser, Message message, Bot bot){
         this.channel = event.getChannel();
         this.userID = event.getAuthor().getId();
         this.message = message;
+        this.bot = bot;
         //System.out.println(channel);
         //System.out.println(userID);
         this.parser = parser;
@@ -42,4 +44,7 @@ public class Activity {
         return channel;
     }
 
+    public Bot getBot() {
+        return bot;
+    }
 }

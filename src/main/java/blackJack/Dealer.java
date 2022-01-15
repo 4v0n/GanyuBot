@@ -21,5 +21,7 @@ public class Dealer extends Player{
             newEmbed.setDescription(getValueOfHand() + "\n" + showCards());
             game.getChannel().editMessageEmbedsById(message.getId(), newEmbed.build()).queueAfter(500, TimeUnit.MILLISECONDS);
         }
+        game.getAndShowWinner();
+        game.getBot().removeActivity(game);
     }
 }

@@ -15,7 +15,6 @@ public class Game extends Activity {
     private final Deck deck;
     private final MessageChannel channel;
     private final Player player;
-    private final Bot bot;
     private final Dealer dealer;
     private String messageID;
     private final EmbedBuilder embed;
@@ -24,9 +23,8 @@ public class Game extends Activity {
     private boolean isActive;
 
     public Game(MessageReceivedEvent event, Bot bot, Message message){
-        super(event, new BlackJackParser(bot), message);
+        super(event, new BlackJackParser(bot), message, bot);
         this.dealer = new Dealer(bot.getUserID());
-        this.bot = bot;
         this.embed = new EmbedBuilder();
         this.channel = event.getChannel();
         this.messageID = message.getId();
@@ -43,8 +41,7 @@ public class Game extends Activity {
         addToEmbedDescription(player.getValueOfHand() + "\n" + this.player.showCards());
         addToFooter("Here is a list of commands:" +
                 "\n '>g hit' Deals you another card" +
-                "\n '>g stand' Finishes your turn" +
-                "\n '>g exit' quits the game");
+                "\n '>g stand' Finishes your turn");
         channel.editMessageEmbedsById(messageID, this.embed.build()).queue();
 
         this.isActive = true;
@@ -118,7 +115,7 @@ public class Game extends Activity {
         }
     }
 
-    private void getAndShowWinner(){
+    protected void getAndShowWinner(){
         EmbedBuilder e = new EmbedBuilder();
         e.setTitle("Winner:");
 
@@ -135,7 +132,7 @@ public class Game extends Activity {
             e.setDescription("You and the dealer have drawn");
             e.setColor(new Color(255, 150, 100));
         } else {
-            e.setThumbnail(bot.getPfpURL());
+            e.setThumbnail(getBot().getPfpURL());
             e.setDescription("The dealer has won!");
             e.setColor(new Color(255, 100, 100));
         }
@@ -162,8 +159,6 @@ public class Game extends Activity {
 
         channel.sendMessageEmbeds(newEmbed.build()).queue(message -> {
             dealer.turn(this, message, newEmbed);
-            getAndShowWinner();
-            bot.removeActivity(this);
         });
     }
 
