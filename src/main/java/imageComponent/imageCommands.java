@@ -7,7 +7,7 @@ import java.util.HashMap;
  * guild members may use.
  */
 public class imageCommands {
-    private HashMap<String, String> commands;
+    private final HashMap<String, String> commands;
 
     /**
      * The constructor creates an object of the class.

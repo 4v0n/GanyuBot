@@ -8,26 +8,20 @@ import java.util.Comparator;
 public class Player {
     private User user;
     private int balance = 1000;
-    private String playerID;
-    private String discordAt;
-    private ArrayList<Card> hand;
+    private final String discordAt;
+    private final ArrayList<Card> hand;
     private boolean hasLost;
-    private ArrayList<Card> fullAces;
 
     public Player(String playerID){
         this.hasLost = false;
-        this.playerID = playerID;
         this.discordAt = ("<@" + playerID + ">");
-        this.fullAces = new ArrayList<>();
         hand = new ArrayList<>();
     }
 
     public Player(String playerID, User user){
         this.hasLost = false;
-        this.playerID = playerID;
         this.user = user;
         this.discordAt = ("<@" + playerID + ">");
-        this.fullAces = new ArrayList<>();
         hand = new ArrayList<>();
     }
 
@@ -37,9 +31,6 @@ public class Player {
             Card card = deck.dealCard();
             if (!hand.contains(card)) {
                 hand.add(card);
-                if (card.getValue() == 11) {
-                    fullAces.add(card);
-                }
                 done = true;
             }
         }
@@ -49,18 +40,8 @@ public class Player {
         return hand;
     }
 
-    public String getPlayerID(){
-        return playerID;
-    }
-
     public String getDiscordAt(){
         return discordAt;
-    }
-
-    public void emptyHand(){
-        for (Card card : hand){
-            hand.remove(card);
-        }
     }
 
     public int getValueOfHand(){

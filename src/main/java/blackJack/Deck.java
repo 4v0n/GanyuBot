@@ -8,7 +8,7 @@ public class Deck {
 
     private static final String[] suits = new String[]{"Diamonds", "Spades", "clubs", "spades"};
     private static final String[] ranks = new String[]{"Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King"};
-    private ArrayList<Card> cards;
+    private final ArrayList<Card> cards;
 
     public Deck(){
         cards = new ArrayList<>();

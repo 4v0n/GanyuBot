@@ -3,17 +3,12 @@ package blackJack;
 import org.apache.commons.lang3.ArrayUtils;
 
 public class Card {
-    private String suit;
-    private String rank;
-    private int value;
+    private final String suit;
+    private final String rank;
 
     public Card(String suit, String rank){
         this.suit = suit;
         this.rank = rank;
-    }
-
-    public String getSuit(){
-        return suit;
     }
 
     public int getValue(){

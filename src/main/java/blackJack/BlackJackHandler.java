@@ -48,7 +48,8 @@ public class BlackJackHandler{
                     if (activity != null) {
                         MessageChannel channel = event.getChannel();
                         EmbedBuilder embed = new EmbedBuilder();
-                        embed.setDescription("You are already playing a minigame in this channel!");
+                        embed.setDescription("You are already playing a minigame in this channel!" +
+                                "\nCurrent game: " + activity.getMessage().getJumpUrl());
                         embed.setColor(new Color(255, 0, 0));
                         channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();
                     } else startGame(event);
@@ -82,7 +83,7 @@ public class BlackJackHandler{
         embed.setDescription("The game will be starting soon!");
         embed.setColor(new Color(255, 255, 150));
         channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue(newMessage -> {
-            bot.addActivity(new Game(event, bot, newMessage.getId()));
+            bot.addActivity(new Game(event, bot, newMessage));
         });
 
     }

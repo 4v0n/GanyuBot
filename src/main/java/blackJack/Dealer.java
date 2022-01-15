@@ -7,7 +7,7 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 public class Dealer extends Player{
-    private int targetNum;
+    private final int targetNum;
 
     public Dealer(String playerID) {
         super(playerID);

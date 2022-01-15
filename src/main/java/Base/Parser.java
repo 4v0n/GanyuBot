@@ -90,6 +90,13 @@ public class Parser extends ListenerAdapter {
                         Activity activity = bot.getActivities().get(event.getAuthor().getId() + event.getChannel().getId());
                         if (activity.getParser().getCommandList().contains(commandWord)) {
                             activity.parse(event, bot);
+                        } else {
+                            EmbedBuilder embed = new EmbedBuilder();
+                            embed.setDescription("There is no ' " + commandWord + "' command!" +
+                                    "\nUse the 'help' command to get a list of usable commands." +
+                                    "\nAll commands are also lower case.");
+                            embed.setColor(new Color(255, 0, 0));
+                            channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();
                         }
                     } else {
                         EmbedBuilder embed = new EmbedBuilder();

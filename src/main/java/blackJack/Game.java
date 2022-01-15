@@ -3,6 +3,7 @@ package blackJack;
 import Base.Activity;
 import Base.Bot;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
@@ -11,24 +12,24 @@ import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 public class Game extends Activity {
-    private Deck deck;
-    private MessageChannel channel;
-    private Player player;
-    private Bot bot;
-    private Dealer dealer;
+    private final Deck deck;
+    private final MessageChannel channel;
+    private final Player player;
+    private final Bot bot;
+    private final Dealer dealer;
     private String messageID;
-    private EmbedBuilder embed;
+    private final EmbedBuilder embed;
     private String embedFooter = "";
     private String embedDescription = "";
     private boolean isActive;
 
-    public Game(MessageReceivedEvent event, Bot bot, String messageID){
-        super(event, new BlackJackParser(bot));
+    public Game(MessageReceivedEvent event, Bot bot, Message message){
+        super(event, new BlackJackParser(bot), message);
         this.dealer = new Dealer(bot.getUserID());
         this.bot = bot;
         this.embed = new EmbedBuilder();
         this.channel = event.getChannel();
-        this.messageID = messageID;
+        this.messageID = message.getId();
 
         this.player = new Player(event.getAuthor().getId(), event.getAuthor());
         this.deck = new Deck();
@@ -42,7 +43,8 @@ public class Game extends Activity {
         addToEmbedDescription(player.getValueOfHand() + "\n" + this.player.showCards());
         addToFooter("Here is a list of commands:" +
                 "\n '>g hit' Deals you another card" +
-                "\n '>g stand' Finishes your turn");
+                "\n '>g stand' Finishes your turn" +
+                "\n '>g exit' quits the game");
         channel.editMessageEmbedsById(messageID, this.embed.build()).queue();
 
         this.isActive = true;
@@ -137,7 +139,7 @@ public class Game extends Activity {
             e.setDescription("The dealer has won!");
             e.setColor(new Color(255, 100, 100));
         }
-        channel.sendMessageEmbeds(e.build()).queueAfter(2, TimeUnit.SECONDS);
+        channel.sendMessageEmbeds(e.build()).queueAfter(500, TimeUnit.MILLISECONDS );
     }
 
     private void compareHands(Player player1, Player player2) {
@@ -160,11 +162,9 @@ public class Game extends Activity {
 
         channel.sendMessageEmbeds(newEmbed.build()).queue(message -> {
             dealer.turn(this, message, newEmbed);
+            getAndShowWinner();
+            bot.removeActivity(this);
         });
-
-
-        getAndShowWinner();
-        bot.removeActivity(this);
     }
 
     public void update() {
