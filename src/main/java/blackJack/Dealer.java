@@ -19,7 +19,13 @@ public class Dealer extends Player{
         while (this.distanceTo21() > (21 - targetNum)){
             this.addCard(game.getDeck());
             newEmbed.setDescription(getValueOfHand() + "\n" + showCards());
-            game.getChannel().editMessageEmbedsById(message.getId(), newEmbed.build()).queueAfter(500, TimeUnit.MILLISECONDS);
+            game.getChannel().editMessageEmbedsById(message.getId(), newEmbed.build()).queueAfter(100, TimeUnit.MILLISECONDS);
+        }
+
+        try {
+            TimeUnit.MILLISECONDS.sleep(200);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
         game.getAndShowWinner();
         game.getBot().removeActivity(game);

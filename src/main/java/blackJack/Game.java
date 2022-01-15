@@ -96,12 +96,8 @@ public class Game extends Activity {
     }
 
     private void evaluatePlayer(Player player){
-        if (player.getValueOfHand() > 21) {
+        if (player.getValueOfHand() > 21){
             player.setLost(true);
-
-        }
-        if (player.getValueOfHand() == 21){
-            player.setLost(false);
         }
     }
 
@@ -122,7 +118,7 @@ public class Game extends Activity {
         evaluatePlayer(player);
         evaluatePlayer(dealer);
         comparePlayers(player, dealer);
-        compareHands(player, dealer);
+        resolveDraw(player, dealer);
 
         if (!player.hasLost() && dealer.hasLost()){
             e.setThumbnail(player.getUser().getAvatarUrl());
@@ -139,7 +135,7 @@ public class Game extends Activity {
         channel.sendMessageEmbeds(e.build()).queueAfter(500, TimeUnit.MILLISECONDS );
     }
 
-    private void compareHands(Player player1, Player player2) {
+    private void resolveDraw(Player player1, Player player2) {
         if (player1.hasLost() == player2.hasLost()) {
             if (player1.getHand().size() > player2.getHand().size()) {
                 player1.setLost(true);
