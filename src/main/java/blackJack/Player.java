@@ -3,6 +3,7 @@ package blackJack;
 import net.dv8tion.jda.api.entities.User;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 public class Player {
     private User user;
@@ -30,10 +31,17 @@ public class Player {
         hand = new ArrayList<>();
     }
 
-    public void addCard(Card card){
-        hand.add(card);
-        if (card.getValue() == 11){
-            fullAces.add(card);
+    public void addCard(Deck deck){
+        boolean done = false;
+        while (!done && !deck.isEmpty()) {
+            Card card = deck.dealCard();
+            if (!hand.contains(card)) {
+                hand.add(card);
+                if (card.getValue() == 11) {
+                    fullAces.add(card);
+                }
+                done = true;
+            }
         }
     }
 
@@ -56,17 +64,19 @@ public class Player {
     }
 
     public int getValueOfHand(){
+        ArrayList<Integer> tempValues = new ArrayList<>();
         int value = 0;
         for (Card card : hand){
-            int tempValue = card.getValue();
-            value = value + tempValue;
+            tempValues.add(card.getValue());
         }
-        int count = 0;
-        ArrayList<Card> aces = fullAces;
-        while ((value > 21) && !aces.isEmpty()){
-            value = value - 10;
-            aces.remove(count);
-            count++;
+        tempValues.sort(Comparator.naturalOrder());
+
+        for (int cardValue : tempValues){
+            if (((value + cardValue)> 21) && (cardValue == 11)){
+                value++;
+            } else {
+                value = value + cardValue;
+            }
         }
         return value;
     }

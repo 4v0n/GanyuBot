@@ -31,7 +31,7 @@ public class BlackJackParser extends CommandHandler {
         if (game.isActive()) {
             switch (commandWord) {
                 case "hit":
-                    game.getPlayer().addCard(game.getDeck().dealCard());
+                    game.getPlayer().addCard(game.getDeck());
                     game.update();
                     break;
                 case "stand":

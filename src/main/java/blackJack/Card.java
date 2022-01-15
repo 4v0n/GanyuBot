@@ -5,6 +5,7 @@ import org.apache.commons.lang3.ArrayUtils;
 public class Card {
     private String suit;
     private String rank;
+    private int value;
 
     public Card(String suit, String rank){
         this.suit = suit;

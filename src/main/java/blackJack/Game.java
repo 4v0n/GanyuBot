@@ -7,6 +7,8 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 public class Game extends Activity {
     private Deck deck;
@@ -30,11 +32,10 @@ public class Game extends Activity {
 
         this.player = new Player(event.getAuthor().getId(), event.getAuthor());
         this.deck = new Deck();
-        this.player.addCard(deck.dealCard());
-        this.dealer.addCard(deck.dealCard());
-        this.player.addCard(deck.dealCard());
-        this.dealer.addCard(deck.dealCard());
-        this.dealer.turn(this);
+        this.player.addCard(deck);
+        this.dealer.addCard(deck);
+        this.player.addCard(deck);
+        this.dealer.addCard(deck);
 
         this.embed.setTitle("Blackjack");
         this.embed.setColor(new Color(100,255, 255));
@@ -136,7 +137,7 @@ public class Game extends Activity {
             e.setDescription("The dealer has won!");
             e.setColor(new Color(255, 100, 100));
         }
-        channel.sendMessageEmbeds(e.build()).queue();
+        channel.sendMessageEmbeds(e.build()).queueAfter(2, TimeUnit.SECONDS);
     }
 
     private void compareHands(Player player1, Player player2) {
@@ -154,8 +155,14 @@ public class Game extends Activity {
         EmbedBuilder newEmbed = new EmbedBuilder();
         newEmbed.setTitle("Dealer:");
         newEmbed.setColor(new Color(200,255, 155));
+        ArrayList<Card> cards = dealer.getHand();
         newEmbed.setDescription(dealer.getValueOfHand() + "\n" + dealer.showCards());
-        channel.sendMessageEmbeds(newEmbed.build()).queue();
+
+        channel.sendMessageEmbeds(newEmbed.build()).queue(message -> {
+            dealer.turn(this, message, newEmbed);
+        });
+
+
         getAndShowWinner();
         bot.removeActivity(this);
     }
