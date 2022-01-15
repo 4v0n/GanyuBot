@@ -64,7 +64,7 @@ public class Player {
         int count = 0;
         ArrayList<Card> aces = fullAces;
         while ((value > 21) && !aces.isEmpty()){
-            value = value - 10*count;
+            value = value - 10;
             aces.remove(count);
             count++;
         }
