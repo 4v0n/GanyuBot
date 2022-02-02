@@ -7,7 +7,6 @@ import java.util.Comparator;
 
 public class Player {
     private User user;
-    private int balance = 1000;
     private final String discordAt;
     private final ArrayList<Card> hand;
     private boolean hasLost;

@@ -16,7 +16,7 @@ public class Dealer extends Player{
     }
 
     public void turn(Game game, Message message, EmbedBuilder newEmbed) {
-        while ((this.distanceTo21() > (21 - targetNum)) && !(this.distanceTo21() < game.getPlayer().distanceTo21()) && (this.getValueOfHand() < 21)){
+        while ((this.distanceTo21() > (21 - targetNum))){
             this.addCard(game.getDeck());
             newEmbed.setDescription(getValueOfHand() + "\n" + showCards());
             game.getChannel().editMessageEmbedsById(message.getId(), newEmbed.build()).queueAfter(100, TimeUnit.MILLISECONDS);

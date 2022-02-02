@@ -2,6 +2,7 @@ package Base;
 
 //import blackJack.BlackJackHandler;
 
+import Database.GuildData;
 import blackJack.BlackJackHandler;
 import botFunctions.Copy;
 import botFunctions.Help;
@@ -63,8 +64,14 @@ public class Parser extends ListenerAdapter {
 
         Command command = new Command();
         HashMap<String, String> commands = command.getCommands();
-
         MessageChannel channel = event.getChannel();
+
+        GuildData guildData = bot.getGuildData().get(event.getGuild().getId());
+
+        if ((guildData) == null){
+            guildData = new GuildData(event.getGuild().getId());
+            bot.addGuildData(event.getGuild().getId(),guildData);
+        }
 
         // if there is a command word:
         if (commandWord != null) {

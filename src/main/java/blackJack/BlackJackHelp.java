@@ -30,7 +30,9 @@ public class BlackJackHelp {
         EmbedBuilder embed = new EmbedBuilder();
 
         embed.setDescription("Here is a list of commands: \n" +
-                "The prefix is - ***" + prefix + "***\n>>> " + outPut);
+                "The prefix is - ***" + prefix + "***\n>>> " + outPut +
+                "\nYou will earn 100 points at the end of each hour." +
+                "\nThese will be auto claimed by using any blackjack related command.");
         embed.setColor(new Color(0, 255, 150));
 
         channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();

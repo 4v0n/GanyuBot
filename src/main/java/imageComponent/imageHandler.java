@@ -108,9 +108,13 @@ public class imageHandler {
             }
 
             if (images.size() > 0) {
-                Random random = new Random();
-                int choice = random.nextInt(images.size()-1);
-                displayImage(tags, images.get(choice), event);
+                if (images.size() == 1){
+                    displayImage(tags, images.get(0), event);
+                } else {
+                    Random random = new Random();
+                    int choice = random.nextInt(images.size() - 1);
+                    displayImage(tags, images.get(choice), event);
+                }
 
             } else {
                 MessageChannel channel = event.getChannel();
@@ -135,10 +139,13 @@ public class imageHandler {
                 }
 
                 if (images.size() > 0) {
-                    Random random = new Random();
-                    int choice = random.nextInt(images.size() - 1);
-                    displayImage(tags, images.get(choice), event);
-
+                    if (images.size() == 1){
+                        displayImage(tags, images.get(0), event);
+                    } else {
+                        Random random = new Random();
+                        int choice = random.nextInt(images.size() - 1);
+                        displayImage(tags, images.get(choice), event);
+                    }
 
                 } else {
                     EmbedBuilder embed = new EmbedBuilder();
@@ -179,6 +186,7 @@ public class imageHandler {
         embed.setTitle(tags);
         embed.setImage(url);
         embed.setColor(new Color(0, 255, 150));
+        //System.out.println(url);
 
         channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();
     }
@@ -208,5 +216,4 @@ public class imageHandler {
         }
         return stringArray;
     }
-
 }

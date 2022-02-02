@@ -15,19 +15,30 @@ public class Game extends Activity {
     private final Deck deck;
     private final MessageChannel channel;
     private final Player player;
+    private BlackjackPlayerData playerData;
     private final Dealer dealer;
+    private final int bet;
     private String messageID;
     private final EmbedBuilder embed;
     private String embedFooter = "";
     private String embedDescription = "";
     private boolean isActive;
+    private BlackJackData activityData;
 
-    public Game(MessageReceivedEvent event, Bot bot, Message message){
+    public Game(MessageReceivedEvent event, Bot bot, Message message, int bet){
         super(event, new BlackJackParser(bot), message, bot);
         this.dealer = new Dealer(bot.getUserID());
         this.embed = new EmbedBuilder();
         this.channel = event.getChannel();
         this.messageID = message.getId();
+        this.bet = bet;
+
+
+        this.activityData = (BlackJackData) getBot().getGuildData().get(event.getGuild().getId()).getActivityData().get("BLACKJACK");
+        if ((this.activityData) == null){
+            this.activityData = new BlackJackData();
+            getBot().getGuildData().get(event.getGuild().getId()).addActivityData(this.activityData);
+        }
 
         this.player = new Player(event.getAuthor().getId(), event.getAuthor());
         this.deck = new Deck();
@@ -36,12 +47,20 @@ public class Game extends Activity {
         this.player.addCard(deck);
         this.dealer.addCard(deck);
 
+
+        this.playerData = activityData.getPlayers().get(player.getUser().getId());
+        if ((this.playerData) == null){
+            this.playerData = new BlackjackPlayerData(player.getUser().getId());
+            this.activityData.getPlayers().put(playerData.getPlayerID(), playerData);
+        }
+
         this.embed.setTitle("Blackjack");
         this.embed.setColor(new Color(100,255, 255));
         addToEmbedDescription(player.getValueOfHand() + "\n" + this.player.showCards());
-        addToFooter("Here is a list of commands:" +
-                "\n '>g hit' Deals you another card" +
-                "\n '>g stand' Finishes your turn");
+        addToFooter("You have bet " + bet + " credits." +
+                "\nHere is a list of commands:" +
+                "\n '" + bot.getPrefix() + " hit' Deals you another card" +
+                "\n '" + bot.getPrefix() + " stand' Finishes your turn");
         channel.editMessageEmbedsById(messageID, this.embed.build()).queue();
 
         this.isActive = true;
@@ -122,15 +141,28 @@ public class Game extends Activity {
 
         if (!player.hasLost() && dealer.hasLost()){
             e.setThumbnail(player.getUser().getAvatarUrl());
-            e.setDescription(player.getDiscordAt() + "\nYou have won!");
+            playerData.setCredits(playerData.getCredits() + bet*2);
             e.setColor(new Color(50,255, 150));
+
+            e.setDescription(player.getDiscordAt() + "\nYou have won!" +
+                    "\nYou win " + bet*2 + " credits!" +
+                    "\nYou are at " + playerData.getCredits() + " credits.");
+            playerData.incrementWins();
+
         } else if (player.hasLost() == dealer.hasLost()) {
-            e.setDescription("You and the dealer have drawn");
+            e.setDescription("You and the dealer have drawn." +
+                    "\nYou have not lost any credits.");
             e.setColor(new Color(255, 150, 100));
+
         } else {
             e.setThumbnail(getBot().getPfpURL());
-            e.setDescription("The dealer has won!");
             e.setColor(new Color(255, 100, 100));
+            playerData.setCredits(playerData.getCredits() - bet);
+            e.setDescription("The dealer has won!" +
+                    "\nYou have lost " + bet + " credits!" +
+                    "\nYou are at " + playerData.getCredits() + " credits.");
+            playerData.incrementLosses();
+
         }
         channel.sendMessageEmbeds(e.build()).queueAfter(500, TimeUnit.MILLISECONDS );
     }

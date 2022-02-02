@@ -1,7 +1,6 @@
 package botFunctions;
 
 import blackJack.BlackJackHelp;
-import genshinMinigame.genshinHelp;
 import imageComponent.imageHelp;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -36,9 +35,6 @@ public class Help {
 
             channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();
 
-        } else if (words.get(2).equals("genshin")){
-            genshinHelp help = new genshinHelp();
-            help.help(prefix,event);
         } else if (words.get(2).equals("images")) {
             imageHelp help = new imageHelp();
             help.help(prefix, event);

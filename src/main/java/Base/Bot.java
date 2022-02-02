@@ -1,22 +1,30 @@
 package Base;
 
+import Database.GuildData;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.io.IOException;
 import java.util.HashMap;
 
-public class Bot {
+public class Bot{
     private JDABuilder jda;
     private String userID;
     private String token;
     private String prefix;
+
+    // userID+channelID activity
     private HashMap<String, Activity> activities;
     private User user;
     private String pfpURL;
 
+    // guildID guildData
+    private HashMap<String, GuildData> guildData;
+
     public Bot(){
         activities = new HashMap<>();
+        guildData = new HashMap<>();
     }
 
     public void setJda(JDABuilder jda) {
@@ -84,5 +92,32 @@ public class Bot {
 
     public void setPfpURL(String pfpURL) {
         this.pfpURL = pfpURL;
+    }
+
+    public HashMap<String, GuildData> getGuildData() {
+        return guildData;
+    }
+
+    public void addGuildData(String key, GuildData value){
+        guildData.put(key, value);
+    }
+
+    public void botLoop() {
+        while (true) {
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            for (GuildData data : guildData.values()) {
+                try {
+                    data.save();
+                    //System.out.println("saved");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }

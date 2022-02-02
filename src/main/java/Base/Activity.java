@@ -4,9 +4,10 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Activity {
+public class Activity implements Serializable {
     private final MessageChannel channel;
     private final String userID;
     private final CommandHandler parser;
