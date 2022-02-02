@@ -48,4 +48,7 @@ public class Activity implements Serializable {
     public Bot getBot() {
         return bot;
     }
+
+    public void parse(MessageReceivedEvent event, Bot bot, String commandWord) {
+    }
 }

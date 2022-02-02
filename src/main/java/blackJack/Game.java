@@ -164,7 +164,14 @@ public class Game extends Activity {
             playerData.incrementLosses();
 
         }
-        channel.sendMessageEmbeds(e.build()).queueAfter(500, TimeUnit.MILLISECONDS );
+
+        try {
+            TimeUnit.MILLISECONDS.sleep(300);
+        } catch (InterruptedException e1) {
+            e1.printStackTrace();
+        }
+
+        channel.sendMessageEmbeds(e.build()).queue();
     }
 
     private void resolveDraw(Player player1, Player player2) {

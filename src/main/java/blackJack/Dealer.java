@@ -7,6 +7,7 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 public class Dealer extends Player{
+
     private final int targetNum;
 
     public Dealer(String playerID) {
@@ -16,17 +17,25 @@ public class Dealer extends Player{
     }
 
     public void turn(Game game, Message message, EmbedBuilder newEmbed) {
-        while ((this.distanceTo21() > (21 - targetNum))){
+
+        while ((this.getValueOfHand() < targetNum) && (this.getValueOfHand() <= game.getPlayer().getValueOfHand())){
             this.addCard(game.getDeck());
             newEmbed.setDescription(getValueOfHand() + "\n" + showCards());
-            game.getChannel().editMessageEmbedsById(message.getId(), newEmbed.build()).queueAfter(100, TimeUnit.MILLISECONDS);
+
+            try {
+                TimeUnit.MILLISECONDS.sleep(150);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            game.getChannel().editMessageEmbedsById(message.getId(), newEmbed.build()).queue();
         }
 
         try {
-            TimeUnit.MILLISECONDS.sleep(200);
+            TimeUnit.MILLISECONDS.sleep(300);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
         game.getAndShowWinner();
         game.getBot().removeActivity(game);
     }

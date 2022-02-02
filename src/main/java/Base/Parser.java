@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Scanner;
 
 public class Parser extends ListenerAdapter {
-    private Bot bot;
+    private final Bot bot;
 
     public Parser(Bot bot){
         this.bot = bot;
@@ -33,6 +33,11 @@ public class Parser extends ListenerAdapter {
         Message message = event.getMessage();
         String content = message.getContentRaw();
         ArrayList<String> words = splitString(content);
+
+        if (words.contains("bj")){
+            int index = words.indexOf("bj");
+            words.set(index, "blackjack");
+        }
 
         if (words.size() > 0) {
             if (words.get(0).equals(bot.getPrefix())) {

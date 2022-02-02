@@ -38,7 +38,7 @@ public class Main {
 
         botData.getJda().build();
 
-        System.out.println("Bot started.");
+        System.out.println("Bot started");
         botData.botLoop();
     }
 
@@ -123,6 +123,7 @@ public class Main {
         ObjectInputStream ois = new ObjectInputStream(fin);
         GuildData object= (GuildData) ois.readObject();
         ois.close();
+        fin.close();
         return object;
     }
 }

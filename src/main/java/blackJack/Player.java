@@ -52,12 +52,13 @@ public class Player {
         tempValues.sort(Comparator.naturalOrder());
 
         for (int cardValue : tempValues){
-            if (((value + cardValue)> 21) && (cardValue == 11)){
-                value++;
+            if (((value + cardValue) > 21) && (cardValue == 11)){
+                value = value + 1;
             } else {
                 value = value + cardValue;
             }
         }
+
         return value;
     }
 
@@ -66,7 +67,7 @@ public class Player {
     }
 
     public int distanceTo21(){
-        return 21-getValueOfHand();
+        return 21 - getValueOfHand();
     }
 
     public void setLost(boolean hasLost) {

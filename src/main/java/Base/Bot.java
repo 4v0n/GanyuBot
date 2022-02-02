@@ -15,12 +15,12 @@ public class Bot{
     private String prefix;
 
     // userID+channelID activity
-    private HashMap<String, Activity> activities;
+    private final HashMap<String, Activity> activities;
     private User user;
     private String pfpURL;
 
     // guildID guildData
-    private HashMap<String, GuildData> guildData;
+    private final HashMap<String, GuildData> guildData;
 
     public Bot(){
         activities = new HashMap<>();

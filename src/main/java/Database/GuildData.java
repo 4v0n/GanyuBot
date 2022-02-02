@@ -30,5 +30,6 @@ public class GuildData implements Serializable {
         ObjectOutputStream oos = new ObjectOutputStream(fos);
         oos.writeObject(this);
         oos.close();
+        fos.close();
     }
 }

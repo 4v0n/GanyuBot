@@ -12,7 +12,7 @@ import java.awt.*;
 import java.util.*;
 
 public class BlackJackHandler{
-    private Bot bot;
+    private final Bot bot;
 
     public BlackJackHandler(Bot bot) {
         this.bot = bot;
