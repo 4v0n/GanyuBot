@@ -1,6 +1,6 @@
 package botFunctions;
 
-import blackJack.BlackJackHelp;
+import Casino.Blackjack.BlackJackHelp;
 import imageComponent.imageHelp;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;

@@ -40,6 +40,8 @@ public class Main {
 
         System.out.println("Bot started");
         botData.botLoop();
+
+        botData.addAdmin("195929905857429504");
     }
 
     private static void createPathIfNotExist(String path) {

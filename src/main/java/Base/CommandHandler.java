@@ -5,7 +5,8 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class CommandHandler {
+
+public abstract class CommandHandler {
 
     private final Bot bot;
     private final ArrayList<String> commandList;
@@ -14,9 +15,10 @@ public class CommandHandler {
         this.bot = bot;
         commandList = new ArrayList<>();
     }
-    public void parse(MessageReceivedEvent event, Bot bot){
-        //template class
-    }
+
+    public abstract void parse(MessageReceivedEvent event, Bot bot);
+
+
 
     public void addCommand(String command){
         commandList.add(command);
