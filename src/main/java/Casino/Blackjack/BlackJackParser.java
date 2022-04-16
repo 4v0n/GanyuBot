@@ -1,58 +1,42 @@
 package Casino.Blackjack;
 
 import Base.Bot;
-import Base.CommandHandler;
-import net.dv8tion.jda.api.EmbedBuilder;
+import Base.Main;
+import CommandStructure.CommandHandler;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.Objects;
 
 public class BlackJackParser extends CommandHandler {
 
+    private Bot bot;
 
-    public BlackJackParser(Bot bot) {
-        super(bot);
-        this.addCommand("hit");
-        this.addCommand("stand");
+    public BlackJackParser() {
+        super(1);
+        this.bot = Main.getBotData();
     }
 
-    public void parse(MessageReceivedEvent event, Bot bot) {
-        Game game = (Game) bot.getActivities().get(event.getAuthor().getId() + event.getChannel().getId());
+    @Override
+    public void buildCommands() {
+        getCommandCenter().addCommand("hit", "Gives you one more card.",
+                (event, args) -> {
+                    Game game = getGame(event);
 
-        String content = event.getMessage().getContentRaw();
-        ArrayList<String> args = splitString(content);
-        String commandWord = null;
-
-
-        if (Objects.equals(args.get(0), bot.getPrefix())){
-            args.remove(0); // remove the prefix so it is not dealt with
-        }
-
-        if (args.size() > 0){
-            commandWord = args.get(0);
-        }
-
-        if (game.isActive()) {
-            switch (commandWord) {
-                case "hit":
                     game.getPlayer().addCard(game.getDeck());
                     game.update();
-                    break;
-                case "stand":
-                    game.finish();
-                    break;
-                default:
-                    EmbedBuilder embed = new EmbedBuilder();
-                    embed.setDescription("There is no ' " + commandWord + "' command!" +
-                            "\nUse the 'help' command to get a list of usable commands." +
-                            "\nAll commands are also lower case.");
-                    embed.setColor(new Color(255, 0, 0));
-                    event.getChannel().sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();
-            }
-        } else {
-            game.finish();
-        }
+                });
+
+        getCommandCenter().addCommand("stand", "End your round",
+                (event, args) -> {
+                    getGame(event).finish();
+                });
+    }
+
+    @Override
+    public void buildSynonyms() {
+        getCommandCenter().addSynonym("h","hit");
+        getCommandCenter().addSynonym("s","stand");
+    }
+
+    private Game getGame(MessageReceivedEvent event){
+        return (Game) bot.getActivities().get(event.getAuthor().getId() + event.getChannel().getId());
     }
 }

@@ -8,7 +8,7 @@ import java.util.HashMap;
 
 public class GuildData implements Serializable {
 
-    private HashMap<String, ActivityData> activityData;
+    private final HashMap<String, ActivityData> activityData;
     private final String guildID;
 
     public GuildData(String guildID){

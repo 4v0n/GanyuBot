@@ -27,7 +27,7 @@ public class Game extends Activity {
     private CasinoData activityData;
 
     public Game(MessageReceivedEvent event, Bot bot, Message message, int bet){
-        super(event, new BlackJackParser(bot), message, bot);
+        super(event, new BlackJackParser(), message, bot);
         this.dealer = new Dealer(bot.getUserID());
         this.embed = new EmbedBuilder();
         this.channel = event.getChannel();

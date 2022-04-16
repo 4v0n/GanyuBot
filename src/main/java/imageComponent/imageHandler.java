@@ -1,7 +1,8 @@
 package imageComponent;
 
+import Base.Bot;
+import CommandStructure.CommandHandler;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.kodehawa.lib.imageboards.DefaultImageBoards;
@@ -18,73 +19,42 @@ import java.util.Scanner;
  * This class handles all image related tasks requested by
  * a guild member.
  */
-public class imageHandler {
+public class imageHandler extends CommandHandler {
+    private Bot bot;
 
-    /**
-     * Takes a discord event and then performs the
-     * relevant action if available
-     * @param event
-     */
-    public void parse(MessageReceivedEvent event) {
+    public imageHandler(Bot bot) {
+        super(2);
+        this.bot = bot;
         ImageBoard.setUserAgent("http.agent");
+    }
 
-        Message message = event.getMessage();
-        String content = message.getContentRaw();
-        ArrayList<String> words = splitString(content);
-
-        //remove the prefix and old command word and get the new command word
-        String commandWord = null;
-        words.remove(0);
-        words.remove(0);
-        if (words.size() > 0) {
-            commandWord = words.get(0);
-        }
-
-        /*
-        imageCommands command = new imageCommands();
-        HashMap<String, String> commands = command.getCommands();
-        */
-
-        if (commandWord != null) {
-            // if there is a commandWord
-            String tags;
-            switch (commandWord) {
-                case "sfw":
-                    words.remove(0);
-                    if (words.size() > 0) {
-                        tags = join(words, " ");
-                        searchSafeBooru(tags, event);
+    @Override
+    public void buildCommands() {
+        getCommandCenter().addCommand("sfw", "Searches safebooru.org for an image with the supplied tags. Usage: images sfw tag1 tag2 ...`",
+                (event, args) -> {
+                    System.out.println(args);
+                    if (args.size() > 0) {
+                        String words = join((ArrayList<String>) args, " ");
+                        searchSafeBooru(words, event);
                     } else {
                         noTagsError(event);
                     }
-                    break;
-                case "nsfw":
-                    words.remove(0);
-                    if (words.size() > 0) {
-                        tags = join(words, " ");
-                        searchRule34(tags, event);
+                });
+
+        getCommandCenter().addCommand("nsfw", "Searches Rule34 for an image with the supplied tags. Usage: images sfw tag1 tag2 ...` Only works in an NSFW channel.",
+                (event, args) -> {
+                    if (args.size() > 0) {
+                        String words = join((ArrayList<String>) args, " ");
+                        searchRule34(words, event);
                     } else {
                         noTagsError(event);
                     }
-                    break;
-                default:
-                    MessageChannel channel = event.getChannel();
-                    EmbedBuilder embed = new EmbedBuilder();
-                    embed.setDescription("There is no ' " + commandWord + "' command!" +
-                            "\nUse the 'help' command to get a list of usable commands." +
-                            "\nAll commands are also lower case.");
-                    embed.setColor(new Color(255, 0, 0));
-                    channel.sendMessageEmbeds(embed.build()).queue();
-            }
-        } else {
-            MessageChannel channel = event.getChannel();
-            EmbedBuilder embed = new EmbedBuilder();
-            embed.setDescription("You haven't provided an image command!" +
-                    "\nUse the 'help' command to get a list of usable commands." +
-                    "\nAll commands are also lower case.");
-            embed.setColor(new Color(255, 0, 0));
-            channel.sendMessageEmbeds(embed.build()).queue();
-        }
+                });
+    }
+
+    @Override
+    public void buildSynonyms() {
+
     }
 
     /**

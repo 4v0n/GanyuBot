@@ -22,20 +22,23 @@ public class Bot{
     private ArrayList<String> admins;
 
     // userID+channelID activity
-    private final HashMap<String, Activity> activities;
+    private HashMap<String, Activity> activities;
     private User user;
     private String pfpURL;
 
     // guildID guildData
-    private final HashMap<String, GuildData> guildData;
+    private HashMap<String, GuildData> guildData;
+
+    // shorthand original
+    private HashMap<String, String> synonyms;
 
     /**
      * Constructor method.
      */
     public Bot(){
-        activities = new HashMap<>();
-        guildData = new HashMap<>();
-        admins = new ArrayList<>();
+        this.activities = new HashMap<>();
+        this.guildData = new HashMap<>();
+        this.admins = new ArrayList<>();
     }
 
     public void addAdmin(String userID){
@@ -223,6 +226,11 @@ public class Bot{
         }
     }
 
-    public void parse(Object method) {
+    public HashMap<String, String> getSynonyms() {
+        return synonyms;
+    }
+
+    public boolean inActivity(){
+        return false;
     }
 }

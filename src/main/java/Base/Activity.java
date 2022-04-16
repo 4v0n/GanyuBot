@@ -1,5 +1,6 @@
 package Base;
 
+import CommandStructure.CommandHandler;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -35,6 +36,7 @@ public abstract class Activity implements Serializable {
         //System.out.println(channel);
         //System.out.println(userID);
         this.parser = parser;
+        this.isActive = true;
     }
 
     private void method(){
@@ -62,7 +64,7 @@ public abstract class Activity implements Serializable {
      * @param bot The bot data.
      */
     public void parse(MessageReceivedEvent event, Bot bot){
-        parser.parse(event, bot);
+        parser.parse(event);
     }
 
     /**

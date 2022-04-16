@@ -3,11 +3,9 @@ package Base;
 //import Casino.blackJack.BlackJackHandler;
 
 import Casino.Blackjack.BlackJackHandler;
-import CommandStructure.Action;
 import CommandStructure.CommandCenter;
-import WOU.Handler;
+import Database.GuildData;
 import botFunctions.Copy;
-import botFunctions.Help;
 import imageComponent.imageHandler;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -17,17 +15,19 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Scanner;
 
 public class Parser extends ListenerAdapter {
     private final Bot bot;
     private final CommandCenter commandCenter;
+    private final CommandCenter adminCommandCenter;
 
     public Parser(Bot bot) {
         this.bot = bot;
-        this.commandCenter = new CommandCenter();
+        this.commandCenter = new CommandCenter(1);
+        this.adminCommandCenter = new CommandCenter(2);
         buildCommands();
+        buildSynonyms();
     }
 
     @Override
@@ -38,79 +38,57 @@ public class Parser extends ListenerAdapter {
         String content = message.getContentRaw();
         ArrayList<String> words = splitString(content);
 
-
-        if (words.contains("bj")) {
-            int index = words.indexOf("bj");
-            words.set(index, "blackjack");
+        GuildData guildData = bot.getGuildData().get(event.getGuild().getId());
+        if ((guildData) == null) {
+            guildData = new GuildData(event.getGuild().getId());
+            bot.addGuildData(event.getGuild().getId(), guildData);
         }
 
         if (words.size() > 0) {
             if (words.get(0).equals(bot.getPrefix())) {
-                commandCenter.parse(event);
-            } else if ((bot.getRelevantActivity(event) != null) && bot.getRelevantActivity(event).getParser().getCommandList().contains(words.get(0))) {
+                if (words.size() > 1) {
+                    if (bot.getRelevantActivity(event) != null && bot.getRelevantActivity(event).getParser().getCommandCenter().containsCommand(words.get(1))) {
+                        bot.getRelevantActivity(event).parse(event, bot);
+                    } else {
+                        commandCenter.parse(event);
+                    }
+                } else {
+                    commandCenter.parse(event);
+                }
+            } else if ((bot.getRelevantActivity(event) != null) && bot.getRelevantActivity(event).getParser().getCommandCenter().containsCommand(words.get(0))) {
                 bot.getRelevantActivity(event).parse(event, bot);
             }
         }
     }
 
-    private void replaceSynonyms(ArrayList<String> words){
-        HashMap<String, String> synonyms = new HashMap<>();
-
-        for (String word : words){
-
-        }
-    }
-
     private void buildCommands() {
-        commandCenter.addCommand("help", "Returns a list of commands",
-                new Action() {
-                    @Override
-                    public void run(MessageReceivedEvent event) {
-                        Help help = new Help();
-                        help.help(bot.getPrefix(), commandCenter.getCommandDescriptions(), event);
-                    }
-                });
-
         commandCenter.addCommand("copy", "Copies what you type",
-                new Action() {
-                    @Override
-                    public void run(MessageReceivedEvent event) {
-                        Copy copy = new Copy();
-                        copy.copy(event);
-                    }
+                (event, args) -> {
+                    Copy copy = new Copy();
+                    copy.copy(event);
                 });
 
-        commandCenter.addCommand("images", "Image commands. Use `>g help images` for more info",
-                new Action() {
-                    @Override
-                    public void run(MessageReceivedEvent event) {
-                        imageHandler image = new imageHandler();
-                        image.parse(event);
-                    }
+        commandCenter.addCommand("images", "Image commands. Use `>g images help` for more info",
+                (event, args) -> {
+                    System.out.println("running");
+                    imageHandler image = new imageHandler(bot);
+                    image.parse(event);
                 });
 
-        commandCenter.addCommand("blackjack", "Blackjack minigame. use `>g help blackjack` for more info",
-                new Action() {
-                    @Override
-                    public void run(MessageReceivedEvent event) {
-                        BlackJackHandler blackjack = new BlackJackHandler(bot);
-                        blackjack.parse(event);
-                    }
+        commandCenter.addCommand("blackjack", "Blackjack minigame. use `>g blackjack help` for more info",
+                (event, args) -> {
+                    BlackJackHandler blackjack = new BlackJackHandler(bot);
+                    blackjack.parse(event);
                 });
 
-        commandCenter.addCommand("wou", "My shitty 'world of the undead' game that I made for a uni assignment.",
-                new Action() {
-                    @Override
-                    public void run(MessageReceivedEvent event) {
-                        Handler wou = new Handler(bot);
-                        wou.parse(event);
-                    }
+        commandCenter.addCommand("stopAutoSave", "Stops the bot from autosaving",
+                (event, args) -> {
+
                 });
     }
 
-
-    public String getPrefix() {
-        return bot.getPrefix();
+    private void buildSynonyms() {
+        commandCenter.addSynonym("bj", "blackjack");
     }
 
     private ArrayList<String> splitString(String string) {

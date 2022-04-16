@@ -128,4 +128,8 @@ public class Main {
         fin.close();
         return object;
     }
+
+    public static Bot getBotData() {
+        return botData;
+    }
 }
