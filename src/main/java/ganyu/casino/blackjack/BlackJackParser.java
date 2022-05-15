@@ -1,8 +1,8 @@
 package ganyu.casino.blackjack;
 
+import ganyu.base.Bot;
 import ganyu.base.Main;
 import ganyu.command.message.CommandHandler;
-import ganyu.base.Bot;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 /**
@@ -13,7 +13,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
  */
 public class BlackJackParser extends CommandHandler {
 
-    private Bot bot;
+    private final Bot bot;
 
     public BlackJackParser() {
         super(1);

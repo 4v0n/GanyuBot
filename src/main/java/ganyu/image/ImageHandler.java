@@ -1,7 +1,7 @@
 package ganyu.image;
 
-import ganyu.command.message.CommandHandler;
 import ganyu.base.Bot;
+import ganyu.command.message.CommandHandler;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -23,7 +23,7 @@ import java.util.Scanner;
  * @version 15.05.2022
  */
 public class ImageHandler extends CommandHandler {
-    private Bot bot;
+    private final Bot bot;
 
     public ImageHandler(Bot bot) {
         super(2);

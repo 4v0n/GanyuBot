@@ -1,15 +1,18 @@
 package ganyu.music;
 
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import ganyu.base.ColorScheme;
 import ganyu.base.Main;
 import ganyu.command.message.CommandHandler;
 import ganyu.music.lavaplayer.PlayerManager;
 import ganyu.music.lavaplayer.TrackScheduler;
-import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.AudioChannel;
+import net.dv8tion.jda.api.entities.GuildVoiceState;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.net.URI;
@@ -654,12 +657,12 @@ public class MusicParser extends CommandHandler {
 
             for (int i = 0; i < trackCount; i++) {
                 AudioTrackInfo track = trackList.get(i).getInfo();
-                string = string + String.valueOf(i + 1) + " - `" + track.title + "` by `" + track.author + "` - `" +
+                string = string + (i + 1) + " - `" + track.title + "` by `" + track.author + "` - `" +
                         formatTime(trackList.get(i).getDuration()) + "`\n";
             }
 
             if (trackList.size() > trackCount) {
-                string = string + "and " + String.valueOf(trackList.size() - trackCount) + " more...";
+                string = string + "and " + (trackList.size() - trackCount) + " more...";
             }
         }
 

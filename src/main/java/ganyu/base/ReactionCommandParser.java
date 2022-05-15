@@ -17,7 +17,7 @@ import java.util.Objects;
  */
 public class ReactionCommandParser extends ListenerAdapter {
     //messageid || parser
-    private HashMap<String, ReactionCommandCenter> controllers;
+    private final HashMap<String, ReactionCommandCenter> controllers;
 
     public ReactionCommandParser() {
         controllers = new HashMap<>();

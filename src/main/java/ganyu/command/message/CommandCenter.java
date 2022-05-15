@@ -25,7 +25,7 @@ public class CommandCenter {
     private final HashMap<String, String> commandDescriptions;
     private final int layer;
     private final Bot bot;
-    private HashMap<String, String> synonyms;
+    private final HashMap<String, String> synonyms;
 
     public CommandCenter(int layer) {
         this.commandList = new HashMap<>();

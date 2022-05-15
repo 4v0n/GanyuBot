@@ -6,8 +6,8 @@ import ganyu.casino.blackjack.BlackJackHandler;
 import ganyu.command.message.Action;
 import ganyu.command.message.CommandCenter;
 import ganyu.data.GuildData;
-import ganyu.music.MusicParser;
 import ganyu.image.ImageHandler;
+import ganyu.music.MusicParser;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -102,7 +102,7 @@ public class TextCommandParser extends ListenerAdapter {
         commandCenter.addCommand("test", "test", new Action() {
             @Override
             public void run(MessageReceivedEvent event, List<String> args) {
-                System.out.println(event.getGuild().getAudioManager().getConnectedChannel().getMembers().toString());
+                System.out.println(event.getGuild().getAudioManager().getConnectedChannel().getMembers());
                 System.out.println(event.getGuild().getAudioManager().getConnectedChannel().getMembers().size());
             }
         });

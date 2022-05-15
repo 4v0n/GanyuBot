@@ -121,12 +121,7 @@ public class Game extends Activity {
     }
 
     private void checkGameState(Player player) {
-        if (player.getValueOfHand() > 21) {
-            setActive(false);
-
-        } else {
-            setActive(true);
-        }
+        setActive(player.getValueOfHand() <= 21);
     }
 
     private void evaluatePlayer(Player player) {

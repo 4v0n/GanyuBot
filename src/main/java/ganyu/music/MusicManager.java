@@ -1,9 +1,9 @@
 package ganyu.music;
 
-import ganyu.music.lavaplayer.AudioPlayerSentHandler;
-import ganyu.music.lavaplayer.TrackScheduler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
+import ganyu.music.lavaplayer.AudioPlayerSentHandler;
+import ganyu.music.lavaplayer.TrackScheduler;
 import net.dv8tion.jda.api.entities.Guild;
 
 /**
