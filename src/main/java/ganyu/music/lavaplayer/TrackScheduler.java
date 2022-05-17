@@ -18,6 +18,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * This class manages and schedules audio tracks
  *
+ * Based on MenuDocs' implementation
+ *
  * @author Aron Navodh Kumarawatta
  * @version 15.05.2022
  */
@@ -48,7 +50,7 @@ public class TrackScheduler extends AudioEventAdapter {
 
         if (loopQueue){
             AudioTrackInfo trackInfo = track.getInfo();
-            PlayerManager.getInstance().loadAndPlay(guild, trackInfo.uri);
+            PlayerManager.getInstance().reQueue(guild, trackInfo.uri);
         }
 
         if (endReason.mayStartNext) {

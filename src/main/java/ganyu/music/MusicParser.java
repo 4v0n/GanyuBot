@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
  * This handles music bot commands
  *
  * @author Aron Navodh Kumarawatta
- * @version 15.05.2022
+ * @version 16.05.2022
  */
 public class MusicParser extends CommandHandler {
 
@@ -86,7 +86,8 @@ public class MusicParser extends CommandHandler {
         Member member = event.getMember();
 
         if (inSameVC(event)) {
-            if (!hasPermissions(Objects.requireNonNull(member)) || (!(event.getMember().getVoiceState().getChannel().getMembers().size() == 2))) {
+            int members = event.getMember().getVoiceState().getChannel().getMembers().size();
+            if (!hasPermissions((member)) && members > 2) {
                 event.getChannel().sendMessageEmbeds(errorEmbed(
                                 "You don't have the permissions to use this command!",
                                 "This command requires the `DJ` (case sensitive) role to use"
@@ -127,7 +128,8 @@ public class MusicParser extends CommandHandler {
         Member member = event.getMember();
 
         if (inSameVC(event)) {
-            if (!hasPermissions(Objects.requireNonNull(member)) || (!(event.getMember().getVoiceState().getChannel().getMembers().size() == 2))) {
+            int members = event.getMember().getVoiceState().getChannel().getMembers().size();
+            if (!hasPermissions((member)) && members > 2) {
                 event.getChannel().sendMessageEmbeds(errorEmbed(
                                 "You don't have the permissions to use this command!",
                                 "This command requires the `DJ` (case sensitive) role to use"
@@ -189,7 +191,8 @@ public class MusicParser extends CommandHandler {
         Member member = event.getMember();
 
         if (inSameVC(event)) {
-            if (!hasPermissions(Objects.requireNonNull(member)) || (!(event.getMember().getVoiceState().getChannel().getMembers().size() == 2))) {
+            int members = event.getMember().getVoiceState().getChannel().getMembers().size();
+            if (!hasPermissions((member)) && members > 2) {
                 event.getChannel().sendMessageEmbeds(errorEmbed(
                                 "You don't have the permissions to use this command!",
                                 "This command requires the `DJ` (case sensitive) role to use"
@@ -265,7 +268,8 @@ public class MusicParser extends CommandHandler {
         Member member = event.getMember();
 
         if (inSameVC(event)) {
-            if (!hasPermissions(Objects.requireNonNull(member)) || (!(event.getMember().getVoiceState().getChannel().getMembers().size() == 2))) {
+            int members = event.getMember().getVoiceState().getChannel().getMembers().size();
+            if (!hasPermissions((member)) && members > 2) {
                 event.getChannel().sendMessageEmbeds(errorEmbed(
                                 "You don't have the permissions to use this command!",
                                 "This command requires the `DJ` (case sensitive) role to use"
@@ -299,7 +303,8 @@ public class MusicParser extends CommandHandler {
         Member member = event.getMember();
 
         if (inSameVC(event)) {
-            if (!hasPermissions(Objects.requireNonNull(member)) || (!(event.getMember().getVoiceState().getChannel().getMembers().size() == 2))) {
+            int members = event.getMember().getVoiceState().getChannel().getMembers().size();
+            if (!hasPermissions((member)) && members > 2) {
                 event.getChannel().sendMessageEmbeds(errorEmbed(
                                 "You don't have the permissions to use this command!",
                                 "This command requires the `DJ` (case sensitive) role to use"
@@ -340,7 +345,8 @@ public class MusicParser extends CommandHandler {
         Member member = event.getMember();
 
         if (inSameVC(event)) {
-            if (!hasPermissions(Objects.requireNonNull(member)) || (!(event.getMember().getVoiceState().getChannel().getMembers().size() == 2))) {
+            int members = event.getMember().getVoiceState().getChannel().getMembers().size();
+            if (!hasPermissions((member)) && members > 2) {
                 event.getChannel().sendMessageEmbeds(errorEmbed(
                                 "You don't have the permissions to use this command!",
                                 "This command requires the `DJ` (case sensitive) role to use"
@@ -381,7 +387,8 @@ public class MusicParser extends CommandHandler {
         Member member = event.getMember();
 
         if (inSameVC(event)) {
-            if (!hasPermissions(Objects.requireNonNull(member)) || (!(event.getMember().getVoiceState().getChannel().getMembers().size() == 2))) {
+            int members = event.getMember().getVoiceState().getChannel().getMembers().size();
+            if (!hasPermissions((member)) && members > 2) {
                 event.getChannel().sendMessageEmbeds(errorEmbed(
                                 "You don't have the permissions to use this command!",
                                 "This command requires the `DJ` (case sensitive) role to use"
@@ -428,7 +435,8 @@ public class MusicParser extends CommandHandler {
         Member member = event.getMember();
 
         if (inSameVC(event)) {
-            if (!hasPermissions(Objects.requireNonNull(member)) || (!(event.getMember().getVoiceState().getChannel().getMembers().size() == 2))) {
+            int members = event.getMember().getVoiceState().getChannel().getMembers().size();
+            if (!hasPermissions((member)) && members > 2) {
                 event.getChannel().sendMessageEmbeds(errorEmbed(
                                 "You don't have the permissions to use this command!",
                                 "This command requires the `DJ` (case sensitive) role to use"
