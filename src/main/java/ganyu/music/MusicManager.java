@@ -8,6 +8,11 @@ import net.dv8tion.jda.api.entities.Guild;
 
 /**
  * This manages music
+ *
+ * Based on MenuDocs' implementation
+ *
+ * @author Aron Navodh Kumarawatta
+ * @version 15.05.2022
  */
 public class MusicManager {
     private final AudioPlayer audioPlayer;

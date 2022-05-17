@@ -18,6 +18,8 @@ import java.util.List;
 /**
  * This class manages all active music players
  *
+ * Based on MenuDocs' implementation
+ *
  * @author Aron Navodh Kumarawatta
  * @version 15.05.2022
  */
@@ -78,11 +80,12 @@ public class PlayerManager {
 
             @Override
             public void loadFailed(FriendlyException e) {
+                e.printStackTrace();
             }
         });
     }
 
-    public void loadAndPlay(Guild guild, String url){
+    public void reQueue(Guild guild, String url){
         MusicManager musicManager = this.getMusicManager(guild);
         this.audioPlayerManager.loadItemOrdered(musicManager, url, new AudioLoadResultHandler() {
             @Override
@@ -107,6 +110,8 @@ public class PlayerManager {
             }
         });
     }
+
+
 
     public static PlayerManager getInstance(){
         if (INSTANCE == null){

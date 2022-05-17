@@ -71,7 +71,6 @@ public class Main {
         */
 
         botData.setJda(jda);
-
         botData.getJda().build();
 
         System.out.println("Bot started");

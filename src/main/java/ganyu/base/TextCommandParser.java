@@ -23,7 +23,7 @@ import java.util.Scanner;
  * process commands
  *
  * @author Aron Navodh Kumarawatta
- * @version 15.05.2022
+ * @version 16.05.2022
  */
 public class TextCommandParser extends ListenerAdapter {
     private final Bot bot;
@@ -45,11 +45,18 @@ public class TextCommandParser extends ListenerAdapter {
         // exit if the message is sent by a bot
         if (event.getAuthor().isBot()) return;
 
+        try {
+            event.getGuild();
+        } catch (Exception e) {
+            return;
+        }
+
         Message message = event.getMessage();
         String content = message.getContentRaw();
         ArrayList<String> words = splitString(content);
 
         // load guild data / create new if it doesn't exist
+
         GuildData guildData = bot.getGuildData().get(event.getGuild().getId());
         if ((guildData) == null) {
             guildData = new GuildData(event.getGuild().getId());
@@ -98,14 +105,6 @@ public class TextCommandParser extends ListenerAdapter {
                         mp.parse(event);
                     }
                 });
-
-        commandCenter.addCommand("test", "test", new Action() {
-            @Override
-            public void run(MessageReceivedEvent event, List<String> args) {
-                System.out.println(event.getGuild().getAudioManager().getConnectedChannel().getMembers());
-                System.out.println(event.getGuild().getAudioManager().getConnectedChannel().getMembers().size());
-            }
-        });
     }
 
     private void copyCommand(MessageReceivedEvent event, List<String> list) {
