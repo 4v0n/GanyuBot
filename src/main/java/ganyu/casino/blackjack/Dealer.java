@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
  * This class represents the dealer in a game of blackjack
  *
  * @author Aron Navodh Kumarawatta
- * @version 15.05.2022
+ * @version 29.05.2022
  */
 public class Dealer extends Player {
 
@@ -24,7 +24,7 @@ public class Dealer extends Player {
 
     public void turn(Game game, Message message, EmbedBuilder newEmbed) {
 
-        while ((this.getValueOfHand() < targetNum) && (this.getValueOfHand() <= game.getPlayer().getValueOfHand())){
+        while ((this.getValueOfHand() < targetNum) && (this.getValueOfHand() <= game.getPlayer().getValueOfHand())) {
             this.addCard(game.getDeck());
             newEmbed.setDescription(getValueOfHand() + "\n" + showCards());
 

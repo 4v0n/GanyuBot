@@ -8,7 +8,7 @@ import java.nio.ByteBuffer;
 
 /**
  * This class handles sending audio
- *
+ * <p>
  * Based on MenuDocs' implementation
  *
  * @author Aron Navodh Kumarawatta

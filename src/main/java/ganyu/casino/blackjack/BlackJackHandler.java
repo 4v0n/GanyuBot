@@ -4,74 +4,81 @@ package ganyu.casino.blackjack;
 import ganyu.base.Activity;
 import ganyu.base.Bot;
 import ganyu.base.ColorScheme;
-import ganyu.casino.CasinoData;
-import ganyu.casino.CasinoPlayerData;
+import ganyu.casino.data.CasinoData;
+import ganyu.casino.data.CasinoGuildData;
+import ganyu.casino.data.UserData;
 import ganyu.command.message.CommandHandler;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Scanner;
 
 /**
  * This class allows for blackjack commands to be handled
  *
  * @author Aron Navodh Kumarawatta
- * @version 15.05.2022
+ * @version 29.05.2022
  */
 public class BlackJackHandler extends CommandHandler {
     private final Bot bot;
-    private CasinoPlayerData playerData;
-    private CasinoData activityData;
+    private UserData playerData;
+    private CasinoGuildData activityData;
 
-    public BlackJackHandler(Bot bot) {
+    public BlackJackHandler() {
         super(2);
-        this.bot = bot;
+        this.bot = Bot.getINSTANCE();
     }
 
     @Override
     public void buildCommands() {
-        getCommandCenter().addCommand("play", "starts a round of blackjack. Add a bet to bet credits. Usage: `play [BET]`",
+        getCommandCenter().addCommand("play", "starts a round of blackjack. Add a bet to bet credits. Usage: `[prefix] play [bet amount]`",
                 (event, args) -> {
                     handleData(event);
                     EmbedBuilder embed = new EmbedBuilder();
                     MessageChannel channel = event.getChannel();
 
-                    if (!args.isEmpty()) {
-                        try {
-                            int bet = Integer.parseInt(args.get(0));
-                            if (bet <= playerData.getCredits()) {
+                    Activity activity = bot.getActivities().get(event.getAuthor().getId() + event.getChannel().getId());
+                    if (activity != null) {
+                        embed.setDescription("You are already playing a mini-game in this channel!" +
+                                "\nCurrent game: " + activity.getMessage().getJumpUrl());
+                        embed.setColor(ColorScheme.ERROR);
+                        channel.sendMessageEmbeds(embed.build()).queue();
+                        return;
+                    }
 
-                                Activity activity = bot.getActivities().get(event.getAuthor().getId() + event.getChannel().getId());
-                                if (activity != null) {
-                                    embed.setDescription("You are already playing a minigame in this channel!" +
-                                            "\nCurrent game: " + activity.getMessage().getJumpUrl());
-                                    embed.setColor(ColorScheme.ERROR);
-                                    channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();
-
-                                } else startGame(event, bet);
-                            } else {
-                                embed.setDescription("You don't have enough credits!" +
-                                        "\nYou currently have " + playerData.getCredits() + " credits.");
-                                embed.setColor(ColorScheme.ERROR);
-                                channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();
-                            }
-
-                        } catch (Exception e) {
-                            embed.setDescription(args.get(0) + " is not a number!");
-                            embed.setColor(ColorScheme.ERROR);
-                            channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();
-                        }
-                    } else {
+                    if (args.isEmpty()){
                         embed.setDescription("The game will have no bet!");
                         embed.setColor(new Color(255, 150, 0));
-                        channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();
+                        channel.sendMessageEmbeds(embed.build()).queue();
                         startGame(event, 0);
+                        return;
                     }
+
+                    int bet;
+                    try {
+                        bet = Integer.parseInt(args.get(0));
+                    } catch (Exception e){
+                        embed.setDescription(args.get(0) + " is not a number!");
+                        embed.setColor(ColorScheme.ERROR);
+                        channel.sendMessageEmbeds(embed.build()).queue();
+                        return;
+                    }
+
+                    if (bet <= playerData.getCredits()) {
+                        embed.setDescription("You don't have enough credits!" +
+                                "\nYou currently have " + playerData.getCredits() + " credits.");
+                        embed.setColor(ColorScheme.ERROR);
+                        channel.sendMessageEmbeds(embed.build()).queue();
+                        return;
+                    }
+
+                    startGame(event, bet);
                 });
 
         getCommandCenter().addCommand("profile", "Views your blackjack profile.",
@@ -82,14 +89,13 @@ public class BlackJackHandler extends CommandHandler {
 
                     embed.setTitle("Profile:");
                     embed.setThumbnail(event.getAuthor().getAvatarUrl());
-                    embed.setDescription("<@" + playerData.getPlayerID() + ">" +
+                    embed.setDescription("<@" + playerData.getMemberID() + ">" +
                             "\nCredits: " + playerData.getCredits() +
                             "\nWins :" + playerData.getWins() +
                             "\nLosses :" + playerData.getLosses());
 
-
                     embed.setColor(new Color(0, 255, 150));
-                    channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();
+                    channel.sendMessageEmbeds(embed.build()).queue();
                 });
 
         getCommandCenter().addCommand("leaderboard", "Views a leaderboard of the top 5 users on the server.",
@@ -98,94 +104,96 @@ public class BlackJackHandler extends CommandHandler {
                     MessageChannel channel = event.getChannel();
                     EmbedBuilder embed = new EmbedBuilder();
 
-                    activityData.updateLeaderBoard();
-
-                    HashMap<Integer, CasinoPlayerData> leaderBoard = activityData.getLeaderBoard();
+                    ArrayList<UserData> leaderBoard = activityData.getLeaderBoard();
 
                     if (leaderBoard != null) {
-                        ArrayList<Integer> list = activityData.getPositions();
+                        StringBuilder text = new StringBuilder();
 
-                        list.sort(Comparator.reverseOrder());
-
-                        String text = "";
-
-                        int range = 5;
-                        if (list.size() < 5) {
-                            range = list.size();
-                        }
+                        int range = Math.min(leaderBoard.size(), 5);
 
                         for (int i = 0; i < range; i++) {
-                            text = (text + (i + 1) + ": " + "<@" + leaderBoard.get(list.get(i)).getPlayerID() + "> " + leaderBoard.get(list.get(i)).getCredits() + " credits" + "\n");
+                            text.append(i + 1)
+                                    .append(": ")
+                                    .append("<@")
+                                    .append(leaderBoard.get(i).getMemberID())
+                                    .append("> ")
+                                    .append(leaderBoard.get(i).getCredits())
+                                    .append(" credits")
+                                    .append("\n");
                         }
 
-                        if (list.size() > 0) {
+                        if (leaderBoard.size() > 0) {
                             embed.setTitle("Top " + range);
-                            embed.setDescription(text);
+                            embed.setDescription(text.toString());
                             embed.setColor(ColorScheme.RESPONSE);
-                            channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();
+                            channel.sendMessageEmbeds(embed.build()).queue();
                         } else {
                             embed.setDescription("No one has played blackjack in this server before!");
                             embed.setColor(ColorScheme.ERROR);
-                            channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();
+                            channel.sendMessageEmbeds(embed.build()).queue();
                         }
                     } else {
                         embed.setDescription("No one has played blackjack in this server before!");
                         embed.setColor(ColorScheme.ERROR);
-                        channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();
+                        channel.sendMessageEmbeds(embed.build()).queue();
                     }
                 });
 
-        getCommandCenter().addCommand("addcredits", "***Admin only command.*** Adds credits to the tagged user.",
+        getCommandCenter().addCommand("addcredits", "***Admin only command.*** Adds credits to the tagged user. Usage: `[prefix] addcredits @[user] [amount]`",
                 (event, args) -> {
                     handleData(event);
                     MessageChannel channel = event.getChannel();
 
-                    if (bot.getAdmins().contains(event.getAuthor().getId())) {
+                    if (bot.getAdmins().contains(event.getAuthor().getId()) || verifyPermissions(event.getMember())) {
 
                         System.out.println(args);
                         try {
-                            String playerID = args.get(0);
-                            playerID = playerID.substring(3, playerID.length() - 1);
                             int amount = Integer.parseInt(args.get(1));
 
-                            CasinoPlayerData player = ((CasinoData) bot.getGuildData().get(event.getGuild().getId())
-                                    .getActivityData().get("BLACKJACK")).getPlayers().get(playerID);
+                            UserData player = activityData.getPlayer(event.getMember());
                             player.setCredits(player.getCredits() + amount);
+
+
+                            activityData.save();
+
                         } catch (Exception e) {
-                            channel.sendMessage("poo").queue();
-                            e.printStackTrace();
+                            EmbedBuilder embed = new EmbedBuilder();
+                            embed.setDescription("The user was not found!");
+                            embed.setColor(ColorScheme.ERROR);
+                            channel.sendMessageEmbeds(embed.build()).queue();
                         }
                     } else {
                         EmbedBuilder embed = new EmbedBuilder();
                         embed.setDescription("You are not an admin / mod!");
                         embed.setColor(ColorScheme.ERROR);
-                        channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();
+                        channel.sendMessageEmbeds(embed.build()).queue();
                     }
                 });
     }
 
+    private boolean verifyPermissions(Member member) {
+        for (Permission permission : member.getPermissions()) {
+            if (permission.getName().equals("Manage Channels") || permission.getName().equals("Administrator")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public void buildSynonyms() {
-        getCommandCenter().addSynonym("p","play");
-        getCommandCenter().addSynonym("pf","profile");
-        getCommandCenter().addSynonym("lb","leaderboard");
-        getCommandCenter().addSynonym("add","addcredits");
+        getCommandCenter().addSynonym("p", "play");
+        getCommandCenter().addSynonym("pf", "profile");
+        getCommandCenter().addSynonym("lb", "leaderboard");
+        getCommandCenter().addSynonym("add", "addcredits");
     }
 
     private void handleData(MessageReceivedEvent event) {
         MessageChannel channel = event.getChannel();
 
-        activityData = (CasinoData) bot.getGuildData().get(event.getGuild().getId()).getActivityData().get("BLACKJACK");
-        if ((activityData) == null) {
-            activityData = new CasinoData();
-            bot.getGuildData().get(event.getGuild().getId()).addActivityData(activityData);
-        }
+        this.activityData = CasinoData.getInstance().getGuildData(event.getGuild());
 
-        playerData = activityData.getPlayers().get(event.getAuthor().getId());
-        if ((playerData) == null) {
-            playerData = new CasinoPlayerData(event.getAuthor().getId());
-            activityData.getPlayers().put(playerData.getPlayerID(), playerData);
-        }
+        this.playerData = activityData.getPlayer(event.getMember());
 
         boolean autoClaimed = playerData.incrementLoop();
 
@@ -195,7 +203,13 @@ public class BlackJackHandler extends CommandHandler {
             claim.setDescription("You automatically earned 100 credits!" +
                     "\nYou are now at " + playerData.getCredits());
             claim.setColor(ColorScheme.RESPONSE);
-            channel.sendMessageEmbeds(claim.build()).reference(event.getMessage()).queue();
+            channel.sendMessageEmbeds(claim.build()).queue();
+        }
+
+        try {
+            activityData.save();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -204,9 +218,7 @@ public class BlackJackHandler extends CommandHandler {
         EmbedBuilder embed = new EmbedBuilder();
         embed.setDescription("The game will be starting soon!");
         embed.setColor(new Color(255, 255, 150));
-        channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue(newMessage -> {
-            bot.addActivity(new Game(event, bot, newMessage, bet));
-        });
+        channel.sendMessageEmbeds(embed.build()).queue(newMessage -> bot.addActivity(new Game(event, newMessage, bet)));
 
     }
 

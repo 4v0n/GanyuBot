@@ -8,7 +8,7 @@ import net.dv8tion.jda.api.entities.Guild;
 
 /**
  * This manages music
- *
+ * <p>
  * Based on MenuDocs' implementation
  *
  * @author Aron Navodh Kumarawatta

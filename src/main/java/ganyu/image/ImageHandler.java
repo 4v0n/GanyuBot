@@ -1,6 +1,5 @@
 package ganyu.image;
 
-import ganyu.base.Bot;
 import ganyu.command.message.CommandHandler;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -12,28 +11,27 @@ import net.kodehawa.lib.imageboards.entities.BoardImage;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Random;
-import java.util.Scanner;
 
 
 /**
  * This class handles all image related tasks requested by
  * a guild member.
+ * <p>
+ * Added to fulfil feature request
  *
  * @author Aron Navodh Kumarawatta
- * @version 15.05.2022
+ * @version 29.05.2022
  */
 public class ImageHandler extends CommandHandler {
-    private final Bot bot;
 
-    public ImageHandler(Bot bot) {
+    public ImageHandler() {
         super(2);
-        this.bot = bot;
         ImageBoard.setUserAgent("http.agent");
     }
 
     @Override
     public void buildCommands() {
-        getCommandCenter().addCommand("sfw", "Searches safebooru.org for an image with the supplied tags. Usage: images sfw tag1 tag2 ...`",
+        getCommandCenter().addCommand("sfw", "Searches https://safebooru.org for an image with the supplied tags. Usage: `[prefix] images sfw [tag1] [tag2] ...`",
                 (event, args) -> {
                     System.out.println(args);
                     if (args.size() > 0) {
@@ -44,7 +42,7 @@ public class ImageHandler extends CommandHandler {
                     }
                 });
 
-        getCommandCenter().addCommand("nsfw", "Searches Rule34 for an image with the supplied tags. Usage: images sfw tag1 tag2 ...` Only works in an NSFW channel.",
+        getCommandCenter().addCommand("nsfw", "Searches Rule34 for an image with the supplied tags. Usage: `[prefix] images sfw [tag1] [tag2] ...` Only works in an NSFW channel.",
                 (event, args) -> {
                     if (args.size() > 0) {
                         String words = join((ArrayList<String>) args, " ");
@@ -63,9 +61,10 @@ public class ImageHandler extends CommandHandler {
     /**
      * Sends a no tag message to the guild channel
      * where the image command was requested.
+     *
      * @param event
      */
-    private void noTagsError(MessageReceivedEvent event){
+    private void noTagsError(MessageReceivedEvent event) {
         MessageChannel channel = event.getChannel();
         EmbedBuilder embed = new EmbedBuilder();
         embed.setDescription("You haven't provided any tags!");
@@ -75,17 +74,15 @@ public class ImageHandler extends CommandHandler {
 
     private void searchSafeBooru(String tags, MessageReceivedEvent event) {
         DefaultImageBoards.SAFEBOORU.search(50, tags).async(safebooruImages -> {
-            ArrayList<BoardImage> images = new ArrayList<>();
-            for (BoardImage image : safebooruImages) {
-                images.add(image);
-            }
+            ArrayList<BoardImage> images = new ArrayList<>(safebooruImages);
 
             if (images.size() > 0) {
-                if (images.size() == 1){
+                if (images.size() == 1) {
                     displayImage(tags, images.get(0), event);
                 } else {
                     Random random = new Random();
                     int choice = random.nextInt(images.size() - 1);
+
                     displayImage(tags, images.get(choice), event);
                 }
 
@@ -94,9 +91,9 @@ public class ImageHandler extends CommandHandler {
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setTitle("No images were found for these tags");
                 embed.setImage("https://cdn.betterttv.net/emote/5e8c3a008fb1ca5cde58723f/3x");
-                embed.setFooter("Perhaps the tags may be incorrectly spelt or formated.");
+                embed.setFooter("Perhaps the tags may be incorrectly spelt or formatted.");
                 embed.setColor(new Color(255, 0, 0));
-                channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();
+                channel.sendMessageEmbeds(embed.build()).queue();
             }
         });
     }
@@ -106,27 +103,54 @@ public class ImageHandler extends CommandHandler {
         boolean nsfwChannel = event.getTextChannel().isNSFW();
         if (nsfwChannel) {
             DefaultImageBoards.RULE34.search(50, tags).async(rule34Images -> {
+
+                boolean illegal = false; // whether illegal content has been found
+
                 ArrayList<BoardImage> images = new ArrayList<>();
                 for (BoardImage image : rule34Images) {
+
+                    // prevent underage content from being shown
+                    if (image.getTags().contains("loli")) {
+                        illegal = true;
+                        continue;
+                    }
+
                     images.add(image);
                 }
 
                 if (images.size() > 0) {
-                    if (images.size() == 1){
+                    if (images.size() == 1) {
                         displayImage(tags, images.get(0), event);
                     } else {
                         Random random = new Random();
                         int choice = random.nextInt(images.size() - 1);
+
+                        if (images.get(choice).getTags().contains("loli")) {
+                            EmbedBuilder embed = new EmbedBuilder();
+                            embed.setTitle("no wtf");
+                            embed.setImage("https://cdn.7tv.app/emote/60bd66d67c2d79e1a9285551/4x");
+                            embed.setColor(new Color(255, 0, 0));
+                            channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();
+                            return;
+                        }
+
                         displayImage(tags, images.get(choice), event);
                     }
+
+                } else if (illegal) {
+                    EmbedBuilder embed = new EmbedBuilder();
+                    embed.setTitle("No");
+                    embed.setFooter("The 'loli' tag was found");
+                    embed.setColor(new Color(255, 0, 0));
+                    channel.sendMessageEmbeds(embed.build()).queue();
 
                 } else {
                     EmbedBuilder embed = new EmbedBuilder();
                     embed.setTitle("No images were found for these tags");
                     embed.setImage("https://cdn.betterttv.net/emote/5e8c3a008fb1ca5cde58723f/3x");
-                    embed.setFooter("Perhaps the tags may be incorrectly spelt or formated.");
+                    embed.setFooter("Perhaps the tags may be incorrectly spelt or formatted.");
                     embed.setColor(new Color(255, 0, 0));
-                    channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();
+                    channel.sendMessageEmbeds(embed.build()).queue();
                 }
             });
         } else {
@@ -135,7 +159,7 @@ public class ImageHandler extends CommandHandler {
             embed.setImage("https://cdn.frankerfacez.com/emoticon/555265/4");
             embed.setFooter("Use this command in an NSFW channel or use the SFW command instead.");
             embed.setColor(new Color(255, 0, 0));
-            channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();
+            channel.sendMessageEmbeds(embed.build()).queue();
         }
     }
 
@@ -161,32 +185,23 @@ public class ImageHandler extends CommandHandler {
         embed.setColor(new Color(0, 255, 150));
         //System.out.println(url);
 
-        channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();
+        channel.sendMessageEmbeds(embed.build()).queue();
     }
 
-    private String join(String[] array, String splitter){
+    private String join(String[] array, String splitter) {
         StringBuilder newString = new StringBuilder();
-        for (String word : array){
+        for (String word : array) {
             newString.append(word).append(splitter);
         }
         return newString.toString();
     }
 
-    private String join(ArrayList<String> array, String splitter){
+    private String join(ArrayList<String> array, String splitter) {
         StringBuilder newString = new StringBuilder();
-        for (String word : array){
+        for (String word : array) {
             newString.append(word).append(splitter);
         }
         return newString.toString();
     }
 
-    private ArrayList<String> splitString(String string){
-        ArrayList<String> stringArray = new ArrayList<>();
-        Scanner tokenizer = new Scanner(string);
-
-        while (tokenizer.hasNext()){
-            stringArray.add(tokenizer.next());
-        }
-        return stringArray;
-    }
 }

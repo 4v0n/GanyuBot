@@ -1,15 +1,14 @@
 package ganyu.casino.blackjack;
 
 import ganyu.base.Bot;
-import ganyu.base.Main;
 import ganyu.command.message.CommandHandler;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 /**
- * This allows for ingame blackjack commands to be parsed
+ * This allows for in-game blackjack commands to be parsed
  *
  * @author Aron Navodh Kumarawatta
- * @version 15.05.2022
+ * @version 29.05.2022
  */
 public class BlackJackParser extends CommandHandler {
 
@@ -17,7 +16,7 @@ public class BlackJackParser extends CommandHandler {
 
     public BlackJackParser() {
         super(1);
-        this.bot = Main.getBotData();
+        this.bot = Bot.getINSTANCE();
     }
 
     @Override
@@ -31,18 +30,16 @@ public class BlackJackParser extends CommandHandler {
                 });
 
         getCommandCenter().addCommand("stand", "End your round",
-                (event, args) -> {
-                    getGame(event).finish();
-                });
+                (event, args) -> getGame(event).finish());
     }
 
     @Override
     public void buildSynonyms() {
-        getCommandCenter().addSynonym("h","hit");
-        getCommandCenter().addSynonym("s","stand");
+        getCommandCenter().addSynonym("h", "hit");
+        getCommandCenter().addSynonym("s", "stand");
     }
 
-    private Game getGame(MessageReceivedEvent event){
+    private Game getGame(MessageReceivedEvent event) {
         return (Game) bot.getActivities().get(event.getAuthor().getId() + event.getChannel().getId());
     }
 }

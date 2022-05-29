@@ -1,8 +1,8 @@
 package ganyu.command.reaction;
 
-import ganyu.base.Bot;
-import ganyu.base.Main;
+import ganyu.command.CommandExistsException;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 
 import java.util.HashMap;
@@ -16,29 +16,33 @@ import java.util.HashMap;
 public class ReactionCommandCenter {
 
     private final HashMap<String, ReactionAction> commandList;
-    private final Bot bot;
     private final Message controller;
 
     public ReactionCommandCenter(Message controller) {
         commandList = new HashMap<>();
-        this.bot = Main.getBotData();
         this.controller = controller;
     }
 
-    public void addCommand(String unicode, ReactionAction action){
+    public void addCommand(String unicode, ReactionAction action) {
+        if (commandList.containsKey(unicode)) {
+            throw new CommandExistsException(unicode);
+        }
+
         commandList.put(unicode, action);
         controller.addReaction(unicode).queue();
     }
 
-    public boolean containsCommand(String unicode) {
-        return commandList.containsKey(unicode);
-    }
+    public void parse(GenericMessageReactionEvent event) {
 
-    public void parse(GenericMessageReactionEvent event){
+        for (MessageReaction reaction : controller.getReactions()) {
+            if (!commandList.containsKey(reaction.getReactionEmote().getAsReactionCode())) {
+                controller.removeReaction(reaction.getReactionEmote().getEmote(), event.getUser()).queue();
+            }
+        }
+
         ReactionAction reactionAction = commandList.get(event.getReactionEmote().getAsReactionCode());
-        System.out.println(event.getReactionEmote().getAsReactionCode());
 
-        if (reactionAction != null){
+        if (reactionAction != null) {
             reactionAction.run(event);
         }
     }

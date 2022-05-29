@@ -1,29 +1,28 @@
-package ganyu.base;
+package ganyu.base.listener;
 
 import ganyu.music.MusicManager;
 import ganyu.music.lavaplayer.PlayerManager;
 import net.dv8tion.jda.api.entities.AudioChannel;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
  * This class allows the bot to listen to whenever a voice channel has been left
-
+ *
  * @author Aron Navodh Kumarawatta
- * @version 15.05.2022
+ * @version 29.05.2022
  */
-public class ChannelJoinParser extends ListenerAdapter {
+public class ChannelJoin extends ListenerAdapter {
 
-    private final Bot bot;
-
-    public ChannelJoinParser(Bot bot) {
-        this.bot = bot;
+    public ChannelJoin() {
     }
 
     /**
@@ -37,19 +36,34 @@ public class ChannelJoinParser extends ListenerAdapter {
             AudioChannel audioChannel = event.getChannelLeft();
             System.out.println("Heard channel leave");
 
-            if (audioChannel.getMembers().size() == 1) {
-                Thread.UncaughtExceptionHandler exceptionHandler = new Thread.UncaughtExceptionHandler() {
-                    @Override
-                    public void uncaughtException(Thread t, Throwable e) {
-                        // ignore
-                    }
+            List<Member> members = audioChannel.getMembers();
+
+            int memberCount = 0;
+            for (Member member : members) {
+                if (!member.getUser().isBot()) {
+                    memberCount++;
+                }
+            }
+
+            if (memberCount == 0) {
+                Thread.UncaughtExceptionHandler exceptionHandler = (t, e) -> {
+                    // ignore
                 };
 
                 Thread waitThread = new Thread(() -> {
                     try {
                         Thread.sleep(TimeUnit.MINUTES.toMillis(1));
 
-                        if (audioChannel.getMembers().size() == 1) {
+                        List<Member> members1 = audioChannel.getMembers();
+
+                        int memberCount1 = 0;
+                        for (Member member : members1) {
+                            if (!member.getUser().isBot()) {
+                                memberCount1++;
+                            }
+                        }
+
+                        if (memberCount1 == 0) {
                             Guild guild = event.getGuild();
                             guild.getAudioManager().closeAudioConnection();
                             MusicManager musicManager = PlayerManager.getInstance().getMusicManager(guild);
@@ -79,32 +93,45 @@ public class ChannelJoinParser extends ListenerAdapter {
             AudioChannel audioChannel = event.getChannelLeft();
             System.out.println("Heard channel leave");
 
-            if (audioChannel.getMembers().size() == 1) {
-                Thread.UncaughtExceptionHandler exceptionHandler = new Thread.UncaughtExceptionHandler() {
-                    @Override
-                    public void uncaughtException(Thread t, Throwable e) {
-                        // ignore
-                    }
+            List<Member> members = audioChannel.getMembers();
+
+            int memberCount = 0;
+            for (Member member : members) {
+                if (!member.getUser().isBot()) {
+                    memberCount++;
+                }
+            }
+
+            if (memberCount == 0) {
+                Thread.UncaughtExceptionHandler exceptionHandler = (t, e) -> {
+                    // ignore
                 };
 
-                Thread waitThread = new Thread() {
-                    public void run() {
-                        try {
-                            Thread.sleep(TimeUnit.MINUTES.toMillis(1));
+                Thread waitThread = new Thread(() -> {
+                    try {
+                        Thread.sleep(TimeUnit.MINUTES.toMillis(1));
 
-                            if (audioChannel.getMembers().size() == 1) {
-                                Guild guild = event.getGuild();
-                                guild.getAudioManager().closeAudioConnection();
-                                MusicManager musicManager = PlayerManager.getInstance().getMusicManager(guild);
-                                musicManager.getScheduler().getSongQueue().clear();
-                                musicManager.getAudioPlayer().stopTrack();
+                        List<Member> members1 = audioChannel.getMembers();
+
+                        int memberCount1 = 0;
+                        for (Member member : members1) {
+                            if (!member.getUser().isBot()) {
+                                memberCount1++;
                             }
-
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
                         }
+
+                        if (memberCount1 == 0) {
+                            Guild guild = event.getGuild();
+                            guild.getAudioManager().closeAudioConnection();
+                            MusicManager musicManager = PlayerManager.getInstance().getMusicManager(guild);
+                            musicManager.getScheduler().getSongQueue().clear();
+                            musicManager.getAudioPlayer().stopTrack();
+                        }
+
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
-                };
+                });
 
                 waitThread.setUncaughtExceptionHandler(exceptionHandler);
                 waitThread.start();

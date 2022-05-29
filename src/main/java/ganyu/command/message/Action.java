@@ -14,8 +14,9 @@ import java.util.List;
 public interface Action {
     /**
      * What the command will do
+     *
      * @param event The event that triggered the command
-     * @param args Any arguments that may be used by the command
+     * @param args  Any arguments that may be used by the command
      */
     void run(MessageReceivedEvent event, List<String> args);
 }

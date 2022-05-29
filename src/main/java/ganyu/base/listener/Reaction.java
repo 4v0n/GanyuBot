@@ -1,4 +1,4 @@
-package ganyu.base;
+package ganyu.base.listener;
 
 import ganyu.command.reaction.ReactionCommandCenter;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
@@ -13,31 +13,44 @@ import java.util.Objects;
  * and deal with them as commands
  *
  * @author Aron Navodh Kumarawatta
- * @version 15.05.2022
+ * @version 29.05.2022
  */
-public class ReactionCommandParser extends ListenerAdapter {
+public class Reaction extends ListenerAdapter {
+    private static Reaction INSTANCE;
+
     //messageid || parser
     private final HashMap<String, ReactionCommandCenter> controllers;
 
-    public ReactionCommandParser() {
+    public Reaction() {
         controllers = new HashMap<>();
     }
 
-    public void addCommandCenter(ReactionCommandCenter commandCenter){
+    public static Reaction getINSTANCE() {
+        if (INSTANCE == null) {
+            INSTANCE = new Reaction();
+        }
+
+        return INSTANCE;
+    }
+
+    public void addCommandCenter(ReactionCommandCenter commandCenter) {
         controllers.put(commandCenter.getController().getId(), commandCenter);
     }
 
-    public void removeCommandCenter(ReactionCommandCenter commandCenter){
+    public void removeCommandCenter(ReactionCommandCenter commandCenter) {
         controllers.remove(commandCenter.getController().getId());
     }
 
     /**
      * run when reaction is given
+     *
      * @param event
      */
     @Override
     public void onGenericMessageReaction(@NotNull GenericMessageReactionEvent event) {
-        if (Objects.requireNonNull(event.getUser()).isBot()){return;}
+        if (Objects.requireNonNull(event.getUser()).isBot()) {
+            return;
+        }
 
         if (controllers.containsKey(event.getMessageId())) {
             controllers.get(event.getMessageId()).parse(event);

@@ -20,13 +20,14 @@ public abstract class CommandHandler {
     }
 
     public abstract void buildCommands();
+
     public abstract void buildSynonyms();
 
-    public void parse(MessageReceivedEvent event){
+    public void parse(MessageReceivedEvent event) {
         commandCenter.parse(event);
     }
 
-    public CommandCenter getCommandCenter(){
+    public CommandCenter getCommandCenter() {
         return commandCenter;
     }
 }

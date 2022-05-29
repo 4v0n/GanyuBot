@@ -8,8 +8,10 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import ganyu.music.MusicManager;
 import net.dv8tion.jda.api.entities.AudioChannel;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -17,11 +19,11 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * This class manages and schedules audio tracks
- *
+ * <p>
  * Based on MenuDocs' implementation
  *
  * @author Aron Navodh Kumarawatta
- * @version 15.05.2022
+ * @version 29.05.2022
  */
 public class TrackScheduler extends AudioEventAdapter {
 
@@ -43,12 +45,12 @@ public class TrackScheduler extends AudioEventAdapter {
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
 
-        if (loopSong){
+        if (loopSong) {
             this.player.startTrack(track.makeClone(), false);
             return;
         }
 
-        if (loopQueue){
+        if (loopQueue) {
             AudioTrackInfo trackInfo = track.getInfo();
             PlayerManager.getInstance().reQueue(guild, trackInfo.uri);
         }
@@ -60,7 +62,7 @@ public class TrackScheduler extends AudioEventAdapter {
 
 
     public void nextTrack() {
-        if (shuffle){
+        if (shuffle) {
             shufflePlay();
         } else {
             queue(this.songQueue.poll());
@@ -68,30 +70,44 @@ public class TrackScheduler extends AudioEventAdapter {
 
         AudioChannel channel = guild.getAudioManager().getConnectedChannel();
 
-        if (songQueue.isEmpty() || channel.getMembers().size() == 1){
-            Thread.UncaughtExceptionHandler exceptionHandler = new Thread.UncaughtExceptionHandler() {
-                @Override
-                public void uncaughtException(Thread t, Throwable e) {
-                    // ignore
+        List<Member> members = channel.getMembers();
+
+        int memberCount = 0;
+        for (Member member : members) {
+            if (!member.getUser().isBot()) {
+                memberCount++;
+            }
+        }
+
+        if (songQueue.isEmpty() || memberCount == 0) {
+            Thread.UncaughtExceptionHandler exceptionHandler = (t, e) -> {
+                // ignore
+            };
+
+            Thread waitThread = new Thread(() -> {
+                try {
+
+                    List<Member> members1 = channel.getMembers();
+
+                    int memberCount1 = 0;
+                    for (Member member : members1) {
+                        if (!member.getUser().isBot()) {
+                            memberCount1++;
+                        }
+                    }
+
+                    Thread.sleep(TimeUnit.MINUTES.toMillis(1));
+                    if (songQueue.isEmpty() || memberCount1 == 0) {
+                        guild.getAudioManager().closeAudioConnection();
+                        MusicManager musicManager = PlayerManager.getInstance().getMusicManager(guild);
+                        musicManager.getScheduler().songQueue.clear();
+                        musicManager.getAudioPlayer().stopTrack();
+
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-            };
-
-            Thread waitThread = new Thread() {
-              public void run(){
-                  try {
-                      Thread.sleep(TimeUnit.MINUTES.toMillis(1));
-                      if (songQueue.isEmpty() || channel.getMembers().size() == 1) {
-                          guild.getAudioManager().closeAudioConnection();
-                          MusicManager musicManager = PlayerManager.getInstance().getMusicManager(guild);
-                          musicManager.getScheduler().songQueue.clear();
-                          musicManager.getAudioPlayer().stopTrack();
-
-                      }
-                  } catch (InterruptedException e) {
-                      e.printStackTrace();
-                  }
-              }
-            };
+            });
 
             waitThread.setUncaughtExceptionHandler(exceptionHandler);
             waitThread.start();
@@ -113,10 +129,6 @@ public class TrackScheduler extends AudioEventAdapter {
         }
     }
 
-    public AudioPlayer getPlayer() {
-        return player;
-    }
-
     public BlockingQueue<AudioTrack> getSongQueue() {
         return songQueue;
     }
@@ -136,10 +148,6 @@ public class TrackScheduler extends AudioEventAdapter {
 
     public boolean isShuffle() {
         return shuffle;
-    }
-
-    public AudioTrack getCurrentlyPlaying() {
-        return player.getPlayingTrack();
     }
 
     public void toggleLoopSong() {

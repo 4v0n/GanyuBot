@@ -3,8 +3,6 @@ package ganyu.base;
 import java.awt.*;
 
 /**
- *
- *
  * @author Aron Navodh Kumarawatta
  * @version 15.05.2022
  */
