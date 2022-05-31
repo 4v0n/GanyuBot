@@ -128,7 +128,10 @@ public class GuildMessage extends ListenerAdapter {
             boolean hasPermission = false;
 
             for (Permission permission : member.getPermissions()) {
-                if (permission.getName().equals("Administrator")) hasPermission = true;
+                if (permission.getName().equals("Administrator")) {
+                    hasPermission = true;
+                    break;
+                }
             }
 
             if (!hasPermission) {
