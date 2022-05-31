@@ -1,8 +1,10 @@
 package ganyu.base.listener;
 
+import ganyu.base.Activity;
 import ganyu.base.Bot;
 import ganyu.base.ColorScheme;
 import ganyu.casino.blackjack.BlackJackHandler;
+import ganyu.command.message.Action;
 import ganyu.command.message.CommandCenter;
 import ganyu.data.ServerData;
 import ganyu.image.ImageHandler;
@@ -16,16 +18,18 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This command allows the bot to listen to guild messages and
  * process commands
  *
  * @author Aron Navodh Kumarawatta
- * @version 29.05.2022
+ * @version 30.05.2022
  */
 public class GuildMessage extends ListenerAdapter {
     private final Bot bot;
@@ -67,18 +71,30 @@ public class GuildMessage extends ListenerAdapter {
         ArrayList<String> words = splitString(content);
 
         if (words.size() > 0) {
-            if (words.get(0).equals(bot.getPrefix(event.getGuild()))) {
-                if (words.size() > 1) {
-                    if (bot.getRelevantActivity(event) != null && bot.getRelevantActivity(event).getParser().getCommandCenter().containsCommand(words.get(1))) {
-                        bot.getRelevantActivity(event).parse(event);
-                    } else {
-                        commandCenter.parse(event);
-                    }
-                } else {
-                    commandCenter.parse(event);
+            // allow parsing of music player commands directly
+            if (words.get(0).equals( bot.getPrefix(event.getGuild()) + "m" )){
+                MusicParser mp = new MusicParser();
+                mp.parse(event);
+                return;
+            }
+
+            Activity activity = bot.getRelevantActivity(event);
+            if (activity != null){
+                if (activity.getParser().getCommandCenter().containsCommand(words.get(0))){
+                    activity.parse(event);
+                    return;
                 }
-            } else if ((bot.getRelevantActivity(event) != null) && bot.getRelevantActivity(event).getParser().getCommandCenter().containsCommand(words.get(0))) {
-                bot.getRelevantActivity(event).parse(event);
+
+                if (words.size() >= 2) {
+                    if (activity.getParser().getCommandCenter().containsCommand(words.get(1))) {
+                        activity.parse(event);
+                        return;
+                    }
+                }
+            }
+
+            if (words.get(0).equals(bot.getPrefix(event.getGuild()))){
+                commandCenter.parse(event);
             }
         }
     }
@@ -99,7 +115,7 @@ public class GuildMessage extends ListenerAdapter {
                     blackjack.parse(event);
                 });
 
-        commandCenter.addCommand("musicplayer", "Music bot commands. use `[prefix] mp help` for more info",
+        commandCenter.addCommand("musicplayer", "Music bot commands. use `[prefix] mp help` for more info. These commands can be directly accessed by using `[prefix]m ...`",
                 (event, args) -> {
                     MusicParser mp = new MusicParser();
                     mp.parse(event);

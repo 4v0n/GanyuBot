@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.BlockingQueue;
@@ -52,7 +53,7 @@ public class TrackScheduler extends AudioEventAdapter {
 
         if (loopQueue) {
             AudioTrackInfo trackInfo = track.getInfo();
-            PlayerManager.getInstance().reQueue(guild, trackInfo.uri);
+            PlayerManager.getInstance().reQueue(guild, trackInfo.uri, (Member) track.getUserData());
         }
 
         if (endReason.mayStartNext) {

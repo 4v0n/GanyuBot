@@ -8,6 +8,7 @@ import ganyu.casino.data.CasinoData;
 import ganyu.casino.data.CasinoGuildData;
 import ganyu.casino.data.UserData;
 import ganyu.command.message.CommandHandler;
+import ganyu.command.templatemessage.MultiPageMessage;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -23,7 +24,7 @@ import java.util.Scanner;
  * This class allows for blackjack commands to be handled
  *
  * @author Aron Navodh Kumarawatta
- * @version 29.05.2022
+ * @version 30.05.2022
  */
 public class BlackJackHandler extends CommandHandler {
     private final Bot bot;
@@ -52,7 +53,7 @@ public class BlackJackHandler extends CommandHandler {
                         return;
                     }
 
-                    if (args.isEmpty()){
+                    if (args.isEmpty()) {
                         embed.setDescription("The game will have no bet!");
                         embed.setColor(new Color(255, 150, 0));
                         channel.sendMessageEmbeds(embed.build()).queue();
@@ -63,7 +64,7 @@ public class BlackJackHandler extends CommandHandler {
                     int bet;
                     try {
                         bet = Integer.parseInt(args.get(0));
-                    } catch (Exception e){
+                    } catch (Exception e) {
                         embed.setDescription(args.get(0) + " is not a number!");
                         embed.setColor(ColorScheme.ERROR);
                         channel.sendMessageEmbeds(embed.build()).queue();
@@ -94,49 +95,50 @@ public class BlackJackHandler extends CommandHandler {
                             "\nWins :" + playerData.getWins() +
                             "\nLosses :" + playerData.getLosses());
 
-                    embed.setColor(new Color(0, 255, 150));
+                    embed.setColor(ColorScheme.RESPONSE);
                     channel.sendMessageEmbeds(embed.build()).queue();
                 });
 
         getCommandCenter().addCommand("leaderboard", "Views a leaderboard of the top 5 users on the server.",
                 (event, args) -> {
                     handleData(event);
-                    MessageChannel channel = event.getChannel();
-                    EmbedBuilder embed = new EmbedBuilder();
 
                     ArrayList<UserData> leaderBoard = activityData.getLeaderBoard();
 
-                    if (leaderBoard != null) {
-                        StringBuilder text = new StringBuilder();
-
-                        int range = Math.min(leaderBoard.size(), 5);
-
-                        for (int i = 0; i < range; i++) {
-                            text.append(i + 1)
-                                    .append(": ")
-                                    .append("<@")
-                                    .append(leaderBoard.get(i).getMemberID())
-                                    .append("> ")
-                                    .append(leaderBoard.get(i).getCredits())
-                                    .append(" credits")
-                                    .append("\n");
-                        }
-
-                        if (leaderBoard.size() > 0) {
-                            embed.setTitle("Top " + range);
-                            embed.setDescription(text.toString());
-                            embed.setColor(ColorScheme.RESPONSE);
-                            channel.sendMessageEmbeds(embed.build()).queue();
-                        } else {
-                            embed.setDescription("No one has played blackjack in this server before!");
-                            embed.setColor(ColorScheme.ERROR);
-                            channel.sendMessageEmbeds(embed.build()).queue();
-                        }
-                    } else {
+                    if (leaderBoard == null || leaderBoard.isEmpty()) {
+                        EmbedBuilder embed = new EmbedBuilder();
                         embed.setDescription("No one has played blackjack in this server before!");
                         embed.setColor(ColorScheme.ERROR);
-                        channel.sendMessageEmbeds(embed.build()).queue();
+                        event.getChannel().sendMessageEmbeds(embed.build()).queue();
+                        return;
                     }
+
+                    ArrayList<String> stringArray = new ArrayList<>();
+
+                    int i = 1;
+                    for (UserData user : leaderBoard){
+                        String sb = "- " +
+                                i +
+                                " - " +
+                                "<@" +
+                                user.getMemberID() +
+                                "> " +
+                                user.getCredits() +
+                                " credits";
+
+                        stringArray.add(sb);
+                        i++;
+                    }
+
+                    MultiPageMessage mp = new MultiPageMessage(
+                            "Leaderboard",
+                            "The top " + leaderBoard.size() + " player(s) on the server: \n",
+                            stringArray,
+                            ColorScheme.RESPONSE,
+                            5
+                    );
+
+                    mp.sendMessage(event.getChannel());
                 });
 
         getCommandCenter().addCommand("addcredits", "***Admin only command.*** Adds credits to the tagged user. Usage: `[prefix] addcredits @[user] [amount]`",
@@ -204,12 +206,12 @@ public class BlackJackHandler extends CommandHandler {
                     "\nYou are now at " + playerData.getCredits());
             claim.setColor(ColorScheme.RESPONSE);
             channel.sendMessageEmbeds(claim.build()).queue();
-        }
 
-        try {
-            activityData.save();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+            try {
+                activityData.save();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 

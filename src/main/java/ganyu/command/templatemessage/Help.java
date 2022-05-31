@@ -11,10 +11,10 @@ import java.util.HashMap;
  * This offers a template help message
  *
  * @author Aron Navodh Kumarawatta
- * @version 29.05.2022
+ * @version 30.05.2022
  */
 public class Help {
-    public void help(String prefix, HashMap<String, String> commands, MessageReceivedEvent event) {
+    public static void help(String prefix, HashMap<String, String> commands, MessageReceivedEvent event) {
         MessageChannel channel = event.getChannel();
 
         ArrayList<String> commandStrings = new ArrayList<>();
@@ -31,6 +31,34 @@ public class Help {
         MultiPageMessage helpMessage = new MultiPageMessage(
                 "Command List:",
                 "Here is a list of commands: \n" +
+                        "The prefix is - ***" + prefix + "*** \n>>> ",
+                commandStrings,
+                ColorScheme.RESPONSE,
+                5
+        );
+
+        helpMessage.sendMessage(channel);
+    }
+
+    public static void help(String prefix, String notes, HashMap<String, String> commands, MessageReceivedEvent event) {
+        MessageChannel channel = event.getChannel();
+
+        ArrayList<String> commandStrings = new ArrayList<>();
+
+        for (String commandWord : commands.keySet()) {
+            String commandDescription = commands.get(commandWord);
+
+            commandDescription = commandDescription.replace("[prefix]", prefix);
+
+            commandStrings.add("- `" + commandWord + "` - " + commandDescription + "\n");
+        }
+
+        notes = notes.replace("[prefix]", prefix);
+
+        MultiPageMessage helpMessage = new MultiPageMessage(
+                "Command List:",
+                notes + "\n" +
+                        "Here is a list of commands: \n" +
                         "The prefix is - ***" + prefix + "*** \n>>> ",
                 commandStrings,
                 ColorScheme.RESPONSE,

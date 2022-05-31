@@ -11,10 +11,13 @@ import ganyu.base.ColorScheme;
 import ganyu.music.MusicManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This class manages all active music players
@@ -46,16 +49,19 @@ public class PlayerManager {
         });
     }
 
-    public void loadAndPlay(MessageReceivedEvent event, String url) {
+    public void loadAndPlay(MessageReceivedEvent event, String url, Member member) {
         MusicManager musicManager = this.getMusicManager(event.getGuild());
         this.audioPlayerManager.loadItemOrdered(musicManager, url, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack audioTrack) {
+
+                audioTrack.setUserData(member);
                 musicManager.getScheduler().queue(audioTrack);
 
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setColor(ColorScheme.RESPONSE);
-                embed.setDescription("Queued song: `" + audioTrack.getInfo().title + "` - `" + audioTrack.getInfo().author + "`");
+                embed.setDescription("Queued song: `" + audioTrack.getInfo().title + "` - `" + audioTrack.getInfo().author + "`" +
+                        " - `" + formatTime(audioTrack.getDuration()) + "`");
                 event.getChannel().sendMessageEmbeds(embed.build()).queue();
             }
 
@@ -68,11 +74,14 @@ public class PlayerManager {
                     selectedTrack = audioPlaylist.getTracks().get(0);
                 }
 
+                selectedTrack.setUserData(member);
+
                 musicManager.getScheduler().queue(selectedTrack);
 
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setColor(ColorScheme.RESPONSE);
-                embed.setDescription("Queued song: `" + selectedTrack.getInfo().title + "` - `" + selectedTrack.getInfo().author + "`");
+                embed.setDescription("Queued song: `" + selectedTrack.getInfo().title + "` - `" + selectedTrack.getInfo().author + "`" +
+                        " - `" + formatTime(selectedTrack.getDuration()) + "`");
                 event.getChannel().sendMessageEmbeds(embed.build()).queue();
             }
 
@@ -94,17 +103,19 @@ public class PlayerManager {
         });
     }
 
-    public void reQueue(Guild guild, String url) {
+    public void reQueue(Guild guild, String url, Member member) {
         MusicManager musicManager = this.getMusicManager(guild);
         this.audioPlayerManager.loadItemOrdered(musicManager, url, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack audioTrack) {
+                audioTrack.setUserData(member);
                 musicManager.getScheduler().queue(audioTrack);
             }
 
             @Override
             public void playlistLoaded(AudioPlaylist audioPlaylist) {
                 List<AudioTrack> tracks = audioPlaylist.getTracks();
+                tracks.get(0).setUserData(member);
                 musicManager.getScheduler().queue(tracks.get(0));
             }
 
@@ -129,7 +140,7 @@ public class PlayerManager {
         return INSTANCE;
     }
 
-    public void loadPlaylist(MessageReceivedEvent event, String url) {
+    public void loadPlaylist(MessageReceivedEvent event, String url, Member member) {
         MusicManager musicManager = this.getMusicManager(event.getGuild());
         this.audioPlayerManager.loadItemOrdered(musicManager, url, new AudioLoadResultHandler() {
             @Override
@@ -142,13 +153,19 @@ public class PlayerManager {
 
             @Override
             public void playlistLoaded(AudioPlaylist audioPlaylist) {
+                long totalTime = 0;
+
                 for (AudioTrack track : audioPlaylist.getTracks()) {
                     musicManager.getScheduler().queue(track);
+                    totalTime = totalTime + track.getDuration();
+
+                    track.setUserData(member);
                 }
 
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setColor(ColorScheme.RESPONSE);
-                embed.setDescription("Queued `" + audioPlaylist.getTracks().size() + "` songs from `" + audioPlaylist.getName() + "`");
+                embed.setDescription("Queued `" + audioPlaylist.getTracks().size() + "` songs from `" + audioPlaylist.getName() + "`" +
+                        " - total duration: `" + formatTime(totalTime) + "`");
                 event.getChannel().sendMessageEmbeds(embed.build()).queue();
             }
 
@@ -168,5 +185,17 @@ public class PlayerManager {
                 event.getChannel().sendMessageEmbeds(embed.build()).queue();
             }
         });
+    }
+
+    private String formatTime(long duration) {
+
+        Duration time = Duration.ofMillis(duration);
+        long seconds = time.toSeconds();
+
+        long HH = seconds / 3600;
+        long MM = (seconds % 3600) / 60;
+        long SS = seconds % 60;
+
+        return String.format("%02d:%02d:%02d", HH, MM, SS);
     }
 }

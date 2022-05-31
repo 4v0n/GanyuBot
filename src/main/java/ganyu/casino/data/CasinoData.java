@@ -10,7 +10,7 @@ import java.util.HashMap;
 
 /**
  * @author Aron Kumarawatta
- * @version 29.05.2022
+ * @version 30.05.2022
  */
 public class CasinoData {
 
@@ -19,7 +19,7 @@ public class CasinoData {
     //GuildID data
     private final HashMap<String, CasinoGuildData> guildData;
 
-    public CasinoData() {
+    private CasinoData() {
         guildData = new HashMap<>();
         load();
     }
@@ -64,7 +64,6 @@ public class CasinoData {
                 } catch (Exception e) {
                     // ignored
                 }
-
             }
         }
     }

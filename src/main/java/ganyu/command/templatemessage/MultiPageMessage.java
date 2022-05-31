@@ -91,7 +91,7 @@ public class MultiPageMessage {
         }
 
         if (content.length > 1) {
-            sb.append("\nPage: ").append(currentPage + 1);
+            sb.append("\nPage: ").append(currentPage + 1).append("/").append(content.length);
         }
 
         return sb.toString();

@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -17,7 +18,7 @@ import java.util.Scanner;
  * When a user sends a command message
  *
  * @author Aron Navodh Kumarawatta
- * @version 15.05.2022
+ * @version 30.05.2022
  */
 public class CommandCenter {
 
@@ -34,10 +35,9 @@ public class CommandCenter {
         this.layer = layer;
         this.synonyms = new HashMap<>();
 
-        this.addCommand("help", "Returns a list of commands",
+        this.addCommand("help", "Returns a list of commands and info about this command / command set",
                 (event, args) -> {
-                    Help help = new Help();
-                    help.help(bot.getPrefix(event.getGuild()), this.getCommandDescriptions(), event);
+                    Help.help(bot.getPrefix(event.getGuild()), this.getCommandDescriptions(), event);
                 });
 
         this.addCommand("synonyms", "Returns a list of command synonyms",
@@ -55,6 +55,21 @@ public class CommandCenter {
                     embed.setColor(ColorScheme.RESPONSE);
                     channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();
                 });
+    }
+
+    public void addHelpMessage(String message){
+        this.commandList.remove("help");
+        this.commandDescriptions.remove("help");
+
+        Action action = new Action() {
+            @Override
+            public void run(MessageReceivedEvent event, List<String> args) {
+                Help.help(bot.getPrefix(event.getGuild()),message, commandDescriptions, event);
+            }
+        };
+
+        this.commandList.put("help", action);
+        this.commandDescriptions.put("help", "Returns a list of commands and info about this command / command set");
     }
 
     public void addCommand(String commandName, String description, Action action) {

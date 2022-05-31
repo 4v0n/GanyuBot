@@ -16,6 +16,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -26,12 +27,28 @@ import java.util.concurrent.TimeUnit;
  * This handles music bot commands
  *
  * @author Aron Navodh Kumarawatta
- * @version 29.05.2022
+ * @version 30.05.2022
  */
 public class MusicParser extends CommandHandler {
 
     public MusicParser() {
         super(2);
+    }
+
+    @Override
+    public void buildSynonyms() {
+        getCommandCenter().addSynonym("j", "join");
+        getCommandCenter().addSynonym("p", "play");
+        getCommandCenter().addSynonym("pl", "playlist");
+        getCommandCenter().addSynonym("eq", "emptyqueue");
+        getCommandCenter().addSynonym("q", "queue");
+        getCommandCenter().addSynonym("np", "nowplaying");
+        getCommandCenter().addSynonym("empty", "emptyqueue");
+        getCommandCenter().addSynonym("clear", "emptyqueue");
+        getCommandCenter().addSynonym("leave", "stop");
+        getCommandCenter().addSynonym("lq", "loopqueue");
+        getCommandCenter().addSynonym("rm", "remove");
+        getCommandCenter().addSynonym("disconnect", "stop");
     }
 
     @Override
@@ -65,21 +82,166 @@ public class MusicParser extends CommandHandler {
 
         getCommandCenter().addCommand("playlist", "Adds a playlist of songs to the queue" +
                 " Usage: `[prefix] playlist [link]`", this::queueListCommand);
+
+        getCommandCenter().addHelpMessage("Note that these commands can be directly accessed using `[prefix]m [command]`");
+
+        getCommandCenter().addCommand("seek", "Allows you to seek backwards or forwards by a certain amount (negative to seek back). " +
+                "Usage: `[prefix] seek (-)[time in seconds]`", this::seekCommand);
+
+        getCommandCenter().addCommand("skipto", "skips all songs until a chosen point. Usage: `[prefix] skipto [number]`", this::skipToCommand);
     }
 
-    @Override
-    public void buildSynonyms() {
-        getCommandCenter().addSynonym("j", "join");
-        getCommandCenter().addSynonym("p", "play");
-        getCommandCenter().addSynonym("pl", "playlist");
-        getCommandCenter().addSynonym("eq", "emptyqueue");
-        getCommandCenter().addSynonym("q", "queue");
-        getCommandCenter().addSynonym("np", "nowplaying");
-        getCommandCenter().addSynonym("empty", "emptyqueue");
-        getCommandCenter().addSynonym("clear", "emptyqueue");
-        getCommandCenter().addSynonym("leave", "stop");
-        getCommandCenter().addSynonym("lq", "loopqueue");
-        getCommandCenter().addSynonym("rm", "remove");
+    private void skipToCommand(MessageReceivedEvent event, List<String> args) {
+        Member member = event.getMember();
+
+        if (inSameVC(event)) {
+            int members = event.getMember().getVoiceState().getChannel().getMembers().size();
+            if (!hasPermissions((member)) && members > 2) {
+                event.getChannel().sendMessageEmbeds(errorEmbed(
+                                "You don't have the permissions to use this command!",
+                                "This command requires the `DJ` (case sensitive) role or a role with the 'Manage Channels' permission to use"
+                        ).build()
+                ).queue();
+                return;
+            }
+        }
+
+        if (args.isEmpty() || !checkIsNumber(args.get(0))) {
+            event.getChannel().sendMessageEmbeds(errorEmbed(
+                            "You have not / you have not provided a valid number!",
+                            "You must provide a whole number in seconds"
+                    ).build()
+            ).queue();
+        }
+
+        if (inSameVC(event)) {
+            skipto(event, args);
+        } else {
+            event.getChannel().sendMessageEmbeds(errorEmbed(
+                            "You are not in a VC with the bot!",
+                            ""
+                    ).build()
+            ).queue();
+        }
+    }
+
+    private void skipto(MessageReceivedEvent event, List<String> args) {
+
+        if (!checkIsNumber(args.get(0))) {
+            event.getChannel().sendMessageEmbeds(errorEmbed(
+                            "You have not / you have not provided a valid number!",
+                            ""
+                    ).build()
+            ).queue();
+            return;
+        }
+
+        int target = Integer.parseInt(args.get(0));
+
+        MusicManager musicManager = PlayerManager.getInstance().getMusicManager(event.getGuild());
+        BlockingQueue<AudioTrack> songQueue = musicManager.getScheduler().getSongQueue();
+
+        if (songQueue.size() < target) {
+            event.getChannel().sendMessageEmbeds(errorEmbed(
+                            "The number you have entered is out of range!",
+                            ""
+                    ).build()
+            ).queue();
+            return;
+        }
+
+        for (int i = target; i > 0; i--) {
+            musicManager.getAudioPlayer().stopTrack();
+
+            if (!musicManager.getScheduler().getSongQueue().isEmpty()) {
+                musicManager.getScheduler().nextTrack();
+            }
+        }
+
+        AudioTrack currentTrack = musicManager.getAudioPlayer().getPlayingTrack();
+
+        EmbedBuilder embed = new EmbedBuilder();
+        embed.setDescription("Skipped to: `" + currentTrack.getInfo().title + "` by `" + currentTrack.getInfo().author + "`");
+        embed.setColor(ColorScheme.RESPONSE);
+        event.getChannel().sendMessageEmbeds(embed.build()).queue();
+
+    }
+
+    private void seekCommand(MessageReceivedEvent event, List<String> args) {
+
+        Member member = event.getMember();
+
+        if (inSameVC(event)) {
+            int members = event.getMember().getVoiceState().getChannel().getMembers().size();
+            if (!hasPermissions((member)) && members > 2) {
+                event.getChannel().sendMessageEmbeds(errorEmbed(
+                                "You don't have the permissions to use this command!",
+                                "This command requires the `DJ` (case sensitive) role or a role with the 'Manage Channels' permission to use"
+                        ).build()
+                ).queue();
+                return;
+            }
+        }
+
+        if (args.isEmpty() || !checkIsNumber(args.get(0))) {
+            event.getChannel().sendMessageEmbeds(errorEmbed(
+                            "You have not / you have not provided a valid number!",
+                            "You must provide a whole number in seconds"
+                    ).build()
+            ).queue();
+            return;
+        }
+
+        if (inSameVC(event)) {
+            seekThrough(event, args);
+        } else {
+            event.getChannel().sendMessageEmbeds(errorEmbed(
+                            "You are not in a VC with the bot!",
+                            ""
+                    ).build()
+            ).queue();
+        }
+    }
+
+    private void seekThrough(MessageReceivedEvent event, List<String> args) {
+
+        MusicManager musicManager = PlayerManager.getInstance().getMusicManager(event.getGuild());
+        AudioTrack playingTrack = musicManager.getAudioPlayer().getPlayingTrack();
+
+        int trackingAmount = Integer.parseInt(args.get(0));
+
+        if (trackingAmount < 0 && playingTrack.getPosition() < Math.abs(trackingAmount)) {
+            event.getChannel().sendMessageEmbeds(errorEmbed(
+                    "The amount u have provided is out of range!",
+                    "The current track is at: " + formatTime(playingTrack.getPosition())
+            ).build()).queue();
+            return;
+        }
+
+        if (trackingAmount > 0 && (playingTrack.getDuration() - playingTrack.getPosition()) < Math.abs(trackingAmount)) {
+            event.getChannel().sendMessageEmbeds(errorEmbed(
+                    "The amount u have provided is out of range!",
+                    "The current track is at: " + formatTime(playingTrack.getPosition())
+            ).build()).queue();
+            return;
+        }
+
+        playingTrack.setPosition(playingTrack.getPosition() + TimeUnit.SECONDS.toMillis(trackingAmount));
+
+        EmbedBuilder embed = new EmbedBuilder();
+
+        String sb = playingTrack.getInfo().title +
+                "`by`" +
+                playingTrack.getInfo().author +
+                "` " +
+                formatTime(playingTrack.getPosition()) +
+                "/" +
+                formatTime(playingTrack.getDuration());
+
+        embed.setDescription(sb);
+        embed.setColor(ColorScheme.RESPONSE);
+
+        event.getChannel().sendMessageEmbeds(embed.build()).queue();
     }
 
     private void loopSongCommand(MessageReceivedEvent event, List<String> list) {
@@ -170,7 +332,7 @@ public class MusicParser extends CommandHandler {
         BlockingQueue<AudioTrack> songQueue = musicManager.getScheduler().getSongQueue();
 
         int choice = Integer.parseInt(args.get(0)) - 1;
-        int newPosition = Integer.parseInt(args.get(1));
+        int newPosition = Integer.parseInt(args.get(1)) - 1;
         final List<AudioTrack> trackList = new ArrayList<>(songQueue);
 
         AudioTrack movedSong;
@@ -185,6 +347,17 @@ public class MusicParser extends CommandHandler {
             event.getChannel().sendMessageEmbeds(errorEmbed("That number is out of bounds!", "").build()).queue();
             return;
         }
+
+        songQueue.clear();
+
+        for (AudioTrack track : trackList) {
+            musicManager.getScheduler().queue(track);
+        }
+
+        EmbedBuilder embed = new EmbedBuilder();
+        embed.setColor(ColorScheme.RESPONSE);
+        embed.setDescription("Moved `" + movedSong.getInfo().title + "` to position `" + (newPosition + 1) + "`");
+        event.getChannel().sendMessageEmbeds(embed.build()).queue();
     }
 
     private void removeSongCommand(MessageReceivedEvent event, List<String> args) {
@@ -508,18 +681,22 @@ public class MusicParser extends CommandHandler {
     }
 
     private boolean userInVC(MessageReceivedEvent event) {
-        return Objects.requireNonNull(Objects.requireNonNull(event.getMember()).getVoiceState()).inAudioChannel();
+        return event.getMember().getVoiceState().inAudioChannel();
     }
 
     private boolean inSameVC(MessageReceivedEvent event) {
-        GuildVoiceState userVoiceState = Objects.requireNonNull(event.getMember()).getVoiceState();
-        GuildVoiceState selfVoiceState = event.getGuild().getSelfMember().getVoiceState();
+        AudioChannel userVoiceChannel = event.getMember().getVoiceState().getChannel();
+        AudioChannel selfVoiceChannel = event.getMember().getVoiceState().getChannel();
 
-        return (Objects.requireNonNull(userVoiceState).getChannel() == Objects.requireNonNull(selfVoiceState).getChannel());
+        if (userVoiceChannel == null || selfVoiceChannel == null) {
+            return false;
+        }
+
+        return (userVoiceChannel == selfVoiceChannel);
     }
 
     private boolean isInVC(MessageReceivedEvent event) {
-        return Objects.requireNonNull(event.getGuild().getSelfMember().getVoiceState()).inAudioChannel();
+        return event.getGuild().getSelfMember().getVoiceState().inAudioChannel();
     }
 
     private boolean isVCEmpty(MessageReceivedEvent event) {
@@ -583,7 +760,7 @@ public class MusicParser extends CommandHandler {
         self.getGuild().getAudioManager().openAudioConnection(audioChannel);
 
         EmbedBuilder embed = new EmbedBuilder();
-        embed.setDescription("Joining channel :`" + audioChannel.getName() + "`");
+        embed.setDescription("Joining channel: `" + audioChannel.getName() + "`");
         embed.setColor(ColorScheme.RESPONSE);
 
         event.getChannel().sendMessageEmbeds(embed.build()).queue();
@@ -603,7 +780,7 @@ public class MusicParser extends CommandHandler {
             link = "ytsearch:" + link + "audio";
         }
 
-        PlayerManager.getInstance().loadAndPlay(event, link);
+        PlayerManager.getInstance().loadAndPlay(event, link, event.getMember());
     }
 
     private void queueListCommand(MessageReceivedEvent event, List<String> args) {
@@ -663,7 +840,7 @@ public class MusicParser extends CommandHandler {
             return;
         }
 
-        PlayerManager.getInstance().loadPlaylist(event, link);
+        PlayerManager.getInstance().loadPlaylist(event, link, event.getMember());
     }
 
     private boolean isURL(String link) {
@@ -715,11 +892,15 @@ public class MusicParser extends CommandHandler {
     }
 
     private String formatTime(long duration) {
-        long hours = duration / TimeUnit.HOURS.toMillis(1);
-        long minutes = duration / TimeUnit.MINUTES.toMillis(1);
-        long seconds = duration % TimeUnit.MINUTES.toMillis(1) / TimeUnit.SECONDS.toMillis(1);
 
-        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
+        Duration time = Duration.ofMillis(duration);
+        long seconds = time.toSeconds();
+
+        long HH = seconds / 3600;
+        long MM = (seconds % 3600) / 60;
+        long SS = seconds % 60;
+
+        return String.format("%02d:%02d:%02d", HH, MM, SS);
     }
 
     private void showQueue(MessageReceivedEvent event, List<String> args) {
@@ -744,9 +925,14 @@ public class MusicParser extends CommandHandler {
         }
 
 
-        AudioTrackInfo currentTrack = musicManager.getAudioPlayer().getPlayingTrack().getInfo();
+        AudioTrack currentTrack = musicManager.getAudioPlayer().getPlayingTrack();
+        AudioTrackInfo trackInfo = currentTrack.getInfo();
 
-        String nowPlayingString = "***Now playing: `" + currentTrack.title + "` by `" + currentTrack.author + "`*** \n \n ";
+        String name = ((Member) currentTrack.getUserData()).getEffectiveName();
+
+        String nowPlayingString = "***Now playing: `" + trackInfo.title + "` by `" + trackInfo.author + "`***" +
+                " - `" + formatTime(currentTrack.getPosition()) + "/" + formatTime(currentTrack.getDuration()) + "` requested by `" +
+                name + "` \n \n ";
 
         if (queue.isEmpty()) {
             EmbedBuilder embed = new EmbedBuilder();
@@ -761,17 +947,26 @@ public class MusicParser extends CommandHandler {
         ArrayList<String> trackStrings = new ArrayList<>();
 
         int i = 0;
+        long totalTime = 0;
         for (AudioTrack track : trackList) {
             i++;
             AudioTrackInfo info = track.getInfo();
-            String string = "" + i + " - `" + info.title + "` by `" + info.author + "` - `" + formatTime(track.getDuration()) + "\n";
+
+            String id = ((Member) track.getUserData()).getEffectiveName();
+
+            String string = i + " - `" + info.title + "` by `" + info.author + "` -" +
+                    " `" + formatTime(track.getDuration()) + "` requested by `" +
+                    id + "`\n";
             trackStrings.add(string);
+
+            totalTime = totalTime + track.getDuration();
         }
 
 
         MultiPageMessage queueListMessage = new MultiPageMessage(
                 "Song queue:",
-                nowPlayingString,
+                (nowPlayingString +
+                        "Total Queue time: `" + formatTime(totalTime) + "`\n"),
                 trackStrings,
                 ColorScheme.RESPONSE,
                 10
@@ -869,16 +1064,34 @@ public class MusicParser extends CommandHandler {
         AudioTrack track = musicManager.getAudioPlayer().getPlayingTrack();
 
         if (track == null) {
-            event.getChannel().sendMessage("There is nothing playing at the moment").queue();
+            event.getChannel().sendMessageEmbeds(errorEmbed(
+                    "There is nothing playing at the moment!",
+                    "Queue something up before using this command."
+            ).build()).queue();
         } else {
-            event.getChannel().sendMessage("Now playing: `")
-                    .append(track.getInfo().title)
-                    .append("`by`")
-                    .append(track.getInfo().author)
-                    .append("`")
-                    .append(" Link: ")
-                    .append(track.getInfo().uri)
-                    .queue();
+            String sb = "Link: " + track.getInfo().uri + " \n" +
+                    "`" + track.getInfo().title +
+                    "` by `" +
+                    track.getInfo().author +
+                    "` - `" +
+                    formatTime(track.getPosition()) +
+                    "/" +
+                    formatTime(track.getDuration()) +
+                    "`";
+
+            EmbedBuilder embed = new EmbedBuilder();
+            embed.setTitle("Now playing:");
+            embed.setDescription(sb);
+
+            Member userData = (Member) track.getUserData();
+            String id = userData.getEffectiveName();
+
+            embed.setFooter(("Requested by: " + id), userData.getEffectiveAvatarUrl());
+            embed.setColor(ColorScheme.RESPONSE);
+            embed.setThumbnail("http://img.youtube.com/vi/" + track.getInfo().identifier + "/0.jpg");
+
+            event.getChannel().sendMessageEmbeds(embed.build()).queue();
+
         }
     }
 

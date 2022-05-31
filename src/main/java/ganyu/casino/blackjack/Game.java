@@ -2,6 +2,7 @@ package ganyu.casino.blackjack;
 
 import ganyu.base.Activity;
 import ganyu.base.Bot;
+import ganyu.base.ColorScheme;
 import ganyu.casino.data.CasinoData;
 import ganyu.casino.data.CasinoGuildData;
 import ganyu.casino.data.UserData;
@@ -17,7 +18,7 @@ import java.util.concurrent.TimeUnit;
  * This class allows for a game of blackjack to be played
  *
  * @author Aron Navodh Kumarawatta
- * @version 29.05.2022
+ * @version 30.05.2022
  */
 public class Game extends Activity {
     private final Deck deck;
@@ -28,6 +29,7 @@ public class Game extends Activity {
     private final int bet;
     private final String messageID;
     private final EmbedBuilder embed;
+    private final MessageReceivedEvent startEvent;
     private String embedFooter = "";
     private String embedDescription = "";
     private final CasinoGuildData activityData;
@@ -41,7 +43,7 @@ public class Game extends Activity {
      */
     public Game(MessageReceivedEvent event, Message message, int bet) {
         super(event, new BlackJackParser(), message);
-        this.dealer = new Dealer(Bot.getINSTANCE().getUserID());
+        this.dealer = new Dealer(event.getGuild().getSelfMember().getId());
         this.embed = new EmbedBuilder();
         this.channel = event.getChannel();
         this.messageID = message.getId();
@@ -56,6 +58,7 @@ public class Game extends Activity {
         this.dealer.addCard(deck);
         this.player.addCard(deck);
         this.dealer.addCard(deck);
+        this.startEvent = event;
 
 
         this.playerData = activityData.getPlayer(event.getMember());
@@ -63,7 +66,7 @@ public class Game extends Activity {
         this.playerData.setCredits(this.playerData.getCredits() - bet);
 
         this.embed.setTitle("Blackjack");
-        this.embed.setColor(new Color(100, 255, 255));
+        this.embed.setColor(ColorScheme.ACTIVITY);
         addToEmbedDescription(player.getValueOfHand() + "\n" + this.player.showCards());
 
 
@@ -72,10 +75,6 @@ public class Game extends Activity {
                 "\n '" + Bot.getINSTANCE().getPrefix(event.getGuild()) + " hit' Deals you another card" +
                 "\n '" + Bot.getINSTANCE().getPrefix(event.getGuild()) + " stand' Finishes your turn");
         channel.editMessageEmbedsById(messageID, this.embed.build()).queue();
-    }
-
-    public MessageChannel getChannel() {
-        return channel;
     }
 
     public Deck getDeck() {
@@ -128,7 +127,7 @@ public class Game extends Activity {
         if (!player.hasLost() && dealer.hasLost()) {
             e.setThumbnail(player.getUser().getAvatarUrl());
             playerData.setCredits(playerData.getCredits() + bet * 2);
-            e.setColor(new Color(50, 255, 150));
+            e.setColor(ColorScheme.ACTIVITY_WIN);
 
             e.setDescription(player.getDiscordAt() + "\nYou have won!" +
                     "\nYou win " + bet * 2 + " credits!" +
@@ -138,11 +137,13 @@ public class Game extends Activity {
         } else if (player.hasLost() == dealer.hasLost()) {
             e.setDescription("You and the dealer have drawn." +
                     "\nYou have not lost any credits.");
-            e.setColor(new Color(255, 150, 100));
+            e.setColor(ColorScheme.INFO);
 
         } else {
-            e.setThumbnail(getBot().getPfpURL());
-            e.setColor(new Color(255, 100, 100));
+            String avatarUrl = startEvent.getGuild().getSelfMember().getEffectiveAvatarUrl();
+
+            e.setThumbnail(avatarUrl);
+            e.setColor(ColorScheme.ACTIVITY_LOSS);
             playerData.setCredits(playerData.getCredits() - bet);
             e.setDescription("The dealer has won!" +
                     "\nYou have lost " + bet + " credits!" +
@@ -181,7 +182,7 @@ public class Game extends Activity {
         channel.sendMessage(player.getDiscordAt()).queue();
         EmbedBuilder newEmbed = new EmbedBuilder();
         newEmbed.setTitle("Dealer:");
-        newEmbed.setColor(new Color(200, 255, 155));
+        newEmbed.setColor(ColorScheme.INFO);
         newEmbed.setDescription(dealer.getValueOfHand() + "\n" + dealer.showCards());
 
         channel.sendMessageEmbeds(newEmbed.build()).queue(message -> dealer.turn(this, message, newEmbed));

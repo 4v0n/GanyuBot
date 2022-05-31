@@ -1,6 +1,7 @@
 package ganyu.base;
 
 import ganyu.data.ServerData;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
@@ -15,31 +16,30 @@ import java.util.List;
 /**
  * This class details a bot object which simply holds all the variables required by the bot.
  *
+
  * @author Aron Navodh Kumarawatta
  * @version 29.05.2022
  */
 public class Bot {
 
+    private static JDA JDA;
     private static Bot INSTANCE;
 
-    private JDABuilder jda;
-    private String userID;
     private String token;
     private String prefix;
     private final ArrayList<String> admins;
 
     // userID+channelID activity
     private final HashMap<String, Activity> activities;
-    private User user;
-    private String pfpURL;
 
     // guild guildData
     private final HashMap<Guild, ServerData> guildData;
 
     /**
      * Constructor method.
+     * Singleton so class cannot be constructed
      */
-    public Bot() {
+    private Bot() {
         this.activities = new HashMap<>();
         this.admins = new ArrayList<>();
         this.guildData = new HashMap<>();
@@ -83,7 +83,6 @@ public class Bot {
         } catch (Exception e) {
             // ignore
         }
-
     }
 
     public void addAdmin(String userID) {
@@ -95,22 +94,6 @@ public class Bot {
     }
 
     /**
-     * Sets the jda being used by the bot,
-     *
-     * @param jda The JDA.
-     */
-    public void setJda(JDABuilder jda) {
-        this.jda = jda;
-    }
-
-    /**
-     * @return Return the jda.
-     */
-    public JDABuilder getJda() {
-        return jda;
-    }
-
-    /**
      * @return The bot token.
      */
     public String getToken() {
@@ -118,32 +101,13 @@ public class Bot {
     }
 
     /**
-     * Sets the bot's bot token.
+     * Sets the bot token.
      *
      * @param token The token as a string.
      */
     public void setToken(String token) {
         this.token = token;
     }
-
-
-    /**
-     * @return The user ID of the bot.
-     */
-    public String getUserID() {
-        return userID;
-    }
-
-    /**
-     * sets the user ID
-     *
-     * @param userID the user ID (Application ID) of the bot.
-     */
-    public void setUserID(String userID) {
-        this.userID = userID;
-        user = User.fromId(userID);
-    }
-
 
     public String getGlobalPrefix() {
         return prefix;
@@ -222,27 +186,19 @@ public class Bot {
         return activities.get(key);
     }
 
-    /**
-     * @return The url of the pfp of the bot.
-     */
-    public String getPfpURL() {
-        return pfpURL;
-    }
-
-    /**
-     * Sets the pfp url of the bot.
-     *
-     * @param pfpURL
-     */
-    public void setPfpURL(String pfpURL) {
-        this.pfpURL = pfpURL;
-    }
-
     public HashMap<Guild, ServerData> getGuildData() {
         return guildData;
     }
 
     public void addGuildData(ServerData guildData) {
         this.guildData.put(guildData.getGuild(), guildData);
+    }
+
+    public void setJDA(JDA jda) {
+        JDA = jda;
+    }
+
+    public static net.dv8tion.jda.api.JDA getJDA() {
+        return JDA;
     }
 }

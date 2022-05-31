@@ -13,15 +13,15 @@ public abstract class CommandHandler {
     private final CommandCenter commandCenter;
 
 
-    public CommandHandler(int Layer) {
+    protected CommandHandler(int Layer) {
         commandCenter = new CommandCenter(Layer);
         buildCommands();
         buildSynonyms();
     }
 
-    public abstract void buildCommands();
+    protected abstract void buildCommands();
 
-    public abstract void buildSynonyms();
+    protected abstract void buildSynonyms();
 
     public void parse(MessageReceivedEvent event) {
         commandCenter.parse(event);

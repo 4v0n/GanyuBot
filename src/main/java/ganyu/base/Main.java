@@ -14,7 +14,7 @@ import java.util.Map;
 
 /**
  * @author Aron Navodh Kumarawatta
- * @version 29.05.2022
+ * @version 30.05.2022
  */
 public class Main {
     private static HashMap<String, String> settings;
@@ -26,7 +26,6 @@ public class Main {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
-        //botData = load();
         Bot botData = Bot.getINSTANCE();
         settings = new HashMap<>();
 
@@ -34,8 +33,6 @@ public class Main {
 
         botData.setToken(settings.get("TOKEN"));
         botData.setPrefix(settings.get("PREFIX"));
-        botData.setUserID(settings.get("APPLICATIONID"));
-        botData.setPfpURL(settings.get("PROFILEPICURL"));
 
         Reaction reactionParser = Reaction.getINSTANCE();
 
@@ -46,8 +43,8 @@ public class Main {
         jda.addEventListeners(new ChannelJoin());
         jda.setActivity(Activity.playing("(" + botData.getGlobalPrefix() + ") " + settings.get("STATUS")));
 
-        botData.setJda(jda);
-        botData.getJda().build();
+
+        Bot.getINSTANCE().setJDA(jda.build().awaitReady());
 
         System.out.println("Bot started");
 
@@ -69,13 +66,12 @@ public class Main {
                     settings.put(data[0], data[1]);
                 }
             }
+
         } catch (IOException e) {
-            System.out.println("Config file missing, creating new config file.");
+            System.out.println("Config file missing/empty , please fill in the config file config file.");
             System.out.println("Please fill in the config file.");
             settings.put("TOKEN", null);
             settings.put("PREFIX", null);
-            settings.put("APPLICATIONID", null);
-            settings.put("PROFILEPICURL", "https://cdn.discordapp.com/attachments/931671609134178368/937342736934268928/settings.png");
             settings.put("STATUS", null);
 
             File configFileName = new File("config.cfg");
