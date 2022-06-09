@@ -1,7 +1,9 @@
 package ganyu.command.reaction;
 
+import ganyu.base.listener.Reaction;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * This allows for reaction commands to be stored
@@ -14,18 +16,38 @@ public abstract class ReactionCommandHandler {
 
     public ReactionCommandHandler(Message controller) {
         commandCenter = new ReactionCommandCenter(controller);
-        buildCommands();
-        buildSynonyms();
     }
 
     public abstract void buildCommands();
-    public abstract void buildSynonyms();
-
-    public void parse(GenericMessageReactionEvent event) {
-        commandCenter.parse(event);
-    }
 
     public ReactionCommandCenter getCommandCenter() {
         return commandCenter;
+    }
+
+    public Message getController() {
+        return commandCenter.getController();
+    }
+
+    public void activate(int activeTimeInMins) {
+        Reaction reactionParser = Reaction.getINSTANCE();
+        reactionParser.addCommandCenter(commandCenter);
+        buildCommands();
+
+        Thread waitThread = new Thread(() -> {
+            try {
+                Thread.sleep(TimeUnit.MINUTES.toMillis(activeTimeInMins));
+                deactivate();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+
+        waitThread.start();
+    }
+
+    public void deactivate() {
+        Reaction reactionParser = Reaction.getINSTANCE();
+        reactionParser.removeCommandCenter(commandCenter);
+        getController().clearReactions().queue();
     }
 }

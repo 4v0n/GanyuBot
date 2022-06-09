@@ -2,7 +2,7 @@ package ganyu.command.message;
 
 import ganyu.base.Bot;
 import ganyu.base.ColorScheme;
-import ganyu.base.Main;
+import ganyu.command.CommandExistsException;
 import ganyu.command.templatemessage.Help;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -17,7 +18,7 @@ import java.util.Scanner;
  * When a user sends a command message
  *
  * @author Aron Navodh Kumarawatta
- * @version 15.05.2022
+ * @version 30.05.2022
  */
 public class CommandCenter {
 
@@ -30,39 +31,55 @@ public class CommandCenter {
     public CommandCenter(int layer) {
         this.commandList = new HashMap<>();
         this.commandDescriptions = new HashMap<>();
-        this.bot = Main.getBotData();
+        this.bot = Bot.getINSTANCE();
         this.layer = layer;
         this.synonyms = new HashMap<>();
 
-        this.addCommand("help", "Returns a list of commands",
+        this.addCommand("help", "Returns a list of commands and info about this command / command set",
                 (event, args) -> {
-                    Help help = new Help();
-                    help.help(bot.getPrefix(), this.getCommandDescriptions(), event);
+                    Help.help(bot.getPrefix(event.getGuild()), this.getCommandDescriptions(), event);
                 });
 
         this.addCommand("synonyms", "Returns a list of command synonyms",
                 (event, args) -> {
-                    String string = "";
+                    StringBuilder string = new StringBuilder();
                     for (String synonym : synonyms.keySet()) {
-                        string = (string + synonym + " = " + synonyms.get(synonym) + "\n");
+                        string.append(synonym)
+                                .append(" = ")
+                                .append(synonyms.get(synonym))
+                                .append("\n");
                     }
                     MessageChannel channel = event.getChannel();
                     EmbedBuilder embed = new EmbedBuilder();
-                    embed.setDescription(string);
+                    embed.setDescription(string.toString());
                     embed.setColor(ColorScheme.RESPONSE);
                     channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();
                 });
     }
 
-    public void addCommand(String commandName, String description, Action action) {
-        commandList.put(commandName, action);
-        commandDescriptions.put(commandName, description);
+    public void addHelpMessage(String message){
+        this.commandList.remove("help");
+        this.commandDescriptions.remove("help");
 
+        Action action = new Action() {
+            @Override
+            public void run(MessageReceivedEvent event, List<String> args) {
+                Help.help(bot.getPrefix(event.getGuild()),message, commandDescriptions, event);
+            }
+        };
 
+        this.commandList.put("help", action);
+        this.commandDescriptions.put("help", "Returns a list of commands and info about this command / command set");
     }
 
-    public HashMap<String, Action> getCommandList() {
-        return commandList;
+    public void addCommand(String commandName, String description, Action action) {
+
+        if (commandList.containsKey(commandName)) {
+            throw new CommandExistsException(commandName);
+        }
+
+        commandList.put(commandName, action);
+        commandDescriptions.put(commandName, description);
     }
 
     public HashMap<String, String> getCommandDescriptions() {
@@ -84,7 +101,7 @@ public class CommandCenter {
         return list;
     }
 
-    private ArrayList<String> addToBegining(String newItem, ArrayList<String> list) {
+    private ArrayList<String> addToBeginning(String newItem, ArrayList<String> list) {
 
         ArrayList<String> tempList = new ArrayList<>();
         tempList.add(newItem);
@@ -106,14 +123,11 @@ public class CommandCenter {
     public void parse(MessageReceivedEvent event) {
         ArrayList<String> commandWords = splitString(event.getMessage().getContentRaw());
 
-        if (!commandWords.get(0).equals(bot.getPrefix())) {
-            commandWords = addToBegining(bot.getPrefix(), commandWords);
+        if (!commandWords.get(0).equals(bot.getPrefix(event.getGuild()))) {
+            commandWords = addToBeginning(bot.getPrefix(event.getGuild()), commandWords);
         }
 
         replaceSynonyms(commandWords, synonyms);
-
-        System.out.println(commandWords.size());
-        System.out.println(layer);
 
         Action action;
         try {
@@ -149,6 +163,7 @@ public class CommandCenter {
             }
 
             action.run(event, commandWords);
+
         }
     }
 

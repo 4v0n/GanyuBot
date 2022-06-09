@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 public interface ReactionAction {
     /**
      * What the command does
+     *
      * @param event The event that triggered the action
      */
     void run(GenericMessageReactionEvent event);
