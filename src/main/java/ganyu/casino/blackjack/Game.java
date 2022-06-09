@@ -11,14 +11,13 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.awt.*;
 import java.util.concurrent.TimeUnit;
 
 /**
  * This class allows for a game of blackjack to be played
  *
  * @author Aron Navodh Kumarawatta
- * @version 30.05.2022
+ * @version 09.06.2022
  */
 public class Game extends Activity {
     private final Deck deck;
@@ -26,7 +25,7 @@ public class Game extends Activity {
     private final Player player;
     private final UserData playerData;
     private final Dealer dealer;
-    private final int bet;
+    private final long bet;
     private final String messageID;
     private final EmbedBuilder embed;
     private final MessageReceivedEvent startEvent;
@@ -41,7 +40,7 @@ public class Game extends Activity {
      * @param message The parent message of the game
      * @param bet     The amount of credits that has been wagered
      */
-    public Game(MessageReceivedEvent event, Message message, int bet) {
+    public Game(MessageReceivedEvent event, Message message, long bet) {
         super(event, new BlackJackParser(), message);
         this.dealer = new Dealer(event.getGuild().getSelfMember().getId());
         this.embed = new EmbedBuilder();
@@ -126,7 +125,7 @@ public class Game extends Activity {
 
         if (!player.hasLost() && dealer.hasLost()) {
             e.setThumbnail(player.getUser().getAvatarUrl());
-            playerData.setCredits(playerData.getCredits() + bet * 2);
+            playerData.setCredits(playerData.getCredits() + (bet * 2));
             e.setColor(ColorScheme.ACTIVITY_WIN);
 
             e.setDescription(player.getDiscordAt() + "\nYou have won!" +
@@ -135,6 +134,7 @@ public class Game extends Activity {
             playerData.incrementWins();
 
         } else if (player.hasLost() == dealer.hasLost()) {
+            playerData.setCredits(playerData.getCredits() + bet);
             e.setDescription("You and the dealer have drawn." +
                     "\nYou have not lost any credits.");
             e.setColor(ColorScheme.INFO);
@@ -144,12 +144,10 @@ public class Game extends Activity {
 
             e.setThumbnail(avatarUrl);
             e.setColor(ColorScheme.ACTIVITY_LOSS);
-            playerData.setCredits(playerData.getCredits() - bet);
             e.setDescription("The dealer has won!" +
                     "\nYou have lost " + bet + " credits!" +
                     "\nYou are at " + playerData.getCredits() + " credits.");
             playerData.incrementLosses();
-
         }
 
         try {

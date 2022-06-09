@@ -24,7 +24,7 @@ import java.util.Scanner;
  * This class allows for blackjack commands to be handled
  *
  * @author Aron Navodh Kumarawatta
- * @version 30.05.2022
+ * @version 09.06.2022
  */
 public class BlackJackHandler extends CommandHandler {
     private final Bot bot;
@@ -38,7 +38,7 @@ public class BlackJackHandler extends CommandHandler {
 
     @Override
     public void buildCommands() {
-        getCommandCenter().addCommand("play", "starts a round of blackjack. Add a bet to bet credits. Usage: `[prefix] play [bet amount]`",
+        addCommand("play", "starts a round of blackjack. Add a bet to bet credits. Usage: `[prefix] play [bet amount]`",
                 (event, args) -> {
                     handleData(event);
                     EmbedBuilder embed = new EmbedBuilder();
@@ -71,7 +71,7 @@ public class BlackJackHandler extends CommandHandler {
                         return;
                     }
 
-                    if (bet <= playerData.getCredits()) {
+                    if (bet > playerData.getCredits()) {
                         embed.setDescription("You don't have enough credits!" +
                                 "\nYou currently have " + playerData.getCredits() + " credits.");
                         embed.setColor(ColorScheme.ERROR);
@@ -82,7 +82,7 @@ public class BlackJackHandler extends CommandHandler {
                     startGame(event, bet);
                 });
 
-        getCommandCenter().addCommand("profile", "Views your blackjack profile.",
+        addCommand("profile", "Views your blackjack profile.",
                 (event, args) -> {
                     handleData(event);
                     EmbedBuilder embed = new EmbedBuilder();
@@ -99,7 +99,7 @@ public class BlackJackHandler extends CommandHandler {
                     channel.sendMessageEmbeds(embed.build()).queue();
                 });
 
-        getCommandCenter().addCommand("leaderboard", "Views a leaderboard of the top 5 users on the server.",
+        addCommand("leaderboard", "Views a leaderboard of the top 5 users on the server.",
                 (event, args) -> {
                     handleData(event);
 
@@ -141,7 +141,7 @@ public class BlackJackHandler extends CommandHandler {
                     mp.sendMessage(event.getChannel());
                 });
 
-        getCommandCenter().addCommand("addcredits", "***Admin only command.*** Adds credits to the tagged user. Usage: `[prefix] addcredits @[user] [amount]`",
+        addCommand("addcredits", "***Admin only command.*** Adds credits to the tagged user. Usage: `[prefix] addcredits @[user] [amount]`",
                 (event, args) -> {
                     handleData(event);
                     MessageChannel channel = event.getChannel();
@@ -150,13 +150,15 @@ public class BlackJackHandler extends CommandHandler {
 
                         System.out.println(args);
                         try {
-                            int amount = Integer.parseInt(args.get(1));
+                            long amount = Long.parseLong(args.get(1));
 
                             UserData player = activityData.getPlayer(event.getMember());
                             player.setCredits(player.getCredits() + amount);
 
 
                             activityData.save();
+
+                            event.getMessage().addReaction("✅").queue();
 
                         } catch (Exception e) {
                             EmbedBuilder embed = new EmbedBuilder();
@@ -174,20 +176,15 @@ public class BlackJackHandler extends CommandHandler {
     }
 
     private boolean verifyPermissions(Member member) {
-        for (Permission permission : member.getPermissions()) {
-            if (permission.getName().equals("Manage Channels") || permission.getName().equals("Administrator")) {
-                return true;
-            }
-        }
-        return false;
+        return (member.hasPermission(Permission.MANAGE_CHANNEL) || member.hasPermission(Permission.ADMINISTRATOR));
     }
 
     @Override
     public void buildSynonyms() {
-        getCommandCenter().addSynonym("p", "play");
-        getCommandCenter().addSynonym("pf", "profile");
-        getCommandCenter().addSynonym("lb", "leaderboard");
-        getCommandCenter().addSynonym("add", "addcredits");
+        addSynonym("p", "play");
+        addSynonym("pf", "profile");
+        addSynonym("lb", "leaderboard");
+        addSynonym("add", "addcredits");
     }
 
     private void handleData(MessageReceivedEvent event) {

@@ -14,10 +14,12 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This class manages all active music players
@@ -25,7 +27,7 @@ import java.util.concurrent.TimeUnit;
  * Based on MenuDocs' implementation
  *
  * @author Aron Navodh Kumarawatta
- * @version 29.05.2022
+ * @version 09.06.2022
  */
 public class PlayerManager {
     private static PlayerManager INSTANCE;
@@ -60,8 +62,8 @@ public class PlayerManager {
 
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setColor(ColorScheme.RESPONSE);
-                embed.setDescription("Queued song: `" + audioTrack.getInfo().title + "` - `" + audioTrack.getInfo().author + "`" +
-                        " - `" + formatTime(audioTrack.getDuration()) + "`");
+                embed.setDescription("Queued song: `" + audioTrack.getInfo().title + "` - `" + audioTrack.getInfo().author + "`");
+                embed.setFooter("Duration: " + formatTime(audioTrack.getDuration()));
                 event.getChannel().sendMessageEmbeds(embed.build()).queue();
             }
 
@@ -80,16 +82,25 @@ public class PlayerManager {
 
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setColor(ColorScheme.RESPONSE);
-                embed.setDescription("Queued song: `" + selectedTrack.getInfo().title + "` - `" + selectedTrack.getInfo().author + "`" +
-                        " - `" + formatTime(selectedTrack.getDuration()) + "`");
+                embed.setDescription("Queued song: `" + selectedTrack.getInfo().title + "` - `" + selectedTrack.getInfo().author + "`");
+                embed.setFooter("Duration: " + formatTime(selectedTrack.getDuration()));
                 event.getChannel().sendMessageEmbeds(embed.build()).queue();
             }
 
             @Override
             public void noMatches() {
+
+                if (isURL(url)) {
+                    String link = "ytsearch:" + url;
+
+                    loadAndPlay(event, link, member);
+                    return;
+                }
+
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setColor(ColorScheme.ERROR);
                 embed.setDescription("No close matches were found! \nTry a more precise search query.");
+                embed.setFooter("Remember that only youtube songs may be requested");
                 event.getChannel().sendMessageEmbeds(embed.build()).queue();
             }
 
@@ -98,6 +109,7 @@ public class PlayerManager {
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setColor(ColorScheme.ERROR);
                 embed.setDescription("An error has occurred! \nPerhaps the song / query is invalid");
+                embed.setFooter("Remember that only youtube songs may be requested");
                 event.getChannel().sendMessageEmbeds(embed.build()).queue();
             }
         });
@@ -121,7 +133,11 @@ public class PlayerManager {
 
             @Override
             public void noMatches() {
+                if (isURL(url)) {
+                    String link = "ytsearch:" + url;
 
+                    reQueue(guild, link, member);
+                }
             }
 
             @Override
@@ -129,15 +145,6 @@ public class PlayerManager {
 
             }
         });
-    }
-
-
-    public static PlayerManager getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new PlayerManager();
-        }
-
-        return INSTANCE;
     }
 
     public void loadPlaylist(MessageReceivedEvent event, String url, Member member) {
@@ -155,17 +162,48 @@ public class PlayerManager {
             public void playlistLoaded(AudioPlaylist audioPlaylist) {
                 long totalTime = 0;
 
-                for (AudioTrack track : audioPlaylist.getTracks()) {
-                    musicManager.getScheduler().queue(track);
-                    totalTime = totalTime + track.getDuration();
+                AudioTrack selectedTrack = audioPlaylist.getSelectedTrack();
 
-                    track.setUserData(member);
+                if ((selectedTrack == null)){
+                    for (AudioTrack track : audioPlaylist.getTracks()) {
+                        musicManager.getScheduler().queue(track);
+                        totalTime = totalTime + track.getDuration();
+                        track.setUserData(member);
+                    }
+
+                } else {
+                    ArrayList<AudioTrack> beforeSelectedTrack = new ArrayList<>();
+                    boolean reachedSelectedTrack = false;
+
+                    for (AudioTrack track : audioPlaylist.getTracks()){
+
+
+                        if (reachedSelectedTrack){
+                            musicManager.getScheduler().queue(track);
+
+                        } else {
+                            reachedSelectedTrack = track.getIdentifier().equals(selectedTrack.getIdentifier());
+
+                            if (reachedSelectedTrack) {
+                                musicManager.getScheduler().queue(track);
+                            } else {
+                                beforeSelectedTrack.add(track);
+                            }
+                        }
+
+                        totalTime = totalTime + track.getDuration();
+                        track.setUserData(member);
+                    }
+
+                    for (AudioTrack track : beforeSelectedTrack){
+                        musicManager.getScheduler().queue(track);
+                    }
                 }
 
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setColor(ColorScheme.RESPONSE);
-                embed.setDescription("Queued `" + audioPlaylist.getTracks().size() + "` songs from `" + audioPlaylist.getName() + "`" +
-                        " - total duration: `" + formatTime(totalTime) + "`");
+                embed.setDescription("Queued `" + audioPlaylist.getTracks().size() + "` songs from `" + audioPlaylist.getName() + "`");
+                embed.setFooter("Duration: " + formatTime(totalTime));
                 event.getChannel().sendMessageEmbeds(embed.build()).queue();
             }
 
@@ -174,6 +212,7 @@ public class PlayerManager {
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setColor(ColorScheme.ERROR);
                 embed.setDescription("No close matches were found! \nTry a more precise search query.");
+                embed.setFooter("Remember that only youtube songs may be requested");
                 event.getChannel().sendMessageEmbeds(embed.build()).queue();
             }
 
@@ -182,9 +221,19 @@ public class PlayerManager {
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setColor(ColorScheme.ERROR);
                 embed.setDescription("An error has occurred! \nPerhaps the song / query is invalid");
+                embed.setFooter("Remember that only youtube songs may be requested");
                 event.getChannel().sendMessageEmbeds(embed.build()).queue();
             }
         });
+    }
+
+
+    public static PlayerManager getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new PlayerManager();
+        }
+
+        return INSTANCE;
     }
 
     private String formatTime(long duration) {
@@ -197,5 +246,14 @@ public class PlayerManager {
         long SS = seconds % 60;
 
         return String.format("%02d:%02d:%02d", HH, MM, SS);
+    }
+
+    private boolean isURL(String link) {
+        try {
+            new URI(link);
+            return true;
+        } catch (URISyntaxException e) {
+            return false;
+        }
     }
 }

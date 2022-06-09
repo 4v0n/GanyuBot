@@ -11,7 +11,7 @@ import java.util.HashMap;
  * This offers a template help message
  *
  * @author Aron Navodh Kumarawatta
- * @version 30.05.2022
+ * @version 09.06.2022
  */
 public class Help {
     public static void help(String prefix, HashMap<String, String> commands, MessageReceivedEvent event) {
@@ -24,7 +24,7 @@ public class Help {
 
             commandDescription = commandDescription.replace("[prefix]", prefix);
 
-            commandStrings.add("- `" + commandWord + "` - " + commandDescription + "\n");
+            commandStrings.add("- `" + commandWord + "` - " + commandDescription);
         }
 
 
@@ -50,7 +50,7 @@ public class Help {
 
             commandDescription = commandDescription.replace("[prefix]", prefix);
 
-            commandStrings.add("- `" + commandWord + "` - " + commandDescription + "\n");
+            commandStrings.add("- `" + commandWord + "` - " + commandDescription);
         }
 
         notes = notes.replace("[prefix]", prefix);

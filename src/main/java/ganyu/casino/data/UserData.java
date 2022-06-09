@@ -5,15 +5,15 @@ import org.json.simple.JSONObject;
 
 /**
  * @author Aron Kumarawatta
- * @version 29.05.2022
+ * @version 09.06.2022
  */
 public class UserData {
 
     private final String memberID;
     private int hour;
-    private int losses;
-    private int wins;
-    private int credits;
+    private long losses;
+    private long wins;
+    private long credits;
 
     public UserData(String memberID) {
         this.memberID = memberID;
@@ -36,7 +36,7 @@ public class UserData {
         this.wins++;
     }
 
-    public int getWins() {
+    public long getWins() {
         return wins;
     }
 
@@ -44,15 +44,15 @@ public class UserData {
         this.losses++;
     }
 
-    public int getLosses() {
+    public long getLosses() {
         return losses;
     }
 
-    public int getCredits() {
+    public long getCredits() {
         return credits;
     }
 
-    public void setCredits(int credits) {
+    public void setCredits(long credits) {
         this.credits = credits;
     }
 

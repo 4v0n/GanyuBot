@@ -8,17 +8,14 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * This class stores and then handles commands
  * When a user sends a command message
  *
  * @author Aron Navodh Kumarawatta
- * @version 30.05.2022
+ * @version 09.06.2022
  */
 public class CommandCenter {
 
@@ -78,8 +75,8 @@ public class CommandCenter {
             throw new CommandExistsException(commandName);
         }
 
-        commandList.put(commandName, action);
-        commandDescriptions.put(commandName, description);
+        commandList.put(commandName.toLowerCase(), action);
+        commandDescriptions.put(commandName.toLowerCase(), description);
     }
 
     public HashMap<String, String> getCommandDescriptions() {
@@ -113,8 +110,8 @@ public class CommandCenter {
     private void replaceSynonyms(ArrayList<String> words, HashMap<String, String> synonyms) {
         int index = 0;
         for (String word : words) {
-            if (synonyms.containsKey(word)) {
-                words.set(index, synonyms.get(word));
+            if (synonyms.containsKey(word.toLowerCase())) {
+                words.set(index, synonyms.get(word.toLowerCase()));
             }
             index++;
         }
@@ -123,15 +120,16 @@ public class CommandCenter {
     public void parse(MessageReceivedEvent event) {
         ArrayList<String> commandWords = splitString(event.getMessage().getContentRaw());
 
-        if (!commandWords.get(0).equals(bot.getPrefix(event.getGuild()))) {
+        if (!commandWords.get(0).toLowerCase().equals(bot.getPrefix(event.getGuild()))) {
             commandWords = addToBeginning(bot.getPrefix(event.getGuild()), commandWords);
         }
 
         replaceSynonyms(commandWords, synonyms);
 
+
         Action action;
         try {
-            action = commandList.get(commandWords.get(layer));
+            action = commandList.get(commandWords.get(layer).toLowerCase());
 
         } catch (Exception e) {
             MessageChannel channel = event.getChannel();

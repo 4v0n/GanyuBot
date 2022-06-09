@@ -4,7 +4,6 @@ import ganyu.base.Activity;
 import ganyu.base.Bot;
 import ganyu.base.ColorScheme;
 import ganyu.casino.blackjack.BlackJackHandler;
-import ganyu.command.message.Action;
 import ganyu.command.message.CommandCenter;
 import ganyu.data.ServerData;
 import ganyu.image.ImageHandler;
@@ -18,18 +17,16 @@ import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This command allows the bot to listen to guild messages and
  * process commands
  *
  * @author Aron Navodh Kumarawatta
- * @version 30.05.2022
+ * @version 09.06.2022
  */
 public class GuildMessage extends ListenerAdapter {
     private final Bot bot;
@@ -67,7 +64,7 @@ public class GuildMessage extends ListenerAdapter {
         }
 
         Message message = event.getMessage();
-        String content = message.getContentRaw();
+        String content = message.getContentRaw().toLowerCase();
         ArrayList<String> words = splitString(content);
 
         if (words.size() > 0) {
@@ -125,14 +122,7 @@ public class GuildMessage extends ListenerAdapter {
         commandCenter.addCommand("settings", "Allows to access the bot settings", (event, args) -> {
             Member member = event.getMember();
 
-            boolean hasPermission = false;
-
-            for (Permission permission : member.getPermissions()) {
-                if (permission.getName().equals("Administrator")) {
-                    hasPermission = true;
-                    break;
-                }
-            }
+            boolean hasPermission = member.hasPermission(Permission.ADMINISTRATOR);
 
             if (!hasPermission) {
                 EmbedBuilder embed = new EmbedBuilder();

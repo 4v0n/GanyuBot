@@ -9,7 +9,7 @@ import java.io.IOException;
 
 /**
  * @author Aron Kumarawatta
- * @version 29.05.2022
+ * @version 09.06.2022
  */
 public class SettingsParser extends CommandHandler {
 
@@ -22,7 +22,7 @@ public class SettingsParser extends CommandHandler {
 
     @Override
     public void buildCommands() {
-        getCommandCenter().addCommand("prefix", "changes the prefix the bot will listen to on this server. Usage: `[prefix] prefix [new prefix]`", (event, args) -> {
+        addCommand("prefix", "changes the prefix the bot will listen to on this server. Usage: `[prefix] prefix [new prefix]`", (event, args) -> {
             if (args.get(0) == null || args.get(0).equals("")) {
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setDescription("You need to provide a new prefix!");

@@ -2,7 +2,7 @@
   <artifact type="jar" name="GanyuBot:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/GanyuBot_jar</output-path>
     <root id="archive" name="GanyuBot.jar">
-      <element id="module-output" name="GanyuBot" />
+      <element id="module-output" name="DiscordBot" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/googlecode/json-simple/json-simple/1.1.1/json-simple-1.1.1.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/club/minnced/opus-java/1.1.1/opus-java-1.1.1.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/neovisionaries/nv-websocket-client/2.14/nv-websocket-client-2.14.jar" path-in-jar="/" />

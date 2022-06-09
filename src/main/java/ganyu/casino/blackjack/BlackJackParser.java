@@ -8,7 +8,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
  * This allows for in-game blackjack commands to be parsed
  *
  * @author Aron Navodh Kumarawatta
- * @version 29.05.2022
+ * @version 09.06.2022
  */
 public class BlackJackParser extends CommandHandler {
 
@@ -21,7 +21,7 @@ public class BlackJackParser extends CommandHandler {
 
     @Override
     public void buildCommands() {
-        getCommandCenter().addCommand("hit", "Gives you one more card.",
+        addCommand("hit", "Gives you one more card.",
                 (event, args) -> {
                     Game game = getGame(event);
 
@@ -29,14 +29,14 @@ public class BlackJackParser extends CommandHandler {
                     game.update();
                 });
 
-        getCommandCenter().addCommand("stand", "End your round",
+        addCommand("stand", "End your round",
                 (event, args) -> getGame(event).finish());
     }
 
     @Override
     public void buildSynonyms() {
-        getCommandCenter().addSynonym("h", "hit");
-        getCommandCenter().addSynonym("s", "stand");
+        addSynonym("h", "hit");
+        addSynonym("s", "stand");
     }
 
     private Game getGame(MessageReceivedEvent event) {

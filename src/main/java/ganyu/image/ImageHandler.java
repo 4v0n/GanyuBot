@@ -20,7 +20,7 @@ import java.util.Random;
  * Added to fulfil feature request
  *
  * @author Aron Navodh Kumarawatta
- * @version 29.05.2022
+ * @version 09.06.2022
  */
 public class ImageHandler extends CommandHandler {
 
@@ -31,7 +31,7 @@ public class ImageHandler extends CommandHandler {
 
     @Override
     public void buildCommands() {
-        getCommandCenter().addCommand("sfw", "Searches https://safebooru.org for an image with the supplied tags. Usage: `[prefix] images sfw [tag1] [tag2] ...`",
+        addCommand("sfw", "Searches https://safebooru.org for an image with the supplied tags. Usage: `[prefix] images sfw [tag1] [tag2] ...`",
                 (event, args) -> {
                     System.out.println(args);
                     if (args.size() > 0) {
@@ -42,7 +42,7 @@ public class ImageHandler extends CommandHandler {
                     }
                 });
 
-        getCommandCenter().addCommand("nsfw", "Searches Rule34 for an image with the supplied tags. Usage: `[prefix] images sfw [tag1] [tag2] ...` Only works in an NSFW channel.",
+        addCommand("nsfw", "Searches Rule34 for an image with the supplied tags. Usage: `[prefix] images sfw [tag1] [tag2] ...` Only works in an NSFW channel.",
                 (event, args) -> {
                     if (args.size() > 0) {
                         String words = join((ArrayList<String>) args, " ");

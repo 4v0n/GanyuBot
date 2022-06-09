@@ -11,7 +11,7 @@ import java.util.List;
 
 /**
  * @author Aron Kumarawatta
- * @version 29.05.2022
+ * @version 09.06.2022
  */
 public class MultiPageMessage {
 
@@ -87,7 +87,7 @@ public class MultiPageMessage {
                 continue;
             }
 
-            sb.append(string);
+            sb.append(string + "\n");
         }
 
         if (content.length > 1) {
