@@ -60,10 +60,34 @@ public class PlayerManager {
                 audioTrack.setUserData(member);
                 musicManager.getScheduler().queue(audioTrack);
 
+                ArrayList<AudioTrack> songQueue = new ArrayList<>(musicManager.getScheduler().getSongQueue());
+                long position = songQueue.indexOf(audioTrack);
+
+                long timeUntilSong = 0;
+
+                AudioTrack playingTrack = musicManager.getAudioPlayer().getPlayingTrack();
+                if (playingTrack != null){
+                    timeUntilSong = timeUntilSong + ( playingTrack.getDuration() - playingTrack.getPosition() );
+                }
+
+                for (int i = 0; i < position; i++){
+                    timeUntilSong = timeUntilSong + songQueue.get(i).getDuration();
+                }
+
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setColor(ColorScheme.RESPONSE);
-                embed.setDescription("Queued song: `" + audioTrack.getInfo().title + "` - `" + audioTrack.getInfo().author + "`");
-                embed.setFooter("Duration: " + formatTime(audioTrack.getDuration()));
+
+                embed.setAuthor("Added to queue");
+                embed.setTitle(audioTrack.getInfo().author + " - " + audioTrack.getInfo().title, audioTrack.getInfo().uri);
+                embed.setThumbnail("http://img.youtube.com/vi/" + audioTrack.getInfo().identifier + "/0.jpg");
+
+                if (position > 0) {
+                    embed.setDescription("Position in queue: " + position + 1);
+                    embed.setFooter("Duration: " + formatTime(audioTrack.getDuration()) + " | Time until song: " + formatTime(timeUntilSong));
+                } else {
+                    embed.setFooter("Duration: " + formatTime(audioTrack.getDuration()));
+                }
+
                 event.getChannel().sendMessageEmbeds(embed.build()).queue();
             }
 
@@ -80,10 +104,34 @@ public class PlayerManager {
 
                 musicManager.getScheduler().queue(selectedTrack);
 
+                ArrayList<AudioTrack> songQueue = new ArrayList<>(musicManager.getScheduler().getSongQueue());
+                long position = songQueue.indexOf(selectedTrack);
+
+                long timeUntilSong = 0;
+
+                AudioTrack playingTrack = musicManager.getAudioPlayer().getPlayingTrack();
+                if (playingTrack != null){
+                    timeUntilSong = timeUntilSong + ( playingTrack.getDuration() - playingTrack.getPosition() );
+                }
+
+                for (int i = 0; i < position; i++){
+                    timeUntilSong = timeUntilSong + songQueue.get(i).getDuration();
+                }
+
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setColor(ColorScheme.RESPONSE);
-                embed.setDescription("Queued song: `" + selectedTrack.getInfo().title + "` - `" + selectedTrack.getInfo().author + "`");
-                embed.setFooter("Duration: " + formatTime(selectedTrack.getDuration()));
+
+                embed.setAuthor("Added to queue");
+                embed.setTitle(selectedTrack.getInfo().author + " - " + selectedTrack.getInfo().title, selectedTrack.getInfo().uri);
+                embed.setThumbnail("http://img.youtube.com/vi/" + selectedTrack.getInfo().identifier + "/0.jpg");
+
+                if (position > 0) {
+                    embed.setDescription("Position in queue: " + position + 1);
+                    embed.setFooter("Duration: " + formatTime(selectedTrack.getDuration()) + " | Time until song: " + formatTime(timeUntilSong));
+                } else {
+                    embed.setFooter("Duration: " + formatTime(selectedTrack.getDuration()));
+                }
+
                 event.getChannel().sendMessageEmbeds(embed.build()).queue();
             }
 
@@ -202,8 +250,18 @@ public class PlayerManager {
 
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setColor(ColorScheme.RESPONSE);
-                embed.setDescription("Queued `" + audioPlaylist.getTracks().size() + "` songs from `" + audioPlaylist.getName() + "`");
-                embed.setFooter("Duration: " + formatTime(totalTime));
+                embed.setAuthor("Queued playlist");
+                embed.setTitle("Queued from: " + audioPlaylist.getName(), url);
+                embed.setDescription("Queued " + audioPlaylist.getTracks().size() + " songs");
+
+                if (selectedTrack == null) {
+                    selectedTrack = audioPlaylist.getTracks().get(0);
+                }
+
+                embed.setThumbnail("http://img.youtube.com/vi/" + selectedTrack.getInfo().identifier + "/0.jpg");
+                embed.appendDescription("\nStarting from: `" + selectedTrack.getInfo().title + "" +
+                        "` by `" + selectedTrack.getInfo().author + "`");
+                embed.setFooter("Total duration: " + formatTime(totalTime));
                 event.getChannel().sendMessageEmbeds(embed.build()).queue();
             }
 

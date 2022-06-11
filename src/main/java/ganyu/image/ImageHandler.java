@@ -1,5 +1,6 @@
 package ganyu.image;
 
+import ganyu.base.ColorScheme;
 import ganyu.command.message.CommandHandler;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -8,7 +9,6 @@ import net.kodehawa.lib.imageboards.DefaultImageBoards;
 import net.kodehawa.lib.imageboards.ImageBoard;
 import net.kodehawa.lib.imageboards.entities.BoardImage;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -68,7 +68,7 @@ public class ImageHandler extends CommandHandler {
         MessageChannel channel = event.getChannel();
         EmbedBuilder embed = new EmbedBuilder();
         embed.setDescription("You haven't provided any tags!");
-        embed.setColor(new Color(255, 0, 0));
+        embed.setColor(ColorScheme.ERROR);
         channel.sendMessageEmbeds(embed.build()).queue();
     }
 
@@ -92,7 +92,7 @@ public class ImageHandler extends CommandHandler {
                 embed.setTitle("No images were found for these tags");
                 embed.setImage("https://cdn.betterttv.net/emote/5e8c3a008fb1ca5cde58723f/3x");
                 embed.setFooter("Perhaps the tags may be incorrectly spelt or formatted.");
-                embed.setColor(new Color(255, 0, 0));
+                embed.setColor(ColorScheme.ERROR);
                 channel.sendMessageEmbeds(embed.build()).queue();
             }
         });
@@ -129,7 +129,7 @@ public class ImageHandler extends CommandHandler {
                             EmbedBuilder embed = new EmbedBuilder();
                             embed.setTitle("no wtf");
                             embed.setImage("https://cdn.7tv.app/emote/60bd66d67c2d79e1a9285551/4x");
-                            embed.setColor(new Color(255, 0, 0));
+                            embed.setColor(ColorScheme.ERROR);
                             channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();
                             return;
                         }
@@ -141,7 +141,7 @@ public class ImageHandler extends CommandHandler {
                     EmbedBuilder embed = new EmbedBuilder();
                     embed.setTitle("No");
                     embed.setFooter("The 'loli' tag was found");
-                    embed.setColor(new Color(255, 0, 0));
+                    embed.setColor(ColorScheme.ERROR);
                     channel.sendMessageEmbeds(embed.build()).queue();
 
                 } else {
@@ -149,7 +149,7 @@ public class ImageHandler extends CommandHandler {
                     embed.setTitle("No images were found for these tags");
                     embed.setImage("https://cdn.betterttv.net/emote/5e8c3a008fb1ca5cde58723f/3x");
                     embed.setFooter("Perhaps the tags may be incorrectly spelt or formatted.");
-                    embed.setColor(new Color(255, 0, 0));
+                    embed.setColor(ColorScheme.ERROR);
                     channel.sendMessageEmbeds(embed.build()).queue();
                 }
             });
@@ -158,7 +158,7 @@ public class ImageHandler extends CommandHandler {
             embed.setTitle("This isn't an nsfw channel");
             embed.setImage("https://cdn.frankerfacez.com/emoticon/555265/4");
             embed.setFooter("Use this command in an NSFW channel or use the SFW command instead.");
-            embed.setColor(new Color(255, 0, 0));
+            embed.setColor(ColorScheme.ERROR);
             channel.sendMessageEmbeds(embed.build()).queue();
         }
     }
@@ -169,6 +169,7 @@ public class ImageHandler extends CommandHandler {
         EmbedBuilder embed = new EmbedBuilder();
         String url = image.getURL();
 
+
         if (url.endsWith(".png")) {
             String[] tempURL = url.split("/");
             tempURL[3] = "samples";
@@ -176,13 +177,16 @@ public class ImageHandler extends CommandHandler {
 
             String newUrl = join(tempURL, "/");
             newUrl = newUrl.substring(0, newUrl.length() - 1);
-            url = newUrl;
+
+            embed.setImage(newUrl);
+        } else {
+            embed.setImage(url);
         }
 
-        embed.setAuthor("Original file", url);
-        embed.setTitle(tags);
-        embed.setImage(url);
-        embed.setColor(new Color(0, 255, 150));
+        embed.setAuthor(tags);
+        embed.setTitle("Original file", url);
+
+        embed.setColor(ColorScheme.RESPONSE);
         //System.out.println(url);
 
         channel.sendMessageEmbeds(embed.build()).queue();

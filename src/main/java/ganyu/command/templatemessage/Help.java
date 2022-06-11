@@ -28,14 +28,13 @@ public class Help {
         }
 
 
-        MultiPageMessage helpMessage = new MultiPageMessage(
-                "Command List:",
+        MultiPageEmbed helpMessage = new MultiPageEmbed(commandStrings, 5);
+        helpMessage.setDescription(
                 "Here is a list of commands: \n" +
-                        "The prefix is - ***" + prefix + "*** \n>>> ",
-                commandStrings,
-                ColorScheme.RESPONSE,
-                5
-        );
+                "The prefix is - ***" + prefix + "*** \n>>> ");
+        helpMessage.setAuthor("Help");
+        helpMessage.setTitle("Command list:");
+        helpMessage.setColor(ColorScheme.RESPONSE);
 
         helpMessage.sendMessage(channel);
     }
@@ -55,15 +54,13 @@ public class Help {
 
         notes = notes.replace("[prefix]", prefix);
 
-        MultiPageMessage helpMessage = new MultiPageMessage(
-                "Command List:",
-                notes + "\n" +
-                        "Here is a list of commands: \n" +
-                        "The prefix is - ***" + prefix + "*** \n>>> ",
-                commandStrings,
-                ColorScheme.RESPONSE,
-                5
-        );
+        MultiPageEmbed helpMessage = new MultiPageEmbed(commandStrings, 5);
+        helpMessage.setDescription(notes + "\n" +
+                "Here is a list of commands: \n" +
+                "The prefix is - ***" + prefix + "*** \n>>> ");
+        helpMessage.setAuthor("Help");
+        helpMessage.setTitle("Command list:");
+        helpMessage.setColor(ColorScheme.RESPONSE);
 
         helpMessage.sendMessage(channel);
     }

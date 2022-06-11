@@ -22,8 +22,11 @@ public class ServerData {
     private final Guild guild;
     private String prefix;
 
+    private String DJRoleName;
+
     public ServerData(Guild guild) {
         this.prefix = Bot.getINSTANCE().getGlobalPrefix();
+        this.DJRoleName = "DJ";
         this.guild = guild;
     }
 
@@ -34,13 +37,13 @@ public class ServerData {
         JSONObject json = (JSONObject) jsonParser.parse(new FileReader(file.getAbsolutePath()));
 
         this.prefix = String.valueOf(json.get("prefix"));
-
+        this.DJRoleName = String.valueOf(json.get("DJRole"));
     }
 
     public void save() throws IOException {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("prefix", prefix);
-
+        jsonObject.put("DJRole", DJRoleName);
 
         FileWriter fw = new FileWriter(("ServerData/" + guild.getId() + ".json"));
         fw.write(jsonObject.toJSONString());
@@ -69,6 +72,18 @@ public class ServerData {
 
     public String getPrefix() {
         return prefix;
+    }
+
+    public String getDJRoleName() {
+        if (DJRoleName == null || DJRoleName.equals("null")){
+            return "DJ";
+        } else {
+            return DJRoleName;
+        }
+    }
+
+    public void setDJRoleName(String DJRoleName) {
+        this.DJRoleName = DJRoleName;
     }
 
     public void setPrefix(String prefix) {

@@ -3,6 +3,7 @@ package ganyu.base;
 import ganyu.base.listener.ChannelJoin;
 import ganyu.base.listener.Reaction;
 import ganyu.base.listener.GuildMessage;
+import ganyu.base.listener.SlashCommand;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
@@ -41,6 +42,7 @@ public class Main {
         jda.addEventListeners(new GuildMessage());
         jda.addEventListeners(reactionParser);
         jda.addEventListeners(new ChannelJoin());
+        jda.addEventListeners(new SlashCommand());
         jda.setActivity(Activity.playing("(" + botData.getGlobalPrefix() + ") " + settings.get("STATUS")));
 
 

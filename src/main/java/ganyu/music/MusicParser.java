@@ -3,9 +3,11 @@ package ganyu.music;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
+import ganyu.base.Bot;
 import ganyu.base.ColorScheme;
 import ganyu.command.message.CommandHandler;
-import ganyu.command.templatemessage.MultiPageMessage;
+import ganyu.command.templatemessage.MultiPageEmbed;
+import ganyu.data.ServerData;
 import ganyu.music.lavaplayer.PlayerManager;
 import ganyu.music.lavaplayer.TrackScheduler;
 import ganyu.music.vote.VoteMessage;
@@ -72,9 +74,9 @@ public class MusicParser extends CommandHandler {
 
         // song commands
         addCommand("play", "queues a song and then plays a song." +
-                " Usage: `[prefix] play [link / search query]`", this::playSong);
+                " Usage: `[prefix] mp play [link / search query]`", this::playSong);
         addCommand("playlist", "Adds a playlist of songs to the queue" +
-                " Usage: `[prefix] playlist [link]`", this::queueListCommand);
+                " Usage: `[prefix] mp playlist [link]`", this::queueListCommand);
 
         // queue information commands
         addCommand("nowplaying", "shows the currently playing song", this::nowPlayingCommand);
@@ -83,8 +85,8 @@ public class MusicParser extends CommandHandler {
         // queue manipulation commands
         addCommand("emptyqueue", "Empties the song queue", this::emptyQueue);
         addCommand("remove", "removes a song from the queue by number", this::removeSongCommand);
-        addCommand("skipto", "skips all songs until a chosen point. Usage: `[prefix] skipto [number]`", this::skipToCommand);
-        addCommand("move", "moves a track from one position to another. Usage: `[prefix] move [oldpos] [newpos]`", this::moveCommand);
+        addCommand("skipto", "skips all songs until a chosen point. Usage: `[prefix] mp skipto [number]`", this::skipToCommand);
+        addCommand("move", "moves a track from one position to another. Usage: `[prefix] mp move [oldpos] [newpos]`", this::moveCommand);
         addCommand("removeduplicates", "removes all duplicate songs from the song queue", this::removeDuplicatesCommand);
 
         // player commands
@@ -94,7 +96,7 @@ public class MusicParser extends CommandHandler {
         addCommand("loopqueue", "loops the song queue", this::loopQueueCommand);
         addCommand("loop", "loops the currently playing song", this::loopSongCommand);
         addCommand("seek", "Allows you to seek backwards or forwards by a certain amount (negative to seek back). " +
-                "Usage: `[prefix] seek (-)[time in seconds]`", this::seekCommand);
+                "Usage: `[prefix] mp seek (-)[time in seconds]`", this::seekCommand);
 
         addHelpMessage("Note that these commands can be directly accessed using `[prefix]m [command]`");
     }
@@ -163,9 +165,10 @@ public class MusicParser extends CommandHandler {
         if (inSameVC(event)) {
             int members = event.getMember().getVoiceState().getChannel().getMembers().size();
             if (!hasPermissions((member)) && members > 2) {
+                ServerData data = Bot.getINSTANCE().getGuildData().get(event.getGuild());
                 event.getChannel().sendMessageEmbeds(errorEmbed(
                                 "You don't have the permissions to use this command!",
-                                "This command requires the `DJ` (case sensitive) role or a role with the 'Manage Channels' permission to use"
+                                "This command requires the `"+ data.getDJRoleName() +"` (case sensitive) role or a role with the 'Manage Channels' permission to use"
                         ).build()
                 ).queue();
                 return;
@@ -336,13 +339,13 @@ public class MusicParser extends CommandHandler {
             return;
 
         } else {
-            String string = "Link: " + track.getInfo().uri + " \n" +
-                    "`" + track.getInfo().title + "` by `" + track.getInfo().author + "` \n" +
+            String string =
                     "`" + timeLine(track.getPosition(), track.getDuration()) + "`\n" +
                     "`" + formatTime(track.getPosition()) + " / " + formatTime(track.getDuration()) + "`";
 
             EmbedBuilder embed = new EmbedBuilder();
-            embed.setTitle("Now playing:");
+            embed.setAuthor("Now playing");
+            embed.setTitle(track.getInfo().author + " - " + track.getInfo().title, track.getInfo().uri);
             embed.setDescription(string);
 
             Member userData = (Member) track.getUserData();
@@ -384,17 +387,12 @@ public class MusicParser extends CommandHandler {
 
         String name = "<@" + ((Member) currentTrack.getUserData()).getId() + ">";
 
-        String nowPlayingString = "***Now playing: `" + trackInfo.title + "` by `" + trackInfo.author + "`***" +
-                " - `" + formatTime(currentTrack.getPosition()) + "/" + formatTime(currentTrack.getDuration()) + "` requested by " +
-                name + "\n \n";
+        String nowPlayingString = "`" + trackInfo.title + "` by `" + trackInfo.author + "`" +
+                " - `" + formatTime(currentTrack.getPosition()) + "/" + formatTime(currentTrack.getDuration()) + "` - " +
+                name + "\n";
 
         if (queue.isEmpty()) {
-            EmbedBuilder embed = new EmbedBuilder();
-            embed.setTitle("Song queue: ");
-            embed.setDescription(nowPlayingString);
-            embed.setColor(ColorScheme.RESPONSE);
-            event.getChannel().sendMessageEmbeds(embed.build()).queue();
-            return;
+            showNowPlaying(event);
         }
 
         ArrayList<AudioTrack> trackList = new ArrayList<>(queue);
@@ -409,22 +407,19 @@ public class MusicParser extends CommandHandler {
             String id = "<@" + ((Member) track.getUserData()).getId() + ">";
 
             String string = i + " - `" + info.title + "` by `" + info.author + "` - " +
-                    " `" + formatTime(track.getDuration()) + "` requested by " +
+                    " `" + formatTime(track.getDuration()) + "` - " +
                     id;
             trackStrings.add(string);
 
             totalTime = totalTime + track.getDuration();
         }
 
-
-        MultiPageMessage queueListMessage = new MultiPageMessage(
-                "Song queue:",
-                (nowPlayingString +
-                        "Total Queue time: `" + formatTime(totalTime) + "`\n"),
-                trackStrings,
-                ColorScheme.RESPONSE,
-                10
-        );
+        MultiPageEmbed queueListMessage = new MultiPageEmbed(trackStrings, 10);
+        queueListMessage.setColor(ColorScheme.RESPONSE);
+        queueListMessage.setAuthor("Song queue");
+        queueListMessage.setTitle("Now playing:", trackInfo.uri);
+        queueListMessage.setDescription(nowPlayingString);
+        queueListMessage.setThumbnail("http://img.youtube.com/vi/" + trackInfo.identifier + "/0.jpg");
 
         queueListMessage.sendMessage(event.getChannel());
     }
@@ -466,9 +461,10 @@ public class MusicParser extends CommandHandler {
         Member member = event.getMember();
 
         if (!hasPermissions(Objects.requireNonNull(member))) {
+            ServerData data = Bot.getINSTANCE().getGuildData().get(event.getGuild());
             event.getChannel().sendMessageEmbeds(errorEmbed(
                             "You don't have the permissions to use this command!",
-                            "This command requires the `DJ` (case sensitive) role or a role with the 'Manage Channels' permission to use"
+                            "This command requires the `"+ data.getDJRoleName() +"` (case sensitive) role or a role with the 'Manage Channels' permission to use"
                     ).build()
             ).queue();
             return;
@@ -486,9 +482,10 @@ public class MusicParser extends CommandHandler {
         if (inSameVC(event)) {
             int members = event.getMember().getVoiceState().getChannel().getMembers().size();
             if (!hasPermissions((member)) && members > 2) {
+                ServerData data = Bot.getINSTANCE().getGuildData().get(event.getGuild());
                 event.getChannel().sendMessageEmbeds(errorEmbed(
                                 "You don't have the permissions to use this command!",
-                                "This command requires the `DJ` (case sensitive) role or a role with the 'Manage Channels' permission to use"
+                                "This command requires the `"+ data.getDJRoleName() +"` (case sensitive) role or a role with the 'Manage Channels' permission to use"
                         ).build()
                 ).queue();
                 return;
@@ -553,9 +550,10 @@ public class MusicParser extends CommandHandler {
         if (inSameVC(event)) {
             int members = event.getMember().getVoiceState().getChannel().getMembers().size();
             if (!hasPermissions((member)) && members > 2) {
+                ServerData data = Bot.getINSTANCE().getGuildData().get(event.getGuild());
                 event.getChannel().sendMessageEmbeds(errorEmbed(
                                 "You don't have the permissions to use this command!",
-                                "This command requires the `DJ` (case sensitive) role or a role with the 'Manage Channels' permission to use"
+                                "This command requires the `"+ data.getDJRoleName() +"` (case sensitive) role or a role with the 'Manage Channels' permission to use"
                         ).build()
                 ).queue();
                 return;
@@ -624,9 +622,10 @@ public class MusicParser extends CommandHandler {
         if (inSameVC(event)) {
             int members = event.getMember().getVoiceState().getChannel().getMembers().size();
             if (!hasPermissions((member)) && members > 2) {
+                ServerData data = Bot.getINSTANCE().getGuildData().get(event.getGuild());
                 event.getChannel().sendMessageEmbeds(errorEmbed(
                                 "You don't have the permissions to use this command!",
-                                "This command requires the `DJ` (case sensitive) role or a role with the 'Manage Channels' permission to use"
+                                "This command requires the `"+ data.getDJRoleName() +"` (case sensitive) role or a role with the 'Manage Channels' permission to use"
                         ).build()
                 ).queue();
                 return;
@@ -728,9 +727,10 @@ public class MusicParser extends CommandHandler {
         Member member = event.getMember();
 
         if (!hasPermissions(Objects.requireNonNull(member))) {
+            ServerData data = Bot.getINSTANCE().getGuildData().get(event.getGuild());
             event.getChannel().sendMessageEmbeds(errorEmbed(
                             "You don't have the permissions to use this command!",
-                            "This command requires the `DJ` (case sensitive) role or a role with the 'Manage Channels' permission to use"
+                            "This command requires the `"+ data.getDJRoleName() +"` (case sensitive) role or a role with the 'Manage Channels' permission to use"
                     ).build()
             ).queue();
             return;
@@ -757,9 +757,10 @@ public class MusicParser extends CommandHandler {
         if (inSameVC(event)) {
             int members = event.getMember().getVoiceState().getChannel().getMembers().size();
             if (!hasPermissions((member)) && members > 2) {
+                ServerData data = Bot.getINSTANCE().getGuildData().get(event.getGuild());
                 event.getChannel().sendMessageEmbeds(errorEmbed(
                                 "You don't have the permissions to use this command!",
-                                "This command requires the `DJ` (case sensitive) role or a role with the 'Manage Channels' permission to use"
+                                "This command requires the `"+ data.getDJRoleName() +"` (case sensitive) role or a role with the 'Manage Channels' permission to use"
                         ).build()
                 ).queue();
                 return;
@@ -881,9 +882,10 @@ public class MusicParser extends CommandHandler {
         if (inSameVC(event)) {
             int members = event.getMember().getVoiceState().getChannel().getMembers().size();
             if (!hasPermissions((member)) && members > 2) {
+                ServerData data = Bot.getINSTANCE().getGuildData().get(event.getGuild());
                 event.getChannel().sendMessageEmbeds(errorEmbed(
                                 "You don't have the permissions to use this command!",
-                                "This command requires the `DJ` (case sensitive) role or a role with the 'Manage Channels' permission to use"
+                                "This command requires the `"+ data.getDJRoleName() +"` (case sensitive) role or a role with the 'Manage Channels' permission to use"
                         ).build()
                 ).queue();
                 return;
@@ -923,9 +925,10 @@ public class MusicParser extends CommandHandler {
         if (inSameVC(event)) {
             int members = event.getMember().getVoiceState().getChannel().getMembers().size();
             if (!hasPermissions((member)) && members > 2) {
+                ServerData data = Bot.getINSTANCE().getGuildData().get(event.getGuild());
                 event.getChannel().sendMessageEmbeds(errorEmbed(
                                 "You don't have the permissions to use this command!",
-                                "This command requires the `DJ` (case sensitive) role or a role with the 'Manage Channels' permission to use"
+                                "This command requires the `"+ data.getDJRoleName() +"` (case sensitive) role or a role with the 'Manage Channels' permission to use"
                         ).build()
                 ).queue();
                 return;
@@ -965,9 +968,10 @@ public class MusicParser extends CommandHandler {
         if (inSameVC(event)) {
             int members = event.getMember().getVoiceState().getChannel().getMembers().size();
             if (!hasPermissions((member)) && members > 2) {
+                ServerData data = Bot.getINSTANCE().getGuildData().get(event.getGuild());
                 event.getChannel().sendMessageEmbeds(errorEmbed(
                                 "You don't have the permissions to use this command!",
-                                "This command requires the `DJ` (case sensitive) role or a role with the 'Manage Channels' permission to use"
+                                "This command requires the `"+ data.getDJRoleName() +"` (case sensitive) role or a role with the 'Manage Channels' permission to use"
                         ).build()
                 ).queue();
                 return;
@@ -1008,9 +1012,10 @@ public class MusicParser extends CommandHandler {
         if (inSameVC(event)) {
             int members = event.getMember().getVoiceState().getChannel().getMembers().size();
             if (!hasPermissions((member)) && members > 2) {
+                ServerData data = Bot.getINSTANCE().getGuildData().get(event.getGuild());
                 event.getChannel().sendMessageEmbeds(errorEmbed(
                                 "You don't have the permissions to use this command!",
-                                "This command requires the `DJ` (case sensitive) role or a role with the 'Manage Channels' permission to use"
+                                "This command requires the `"+ data.getDJRoleName() +"` (case sensitive) role or a role with the 'Manage Channels' permission to use"
                         ).build()
                 ).queue();
                 return;
@@ -1135,18 +1140,19 @@ public class MusicParser extends CommandHandler {
 
     private boolean hasPermissions(Member user) {
         List<Role> roles = user.getRoles();
+        ServerData serverData = Bot.getINSTANCE().getGuildData().get(user.getGuild());
 
-        if (user.isOwner()) {
-            return true;
-        }
+        if (user.isOwner()) return true;
+
+        if (user.hasPermission(Permission.MANAGE_CHANNEL) || user.hasPermission(Permission.ADMINISTRATOR)) return true;
 
         for (Role role : roles) {
-            if (role.getName().equals("DJ")) {
+            if (role.getName().equals(serverData.getDJRoleName())) {
                 return true;
             }
         }
 
-        return (user.hasPermission(Permission.MANAGE_CHANNEL) || user.hasPermission(Permission.ADMINISTRATOR));
+        return false;
     }
 
     private String timeLine(long currentTime, long duration) {

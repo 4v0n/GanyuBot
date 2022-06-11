@@ -8,7 +8,7 @@ import ganyu.casino.data.CasinoData;
 import ganyu.casino.data.CasinoGuildData;
 import ganyu.casino.data.UserData;
 import ganyu.command.message.CommandHandler;
-import ganyu.command.templatemessage.MultiPageMessage;
+import ganyu.command.templatemessage.MultiPageEmbed;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -38,7 +38,7 @@ public class BlackJackHandler extends CommandHandler {
 
     @Override
     public void buildCommands() {
-        addCommand("play", "starts a round of blackjack. Add a bet to bet credits. Usage: `[prefix] play [bet amount]`",
+        addCommand("play", "starts a round of blackjack. Add a bet to bet credits. Usage: `[prefix] bj play [bet amount]`",
                 (event, args) -> {
                     handleData(event);
                     EmbedBuilder embed = new EmbedBuilder();
@@ -130,18 +130,16 @@ public class BlackJackHandler extends CommandHandler {
                         i++;
                     }
 
-                    MultiPageMessage mp = new MultiPageMessage(
-                            "Leaderboard",
-                            "The top " + leaderBoard.size() + " player(s) on the server: \n",
-                            stringArray,
-                            ColorScheme.RESPONSE,
-                            5
-                    );
+                    MultiPageEmbed mp = new MultiPageEmbed(stringArray, 5);
+                    mp.setTitle("Leaderboard");
+                    mp.setDescription("The top " + leaderBoard.size() + " player(s) on the server: \n");
+                    mp.setColor(ColorScheme.RESPONSE);
+
 
                     mp.sendMessage(event.getChannel());
                 });
 
-        addCommand("addcredits", "***Admin only command.*** Adds credits to the tagged user. Usage: `[prefix] addcredits @[user] [amount]`",
+        addCommand("addcredits", "***Admin only command.*** Adds credits to the tagged user. Usage: `[prefix] bj addcredits @[user] [amount]`",
                 (event, args) -> {
                     handleData(event);
                     MessageChannel channel = event.getChannel();
