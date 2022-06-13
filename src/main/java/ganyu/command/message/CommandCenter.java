@@ -4,11 +4,19 @@ import ganyu.base.Bot;
 import ganyu.base.ColorScheme;
 import ganyu.command.CommandExistsException;
 import ganyu.command.templatemessage.Help;
+import ganyu.command.templatemessage.MultiPageEmbed;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.events.Event;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Scanner;
 
 /**
  * This class stores and then handles commands
@@ -17,74 +25,158 @@ import java.util.*;
  * @author Aron Navodh Kumarawatta
  * @version 09.06.2022
  */
-public class CommandCenter {
+ public class CommandCenter {
 
-    private final HashMap<String, Action> commandList;
-    private final HashMap<String, String> commandDescriptions;
+    private final HashMap<String, Command> commands;
     private final int layer;
     private final Bot bot;
     private final HashMap<String, String> synonyms;
 
     public CommandCenter(int layer) {
-        this.commandList = new HashMap<>();
-        this.commandDescriptions = new HashMap<>();
+        this.commands = new HashMap<>();
         this.bot = Bot.getINSTANCE();
         this.layer = layer;
         this.synonyms = new HashMap<>();
 
-        this.addCommand("help", "Returns a list of commands and info about this command / command set",
-                (event, args) -> {
-                    Help.help(bot.getPrefix(event.getGuild()), this.getCommandDescriptions(), event);
-                });
+        this.addCommand(new Command() {
+            @Override
+            public void run(Event uncastedEvent, List<String> args) {
 
-        this.addCommand("synonyms", "Returns a list of command synonyms",
-                (event, args) -> {
-                    StringBuilder string = new StringBuilder();
-                    for (String synonym : synonyms.keySet()) {
-                        string.append(synonym)
-                                .append(" = ")
-                                .append(synonyms.get(synonym))
-                                .append("\n");
+                HashMap<String, String> commandStrings = new HashMap<>();
+                for (Command command : commands.values()){
+                    commandStrings.put(command.getCommandWord(), command.getDescription());
+                }
+
+                if (uncastedEvent instanceof MessageReceivedEvent){
+                    MessageReceivedEvent event = (MessageReceivedEvent) uncastedEvent;
+
+                    Help.help(bot.getPrefix(event.getGuild()), commandStrings, event);
+                }
+            }
+
+            @Override
+            public @NotNull String getCommandWord() {
+                return "help";
+            }
+
+            @Override
+            public @NotNull String getDescription() {
+                return "Returns a list of commands and info about this command / command set";
+            }
+
+            @Override
+            public @NotNull CommandData getCommandData() {
+                return new CommandData(getCommandWord(), getDescription());
+            }
+
+            @Override
+            public String[] getSynonyms() {
+                return new String[0];
+            }
+        });
+
+        this.addCommand(new Command() {
+                    @Override
+                    public void run(Event event, List<String> args) {
+                        List<String> array = new ArrayList<>();
+
+                        for (Command command : commands.values()){
+                            for (String synonym : command.getSynonyms()){
+                                array.add(
+                                        synonym + " = " + command.getCommandWord()
+                                );
+                            }
+                        }
+
+                        MultiPageEmbed mpe = new MultiPageEmbed(array, 5);
+                        mpe.setTitle("Command synonyms");
+                        mpe.setDescription("These synonyms equate to these commands:");
+                        mpe.setColor(ColorScheme.RESPONSE);
+
+                        if (event instanceof MessageReceivedEvent){
+                            mpe.sendMessage(((MessageReceivedEvent) event).getChannel());
+                        }
+
+                        if (event instanceof SlashCommandEvent) {
+                            mpe.replyTo(((SlashCommandEvent) event));
+                        }
                     }
-                    MessageChannel channel = event.getChannel();
-                    EmbedBuilder embed = new EmbedBuilder();
-                    embed.setDescription(string.toString());
-                    embed.setColor(ColorScheme.RESPONSE);
-                    channel.sendMessageEmbeds(embed.build()).reference(event.getMessage()).queue();
+
+                    @Override
+                    public @NotNull String getCommandWord() {
+                        return "synonyms";
+                    }
+
+                    @Override
+                    public @NotNull String getDescription() {
+                        return "Returns a list of command synonyms. This is only really useful when not using slash commands";
+                    }
+
+                    @Override
+                    public @NotNull CommandData getCommandData() {
+                        return new CommandData(getCommandWord(), getDescription());
+                    }
+
+                    @Override
+                    public String[] getSynonyms() {
+                        return new String[0];
+                    }
                 });
     }
 
     public void addHelpMessage(String message){
-        this.commandList.remove("help");
-        this.commandDescriptions.remove("help");
+        this.commands.remove("help");
 
-        Action action = new Action() {
+        Command helpCommand = new Command() {
             @Override
-            public void run(MessageReceivedEvent event, List<String> args) {
-                Help.help(bot.getPrefix(event.getGuild()),message, commandDescriptions, event);
+            public void run(Event uncastedEvent, List<String> args) {
+
+                HashMap<String, String> commandStrings = new HashMap<>();
+                for (Command command : commands.values()){
+                    commandStrings.put(command.getCommandWord(), command.getDescription());
+                }
+
+                if (uncastedEvent instanceof MessageReceivedEvent){
+                    MessageReceivedEvent event = (MessageReceivedEvent) uncastedEvent;
+
+                    Help.help(bot.getPrefix(event.getGuild()),message, commandStrings, event);
+                }
+            }
+
+            @Override
+            public @NotNull String getCommandWord() {
+                return "help";
+            }
+
+            @Override
+            public @NotNull String getDescription() {
+                return "Returns a list of commands and info about this command / command set";
+            }
+
+            @Override
+            public @NotNull CommandData getCommandData() {
+                return new CommandData(getCommandWord(), getDescription());
+            }
+
+            @Override
+            public String[] getSynonyms() {
+                return new String[0];
             }
         };
 
-        this.commandList.put("help", action);
-        this.commandDescriptions.put("help", "Returns a list of commands and info about this command / command set");
+        this.commands.put("help", helpCommand);
     }
 
-    public void addCommand(String commandName, String description, Action action) {
-
-        if (commandList.containsKey(commandName)) {
-            throw new CommandExistsException(commandName);
+    public void addCommand(Command command) {
+        if (commands.containsKey(command.getCommandWord().toLowerCase())) {
+            throw new CommandExistsException(command.getCommandWord());
         }
 
-        commandList.put(commandName.toLowerCase(), action);
-        commandDescriptions.put(commandName.toLowerCase(), description);
-    }
-
-    public HashMap<String, String> getCommandDescriptions() {
-        return commandDescriptions;
+        commands.put(command.getCommandWord().toLowerCase(), command);
     }
 
     public boolean containsCommand(String commandWord) {
-        return commandList.containsKey(commandWord) || synonyms.containsKey(commandWord);
+        return commands.containsKey(commandWord) || synonyms.containsKey(commandWord);
     }
 
     private ArrayList<String> splitString(String string) {
@@ -127,9 +219,9 @@ public class CommandCenter {
         replaceSynonyms(commandWords, synonyms);
 
 
-        Action action;
+        Command command;
         try {
-            action = commandList.get(commandWords.get(layer).toLowerCase());
+            command = commands.get(commandWords.get(layer).toLowerCase());
 
         } catch (Exception e) {
             MessageChannel channel = event.getChannel();
@@ -143,7 +235,7 @@ public class CommandCenter {
         }
 
 
-        if (action == null) {
+        if (command == null) {
             MessageChannel channel = event.getChannel();
             EmbedBuilder embed = new EmbedBuilder();
             embed.setDescription("There is no ' " + commandWords.get(layer) + "' command!" +
@@ -160,13 +252,28 @@ public class CommandCenter {
                 }
             }
 
-            action.run(event, commandWords);
+            command.run(event, commandWords);
 
         }
     }
 
+    public void parse(SlashCommandEvent event) {
+        String content = event.getCommandString().substring(1);
+        List<String> args = List.of(content.split(" "));
+
+        Command command = commands.get(args.get(layer - 1));
+        command.run(event, null);
+    }
 
     public void addSynonym(String synonym, String original) {
         synonyms.put(synonym, original);
+    }
+
+    public HashMap<String, String> getSynonyms() {
+        return synonyms;
+    }
+
+    public HashMap<String, Command> getCommands() {
+        return commands;
     }
 }

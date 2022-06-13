@@ -12,14 +12,15 @@ import ganyu.music.MusicManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.events.Event;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import static ganyu.music.commands.MusicMethods.*;
 
 /**
  * This class manages all active music players
@@ -51,21 +52,33 @@ public class PlayerManager {
         });
     }
 
-    public void loadAndPlay(MessageReceivedEvent event, String url, Member member) {
-        MusicManager musicManager = this.getMusicManager(event.getGuild());
-        this.audioPlayerManager.loadItemOrdered(musicManager, url, new AudioLoadResultHandler() {
+    public void loadAndPlay(Event event, String url, Member member) {
+
+        MusicManager musicManager = null;
+
+        if (event instanceof MessageReceivedEvent){
+            musicManager = this.getMusicManager(((MessageReceivedEvent) event).getGuild());
+        }
+
+        if (event instanceof SlashCommandEvent){
+            musicManager = this.getMusicManager(((SlashCommandEvent) event).getGuild());
+        }
+
+
+        MusicManager finalMusicManager = musicManager;
+        this.audioPlayerManager.loadItemOrdered(finalMusicManager, url, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack audioTrack) {
 
                 audioTrack.setUserData(member);
-                musicManager.getScheduler().queue(audioTrack);
+                finalMusicManager.getScheduler().queue(audioTrack);
 
-                ArrayList<AudioTrack> songQueue = new ArrayList<>(musicManager.getScheduler().getSongQueue());
+                ArrayList<AudioTrack> songQueue = new ArrayList<>(finalMusicManager.getScheduler().getSongQueue());
                 long position = songQueue.indexOf(audioTrack);
 
                 long timeUntilSong = 0;
 
-                AudioTrack playingTrack = musicManager.getAudioPlayer().getPlayingTrack();
+                AudioTrack playingTrack = finalMusicManager.getAudioPlayer().getPlayingTrack();
                 if (playingTrack != null){
                     timeUntilSong = timeUntilSong + ( playingTrack.getDuration() - playingTrack.getPosition() );
                 }
@@ -88,7 +101,7 @@ public class PlayerManager {
                     embed.setFooter("Duration: " + formatTime(audioTrack.getDuration()));
                 }
 
-                event.getChannel().sendMessageEmbeds(embed.build()).queue();
+                sendEmbed(embed, event);
             }
 
             @Override
@@ -102,14 +115,14 @@ public class PlayerManager {
 
                 selectedTrack.setUserData(member);
 
-                musicManager.getScheduler().queue(selectedTrack);
+                finalMusicManager.getScheduler().queue(selectedTrack);
 
-                ArrayList<AudioTrack> songQueue = new ArrayList<>(musicManager.getScheduler().getSongQueue());
+                ArrayList<AudioTrack> songQueue = new ArrayList<>(finalMusicManager.getScheduler().getSongQueue());
                 long position = songQueue.indexOf(selectedTrack);
 
                 long timeUntilSong = 0;
 
-                AudioTrack playingTrack = musicManager.getAudioPlayer().getPlayingTrack();
+                AudioTrack playingTrack = finalMusicManager.getAudioPlayer().getPlayingTrack();
                 if (playingTrack != null){
                     timeUntilSong = timeUntilSong + ( playingTrack.getDuration() - playingTrack.getPosition() );
                 }
@@ -132,7 +145,7 @@ public class PlayerManager {
                     embed.setFooter("Duration: " + formatTime(selectedTrack.getDuration()));
                 }
 
-                event.getChannel().sendMessageEmbeds(embed.build()).queue();
+                sendEmbed(embed, event);
             }
 
             @Override
@@ -149,7 +162,7 @@ public class PlayerManager {
                 embed.setColor(ColorScheme.ERROR);
                 embed.setDescription("No close matches were found! \nTry a more precise search query.");
                 embed.setFooter("Remember that only youtube songs may be requested");
-                event.getChannel().sendMessageEmbeds(embed.build()).queue();
+                sendErrorEmbed(embed, event);
             }
 
             @Override
@@ -158,7 +171,7 @@ public class PlayerManager {
                 embed.setColor(ColorScheme.ERROR);
                 embed.setDescription("An error has occurred! \nPerhaps the song / query is invalid");
                 embed.setFooter("Remember that only youtube songs may be requested");
-                event.getChannel().sendMessageEmbeds(embed.build()).queue();
+                sendErrorEmbed(embed, event);
             }
         });
     }
@@ -195,15 +208,25 @@ public class PlayerManager {
         });
     }
 
-    public void loadPlaylist(MessageReceivedEvent event, String url, Member member) {
-        MusicManager musicManager = this.getMusicManager(event.getGuild());
+    public void loadPlaylist(Event event, String url, Member member) {
+        MusicManager musicManager = null;
+
+        if (event instanceof MessageReceivedEvent){
+            musicManager = this.getMusicManager(((MessageReceivedEvent) event).getGuild());
+        }
+
+        if (event instanceof SlashCommandEvent){
+            musicManager = this.getMusicManager(((SlashCommandEvent) event).getGuild());
+        }
+
+        MusicManager finalMusicManager = musicManager;
         this.audioPlayerManager.loadItemOrdered(musicManager, url, new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack audioTrack) {
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setColor(ColorScheme.ERROR);
                 embed.setDescription("This is not a playlist!");
-                event.getChannel().sendMessageEmbeds(embed.build()).queue();
+                sendErrorEmbed(embed, event);
             }
 
             @Override
@@ -214,7 +237,7 @@ public class PlayerManager {
 
                 if ((selectedTrack == null)){
                     for (AudioTrack track : audioPlaylist.getTracks()) {
-                        musicManager.getScheduler().queue(track);
+                        finalMusicManager.getScheduler().queue(track);
                         totalTime = totalTime + track.getDuration();
                         track.setUserData(member);
                     }
@@ -227,13 +250,13 @@ public class PlayerManager {
 
 
                         if (reachedSelectedTrack){
-                            musicManager.getScheduler().queue(track);
+                            finalMusicManager.getScheduler().queue(track);
 
                         } else {
                             reachedSelectedTrack = track.getIdentifier().equals(selectedTrack.getIdentifier());
 
                             if (reachedSelectedTrack) {
-                                musicManager.getScheduler().queue(track);
+                                finalMusicManager.getScheduler().queue(track);
                             } else {
                                 beforeSelectedTrack.add(track);
                             }
@@ -244,7 +267,7 @@ public class PlayerManager {
                     }
 
                     for (AudioTrack track : beforeSelectedTrack){
-                        musicManager.getScheduler().queue(track);
+                        finalMusicManager.getScheduler().queue(track);
                     }
                 }
 
@@ -262,7 +285,7 @@ public class PlayerManager {
                 embed.appendDescription("\nStarting from: `" + selectedTrack.getInfo().title + "" +
                         "` by `" + selectedTrack.getInfo().author + "`");
                 embed.setFooter("Total duration: " + formatTime(totalTime));
-                event.getChannel().sendMessageEmbeds(embed.build()).queue();
+                sendEmbed(embed, event);
             }
 
             @Override
@@ -271,7 +294,7 @@ public class PlayerManager {
                 embed.setColor(ColorScheme.ERROR);
                 embed.setDescription("No close matches were found! \nTry a more precise search query.");
                 embed.setFooter("Remember that only youtube songs may be requested");
-                event.getChannel().sendMessageEmbeds(embed.build()).queue();
+                sendErrorEmbed(embed, event);
             }
 
             @Override
@@ -280,7 +303,7 @@ public class PlayerManager {
                 embed.setColor(ColorScheme.ERROR);
                 embed.setDescription("An error has occurred! \nPerhaps the song / query is invalid");
                 embed.setFooter("Remember that only youtube songs may be requested");
-                event.getChannel().sendMessageEmbeds(embed.build()).queue();
+                sendErrorEmbed(embed, event);
             }
         });
     }
@@ -294,24 +317,4 @@ public class PlayerManager {
         return INSTANCE;
     }
 
-    private String formatTime(long duration) {
-
-        Duration time = Duration.ofMillis(duration);
-        long seconds = time.toSeconds();
-
-        long HH = seconds / 3600;
-        long MM = (seconds % 3600) / 60;
-        long SS = seconds % 60;
-
-        return String.format("%02d:%02d:%02d", HH, MM, SS);
-    }
-
-    private boolean isURL(String link) {
-        try {
-            new URI(link);
-            return true;
-        } catch (URISyntaxException e) {
-            return false;
-        }
-    }
 }

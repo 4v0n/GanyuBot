@@ -63,6 +63,10 @@ public class CasinoGuildData {
         fw.flush();
     }
 
+    public UserData getPlayer(String id){
+        return players.get(id);
+    }
+
     public UserData getPlayer(Member member) {
         UserData userData = players.get(member.getId());
 

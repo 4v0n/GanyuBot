@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -104,6 +105,11 @@ public class MultiPageEmbed{
 
     public void sendMessage(MessageChannel channel) {
         channel.sendMessageEmbeds(buildEmbed()).queue(this::setMessage);
+    }
+
+    public void replyTo(SlashCommandEvent event) {
+        event.deferReply().queue();
+        event.getHook().sendMessageEmbeds(buildEmbed()).queue(this::setMessage);
     }
 
     private void editMessage() {

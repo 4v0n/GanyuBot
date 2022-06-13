@@ -3,6 +3,7 @@ package ganyu.base;
 import ganyu.command.message.CommandHandler;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.io.Serializable;
@@ -32,6 +33,15 @@ public abstract class Activity implements Serializable {
     public Activity(MessageReceivedEvent event, CommandHandler parser, Message message) {
         this.channel = event.getChannel();
         this.userID = event.getAuthor().getId();
+        this.message = message;
+        this.bot = Bot.getINSTANCE();
+        this.parser = parser;
+        this.isActive = true;
+    }
+
+    public Activity(SlashCommandEvent event, CommandHandler parser, Message message) {
+        this.channel = event.getChannel();
+        this.userID = event.getUser().getId();
         this.message = message;
         this.bot = Bot.getINSTANCE();
         this.parser = parser;

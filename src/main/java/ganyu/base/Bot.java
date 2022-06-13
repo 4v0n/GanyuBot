@@ -2,9 +2,7 @@ package ganyu.base;
 
 import ganyu.data.ServerData;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.io.File;
@@ -200,5 +198,16 @@ public class Bot {
 
     public static net.dv8tion.jda.api.JDA getJDA() {
         return JDA;
+    }
+
+    public ServerData getGuildData(Guild guild) {
+        ServerData serverData = guildData.get(guild);
+
+        if (serverData == null) {
+            serverData = new ServerData(guild);
+            addGuildData(serverData);
+        }
+
+        return serverData;
     }
 }
