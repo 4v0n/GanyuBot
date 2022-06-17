@@ -7,18 +7,19 @@ import ganyu.casino.data.CasinoData;
 import ganyu.casino.data.CasinoGuildData;
 import ganyu.casino.data.UserData;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.awt.*;
 import java.util.concurrent.TimeUnit;
 
 /**
  * This class allows for a game of blackjack to be played
  *
  * @author Aron Navodh Kumarawatta
- * @version 30.05.2022
+ * @version 09.06.2022
  */
 public class Game extends Activity {
     private final Deck deck;
@@ -26,10 +27,10 @@ public class Game extends Activity {
     private final Player player;
     private final UserData playerData;
     private final Dealer dealer;
-    private final int bet;
+    private final long bet;
     private final String messageID;
     private final EmbedBuilder embed;
-    private final MessageReceivedEvent startEvent;
+    private final Member selfMember;
     private String embedFooter = "";
     private String embedDescription = "";
     private final CasinoGuildData activityData;
@@ -41,7 +42,7 @@ public class Game extends Activity {
      * @param message The parent message of the game
      * @param bet     The amount of credits that has been wagered
      */
-    public Game(MessageReceivedEvent event, Message message, int bet) {
+    public Game(MessageReceivedEvent event, Message message, long bet) {
         super(event, new BlackJackParser(), message);
         this.dealer = new Dealer(event.getGuild().getSelfMember().getId());
         this.embed = new EmbedBuilder();
@@ -58,7 +59,44 @@ public class Game extends Activity {
         this.dealer.addCard(deck);
         this.player.addCard(deck);
         this.dealer.addCard(deck);
-        this.startEvent = event;
+        this.selfMember = event.getGuild().getSelfMember();
+
+
+        this.playerData = activityData.getPlayer(event.getMember());
+
+        this.playerData.setCredits(this.playerData.getCredits() - bet);
+
+        this.embed.setTitle("Blackjack");
+        this.embed.setColor(ColorScheme.ACTIVITY);
+        addToEmbedDescription(player.getValueOfHand() + "\n" + this.player.showCards());
+
+
+        addToFooter("You have bet " + bet + " credits." +
+                "\nHere is a list of commands:" +
+                "\n '" + Bot.getINSTANCE().getPrefix(event.getGuild()) + " hit' Deals you another card" +
+                "\n '" + Bot.getINSTANCE().getPrefix(event.getGuild()) + " stand' Finishes your turn");
+        channel.editMessageEmbedsById(messageID, this.embed.build()).queue();
+    }
+
+    public Game(SlashCommandEvent event, Message message, int bet) {
+        super(event, new BlackJackParser(), message);
+
+        this.dealer = new Dealer(event.getGuild().getSelfMember().getId());
+        this.embed = new EmbedBuilder();
+        this.channel = event.getChannel();
+        this.messageID = message.getId();
+        this.bet = bet;
+
+
+        this.activityData = CasinoData.getInstance().getGuildData(event.getGuild());
+
+        this.player = new Player(event.getUser().getId(), event.getUser());
+        this.deck = new Deck();
+        this.player.addCard(deck);
+        this.dealer.addCard(deck);
+        this.player.addCard(deck);
+        this.dealer.addCard(deck);
+        this.selfMember = event.getGuild().getSelfMember();
 
 
         this.playerData = activityData.getPlayer(event.getMember());
@@ -126,7 +164,7 @@ public class Game extends Activity {
 
         if (!player.hasLost() && dealer.hasLost()) {
             e.setThumbnail(player.getUser().getAvatarUrl());
-            playerData.setCredits(playerData.getCredits() + bet * 2);
+            playerData.setCredits(playerData.getCredits() + (bet * 2));
             e.setColor(ColorScheme.ACTIVITY_WIN);
 
             e.setDescription(player.getDiscordAt() + "\nYou have won!" +
@@ -135,21 +173,20 @@ public class Game extends Activity {
             playerData.incrementWins();
 
         } else if (player.hasLost() == dealer.hasLost()) {
+            playerData.setCredits(playerData.getCredits() + bet);
             e.setDescription("You and the dealer have drawn." +
                     "\nYou have not lost any credits.");
             e.setColor(ColorScheme.INFO);
 
         } else {
-            String avatarUrl = startEvent.getGuild().getSelfMember().getEffectiveAvatarUrl();
+            String avatarUrl = selfMember.getEffectiveAvatarUrl();
 
             e.setThumbnail(avatarUrl);
             e.setColor(ColorScheme.ACTIVITY_LOSS);
-            playerData.setCredits(playerData.getCredits() - bet);
             e.setDescription("The dealer has won!" +
                     "\nYou have lost " + bet + " credits!" +
                     "\nYou are at " + playerData.getCredits() + " credits.");
             playerData.incrementLosses();
-
         }
 
         try {

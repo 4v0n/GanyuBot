@@ -12,7 +12,7 @@ import java.util.HashMap;
 
 /**
  * @author Aron Kumarawatta
- * @version 29.05.2022
+ * @version 09.06.2022
  */
 public class CasinoGuildData {
 
@@ -44,7 +44,7 @@ public class CasinoGuildData {
     public ArrayList<UserData> getLeaderBoard() {
         ArrayList<UserData> leaderBoard = new ArrayList<>(players.values());
 
-        leaderBoard.sort(Comparator.comparingInt(UserData::getCredits));
+        leaderBoard.sort(Comparator.comparingLong(UserData::getCredits).reversed());
 
         return leaderBoard;
     }
@@ -61,6 +61,10 @@ public class CasinoGuildData {
         FileWriter fw = new FileWriter(("CasinoData/" + guildID + ".json"));
         fw.write(jsonArray.toJSONString());
         fw.flush();
+    }
+
+    public UserData getPlayer(String id){
+        return players.get(id);
     }
 
     public UserData getPlayer(Member member) {

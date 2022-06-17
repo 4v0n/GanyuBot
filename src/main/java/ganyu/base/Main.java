@@ -1,11 +1,11 @@
 package ganyu.base;
 
-import ganyu.base.listener.ChannelJoin;
-import ganyu.base.listener.Reaction;
-import ganyu.base.listener.GuildMessage;
+import ganyu.base.listener.*;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 
 import java.io.*;
 import java.util.HashMap;
@@ -36,11 +36,24 @@ public class Main {
 
         Reaction reactionParser = Reaction.getINSTANCE();
 
-        JDABuilder jda = JDABuilder.createDefault(botData.getToken());
+        JDABuilder jda = JDABuilder.create(botData.getToken(),
+                GatewayIntent.GUILD_MESSAGES,
+                GatewayIntent.GUILD_PRESENCES,
+                GatewayIntent.GUILD_MESSAGE_TYPING,
+                GatewayIntent.GUILD_MEMBERS,
+                GatewayIntent.GUILD_BANS,
+                GatewayIntent.GUILD_EMOJIS,
+                GatewayIntent.GUILD_MESSAGE_REACTIONS,
+                GatewayIntent.GUILD_VOICE_STATES,
+                GatewayIntent.GUILD_WEBHOOKS
+        );
+
         jda.setStatus(OnlineStatus.ONLINE);
         jda.addEventListeners(new GuildMessage());
         jda.addEventListeners(reactionParser);
         jda.addEventListeners(new ChannelJoin());
+        jda.addEventListeners(new SlashCommand());
+        jda.addEventListeners(new GuildJoin());
         jda.setActivity(Activity.playing("(" + botData.getGlobalPrefix() + ") " + settings.get("STATUS")));
 
 
@@ -49,6 +62,11 @@ public class Main {
         System.out.println("Bot started");
 
         botData.addAdmin("195929905857429504");
+        for (Guild guild : Bot.getJDA().getGuilds()){
+            botData.loadGuildData(guild);
+            //BaseCommandHandler.getINSTANCE().upsertCommands(guild);
+        }
+
     }
 
     /**

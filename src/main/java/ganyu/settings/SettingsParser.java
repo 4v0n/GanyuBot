@@ -1,57 +1,38 @@
 package ganyu.settings;
 
 import ganyu.command.message.CommandHandler;
-import ganyu.data.ServerData;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Member;
-
-import java.io.IOException;
+import ganyu.settings.commands.ChangeDJRoleCommand;
+import ganyu.settings.commands.ChangePrefixCommand;
+import ganyu.settings.commands.ResetDataCommand;
+import ganyu.settings.commands.ShowCurrentSettingsCommand;
 
 /**
  * @author Aron Kumarawatta
- * @version 29.05.2022
+ * @version 09.06.2022
  */
 public class SettingsParser extends CommandHandler {
 
-    private final ServerData data;
+    public SettingsParser(CommandHandler parent) {
+        super(parent);
+    }
 
-    public SettingsParser(ServerData data) {
-        super(2);
-        this.data = data;
+    public SettingsParser(CommandHandler parent, String accessCommand) {
+        super(parent, accessCommand);
     }
 
     @Override
     public void buildCommands() {
-        getCommandCenter().addCommand("prefix", "changes the prefix the bot will listen to on this server. Usage: `[prefix] prefix [new prefix]`", (event, args) -> {
-            if (args.get(0) == null || args.get(0).equals("")) {
-                EmbedBuilder embed = new EmbedBuilder();
-                embed.setDescription("You need to provide a new prefix!");
-                event.getChannel().sendMessageEmbeds(embed.build()).queue();
-                return;
-            }
+        addCommand(new ChangePrefixCommand());
 
-            data.setPrefix(args.get(0));
+        addCommand(new ChangeDJRoleCommand());
 
-            Member self = event.getGuild().getSelfMember();
+        addCommand(new ShowCurrentSettingsCommand());
 
-            self.modifyNickname("(" + data.getPrefix() + ") " + self.getUser().getName()).queue();
-
-            try {
-                data.save();
-
-            } catch (IOException e) {
-                e.printStackTrace();
-
-            } finally {
-                EmbedBuilder embed = new EmbedBuilder();
-                embed.setDescription("prefix changed to: " + args.get(0));
-                event.getChannel().sendMessageEmbeds(embed.build()).queue();
-            }
-        });
+        addCommand(new ResetDataCommand());
     }
 
     @Override
-    public void buildSynonyms() {
+    protected void buildChildrenCommandHandlers() {
 
     }
 }
