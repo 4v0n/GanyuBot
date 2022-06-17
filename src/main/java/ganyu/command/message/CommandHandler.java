@@ -105,6 +105,11 @@ public abstract class CommandHandler {
                 CommandData commandData = command.getCommandData();
 
                 for (Command subCommand : handler.getCommandCenter().getCommands().values()) {
+
+                    if (subCommand.getCommandWord().equals("help") || subCommand.getCommandWord().equals("synonyms")) {
+                        continue;
+                    }
+
                     commandData.addSubcommands(convertToSubCommand(subCommand.getCommandData()));
                 }
             }
@@ -171,7 +176,7 @@ public abstract class CommandHandler {
     }
 
     public void forceUpsertCommands(Guild guild) {
-        ServerData serverData = Bot.getINSTANCE().getGuildData().get(guild);
+        ServerData serverData = Bot.getINSTANCE().getGuildData(guild);
 
         if (serverData == null) {
             serverData = new ServerData(guild);

@@ -308,7 +308,6 @@ public class PlayerManager {
         });
     }
 
-
     public static PlayerManager getInstance() {
         if (INSTANCE == null) {
             INSTANCE = new PlayerManager();
