@@ -63,7 +63,7 @@ public class StopCommand implements Command {
     private void stopMusicPlayer(Guild guild, Event event) {
         MusicManager musicManager = PlayerManager.getInstance().getMusicManager(guild);
         guild.getAudioManager().closeAudioConnection();
-        musicManager.getAudioPlayer().stopTrack();
+        musicManager.getAudioPlayer().destroy();
         musicManager.getScheduler().getSongQueue().clear();
 
         EmbedBuilder embed = new EmbedBuilder();

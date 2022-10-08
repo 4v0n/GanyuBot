@@ -68,7 +68,7 @@ public class ChannelJoin extends ListenerAdapter {
                             guild.getAudioManager().closeAudioConnection();
                             MusicManager musicManager = PlayerManager.getInstance().getMusicManager(guild);
                             musicManager.getScheduler().getSongQueue().clear();
-                            musicManager.getAudioPlayer().stopTrack();
+                            musicManager.getAudioPlayer().destroy();
                         }
 
                     } catch (InterruptedException e) {
