@@ -28,7 +28,7 @@ import static ganyu.music.commands.MusicMethods.*;
  * Based on MenuDocs' implementation
  *
  * @author Aron Navodh Kumarawatta
- * @version 09.06.2022
+ * @version 11.10.2022
  */
 public class PlayerManager {
     private static PlayerManager INSTANCE;
