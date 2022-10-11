@@ -75,6 +75,9 @@ public class RemoveDuplicatesCommand implements Command {
         int initialSize = songQueue.size();
         ArrayList<String> songs = new ArrayList<>();
 
+        AudioTrack playingTrack = PlayerManager.getInstance().getMusicManager(guild).getAudioPlayer().getPlayingTrack();
+        songs.add(playingTrack.getIdentifier());
+
         for (AudioTrack song : songQueue) {
             if (songs.contains(song.getIdentifier())) {
                 songQueue.remove(song);
