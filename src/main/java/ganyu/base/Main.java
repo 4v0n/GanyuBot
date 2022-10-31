@@ -64,7 +64,7 @@ public class Main {
         botData.addAdmin("195929905857429504");
         for (Guild guild : Bot.getJDA().getGuilds()){
             botData.loadGuildData(guild);
-            //BaseCommandHandler.getINSTANCE().upsertCommands(guild);
+            BaseCommandHandler.getINSTANCE().upsertCommands(guild);
         }
 
     }

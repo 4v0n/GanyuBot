@@ -28,7 +28,7 @@ import static ganyu.music.commands.MusicMethods.*;
  * Based on MenuDocs' implementation
  *
  * @author Aron Navodh Kumarawatta
- * @version 09.06.2022
+ * @version 11.10.2022
  */
 public class PlayerManager {
     private static PlayerManager INSTANCE;
@@ -78,13 +78,15 @@ public class PlayerManager {
 
                 long timeUntilSong = 0;
 
-                AudioTrack playingTrack = finalMusicManager.getAudioPlayer().getPlayingTrack();
-                if (playingTrack != null){
-                    timeUntilSong = timeUntilSong + ( playingTrack.getDuration() - playingTrack.getPosition() );
-                }
 
                 for (int i = 0; i < position; i++){
                     timeUntilSong = timeUntilSong + songQueue.get(i).getDuration();
+                }
+
+                AudioTrack playingTrack = finalMusicManager.getAudioPlayer().getPlayingTrack();
+                if (playingTrack != null){
+                    timeUntilSong = timeUntilSong + ( playingTrack.getDuration() - playingTrack.getPosition() );
+                    position++;
                 }
 
                 EmbedBuilder embed = new EmbedBuilder();
@@ -95,7 +97,7 @@ public class PlayerManager {
                 embed.setThumbnail("http://img.youtube.com/vi/" + audioTrack.getInfo().identifier + "/0.jpg");
 
                 if (position > 0) {
-                    embed.setDescription("Position in queue: " + position + 1);
+                    embed.setDescription("Position in queue: " + (position));
                     embed.setFooter("Duration: " + formatTime(audioTrack.getDuration()) + " | Time until song: " + formatTime(timeUntilSong));
                 } else {
                     embed.setFooter("Duration: " + formatTime(audioTrack.getDuration()));
@@ -122,13 +124,14 @@ public class PlayerManager {
 
                 long timeUntilSong = 0;
 
+                for (int i = 0; i < position; i++){
+                    timeUntilSong = timeUntilSong + songQueue.get(i).getDuration();
+                }
+
                 AudioTrack playingTrack = finalMusicManager.getAudioPlayer().getPlayingTrack();
                 if (playingTrack != null){
                     timeUntilSong = timeUntilSong + ( playingTrack.getDuration() - playingTrack.getPosition() );
-                }
-
-                for (int i = 0; i < position; i++){
-                    timeUntilSong = timeUntilSong + songQueue.get(i).getDuration();
+                    position++;
                 }
 
                 EmbedBuilder embed = new EmbedBuilder();
@@ -139,7 +142,7 @@ public class PlayerManager {
                 embed.setThumbnail("http://img.youtube.com/vi/" + selectedTrack.getInfo().identifier + "/0.jpg");
 
                 if (position > 0) {
-                    embed.setDescription("Position in queue: " + position + 1);
+                    embed.setDescription("Position in queue: " + (position));
                     embed.setFooter("Duration: " + formatTime(selectedTrack.getDuration()) + " | Time until song: " + formatTime(timeUntilSong));
                 } else {
                     embed.setFooter("Duration: " + formatTime(selectedTrack.getDuration()));
