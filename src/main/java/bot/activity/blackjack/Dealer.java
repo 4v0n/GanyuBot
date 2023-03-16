@@ -24,7 +24,9 @@ public class Dealer extends Player {
 
     public void turn(Game game, Message message, EmbedBuilder newEmbed) {
 
-        while ((this.getValueOfHand() < targetNum) && (this.getValueOfHand() <= game.getPlayer().getValueOfHand())) {
+
+
+        while ((this.getValueOfHand() < targetNum) && (this.getValueOfHand() <= game.getPlayer().getValueOfHand()) && (game.getPlayer().getValueOfHand() <= 21)) {
             this.addCard(game.getDeck());
             newEmbed.setDescription(getValueOfHand() + "\n" + showCards());
 
