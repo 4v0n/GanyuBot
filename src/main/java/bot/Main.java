@@ -30,7 +30,9 @@ public class Main {
         Bot botData = Bot.getINSTANCE();
         settings = new HashMap<>();
 
-        loadConfig();
+        if (!loadConfig()) {
+            return;
+        }
 
         botData.setToken(settings.get("TOKEN"));
         botData.setPrefix(settings.get("PREFIX"));
@@ -72,8 +74,10 @@ public class Main {
 
     /**
      * Loads the bot config from file
+     *
+     * @return
      */
-    private static void loadConfig() {
+    private static boolean loadConfig() {
 
         try {
             String parameterAndValue;
@@ -85,6 +89,8 @@ public class Main {
                     settings.put(data[0], data[1]);
                 }
             }
+
+            return true;
 
         } catch (IOException e) {
             System.out.println("Config file missing/empty , please fill in the config file config file.");
@@ -105,6 +111,8 @@ public class Main {
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
+
+            return false;
         }
     }
 }
