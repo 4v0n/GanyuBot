@@ -95,10 +95,11 @@ public class AutoLeaveVC extends ListenerAdapter {
     }
 
     private AudioChannel findChannelByGuild(Guild guild) {
-        Bot bot = Bot.getINSTANCE();
-        List<VoiceChannel> voiceChannels = bot.getJDA().getVoiceChannels();
+        List<VoiceChannel> voiceChannels = guild.getVoiceChannels();
+        Member selfMember = guild.getSelfMember();
+
         for (VoiceChannel vc : voiceChannels) {
-            if (vc.getGuild() == guild) {
+            if (vc.getGuild() == guild && vc.getMembers().contains(selfMember)) {
                 return vc;
             }
         }
