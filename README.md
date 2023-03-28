@@ -6,7 +6,7 @@
     Ganyu
   <br>
  </h1>
-<h3 align="center">A simple discord bot written using JDK.</h4>
+<h3 align="center">A simple discord bot written using JDA.</h4>
 
 ## Requirements
 - JDK 11+
