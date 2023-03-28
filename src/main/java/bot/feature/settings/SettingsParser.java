@@ -1,6 +1,6 @@
 package bot.feature.settings;
 
-import bot.feature.message.CommandHandler;
+import bot.command.CommandHandler;
 import bot.command.settings.ChangeDJRoleICommand;
 import bot.command.settings.ChangePrefixICommand;
 import bot.command.settings.ResetDataICommand;
@@ -8,7 +8,7 @@ import bot.command.settings.ShowCurrentSettingsICommand;
 
 /**
  * @author Aron Kumarawatta
- * @version 09.06.2022
+ * @version 28.03.2023
  */
 public class SettingsParser extends CommandHandler {
 

@@ -1,10 +1,10 @@
-package bot.feature.message;
+package bot.command;
 
 import bot.Bot;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
@@ -12,7 +12,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
-import static net.dv8tion.jda.api.entities.Message.*;
+import static net.dv8tion.jda.api.entities.Message.Attachment;
 
 public class CommandMethods {
     public static boolean checkIsInt(String number) {
@@ -46,8 +46,8 @@ public class CommandMethods {
             ((MessageReceivedEvent) event).getChannel().sendMessageEmbeds(embed.build()).queue();
             return;
         }
-        if (event instanceof SlashCommandEvent) {
-            ((SlashCommandEvent) event).replyEmbeds(embed.build()).queue();
+        if (event instanceof SlashCommandInteractionEvent) {
+            ((SlashCommandInteractionEvent) event).replyEmbeds(embed.build()).queue();
         }
     }
 
@@ -56,8 +56,8 @@ public class CommandMethods {
             ((MessageReceivedEvent) event).getChannel().sendMessageEmbeds(embed.build()).queue();
             return;
         }
-        if (event instanceof SlashCommandEvent) {
-            ((SlashCommandEvent) event).replyEmbeds(embed.build()).setEphemeral(true).queue();
+        if (event instanceof SlashCommandInteractionEvent) {
+            ((SlashCommandInteractionEvent) event).replyEmbeds(embed.build()).setEphemeral(true).queue();
         }
     }
 

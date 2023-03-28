@@ -1,11 +1,11 @@
 package bot.util.message;
 
-import bot.feature.reaction.ReactionCommandHandler;
+import bot.command.reaction.ReactionCommandHandler;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,7 +15,7 @@ import java.util.List;
 
 /**
  * @author Aron Navodh Kumarawatta
- * @version 11.06.2022
+ * @version 28.03.2023
  */
 public class MultiPageEmbed{
 
@@ -107,7 +107,7 @@ public class MultiPageEmbed{
         channel.sendMessageEmbeds(buildEmbed()).queue(this::setMessage);
     }
 
-    public void replyTo(SlashCommandEvent event) {
+    public void replyTo(SlashCommandInteractionEvent event) {
         event.deferReply().queue();
         event.getHook().sendMessageEmbeds(buildEmbed()).queue(this::setMessage);
     }

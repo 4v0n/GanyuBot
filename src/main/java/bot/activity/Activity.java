@@ -1,10 +1,10 @@
 package bot.activity;
 
-import bot.feature.message.CommandHandler;
 import bot.Bot;
+import bot.command.CommandHandler;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.io.Serializable;
@@ -14,7 +14,7 @@ import java.io.Serializable;
  * This class is solely to be extended.
  *
  * @author Aron Navodh Kumarawatta
- * @version 29.05.2022
+ * @version 28.03.2023
  */
 public abstract class Activity implements Serializable {
     private final MessageChannel channel;
@@ -40,7 +40,7 @@ public abstract class Activity implements Serializable {
         this.isActive = true;
     }
 
-    public Activity(SlashCommandEvent event, CommandHandler parser, Message message) {
+    public Activity(SlashCommandInteractionEvent event, CommandHandler parser, Message message) {
         this.channel = event.getChannel();
         this.userID = event.getUser().getId();
         this.message = message;

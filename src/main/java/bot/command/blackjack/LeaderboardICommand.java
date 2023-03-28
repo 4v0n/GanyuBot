@@ -1,16 +1,17 @@
 package bot.command.blackjack;
 
 import bot.command.ICommand;
-import bot.util.ColorScheme;
 import bot.db.blackjack.CasinoData;
 import bot.db.blackjack.CasinoGuildData;
 import bot.db.blackjack.UserData;
+import bot.util.ColorScheme;
 import bot.util.message.MultiPageEmbed;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -38,21 +39,21 @@ public class LeaderboardICommand implements ICommand {
             return;
         }
 
-        if (event instanceof SlashCommandEvent){
+        if (event instanceof SlashCommandInteractionEvent){
 
-            CasinoGuildData activityData = CasinoData.getInstance().getGuildData(((SlashCommandEvent) event).getGuild());
+            CasinoGuildData activityData = CasinoData.getInstance().getGuildData(((SlashCommandInteractionEvent) event).getGuild());
             ArrayList<UserData> leaderBoard = activityData.getLeaderBoard();
 
             if (leaderBoard == null || leaderBoard.isEmpty()) {
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setDescription("No one has played blackjack in this server before!");
                 embed.setColor(ColorScheme.ERROR);
-                ((SlashCommandEvent) event).replyEmbeds(embed.build()).queue();
+                ((SlashCommandInteractionEvent) event).replyEmbeds(embed.build()).queue();
                 return;
             }
 
             MultiPageEmbed embed = buildMessage(leaderBoard);
-            embed.replyTo((SlashCommandEvent) event);
+            embed.replyTo((SlashCommandInteractionEvent) event);
 
             return;
         }
@@ -95,8 +96,8 @@ public class LeaderboardICommand implements ICommand {
     }
 
     @Override
-    public @NotNull CommandData getCommandData() {
-        return new CommandData(getCommandWord(), getDescription());
+    public @NotNull CommandDataImpl getCommandData() {
+        return new CommandDataImpl(getCommandWord(), getDescription());
     }
 
     @Override

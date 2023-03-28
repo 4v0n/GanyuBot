@@ -1,13 +1,13 @@
 package bot.feature.music;
 
 import bot.command.music.*;
-import bot.feature.message.CommandHandler;
+import bot.command.CommandHandler;
 
 /**
  * This handles music bot commands
  *
  * @author Aron Navodh Kumarawatta
- * @version 09.06.2022
+ * @version 28.03.2023
  */
 public class MusicParser extends CommandHandler {
 

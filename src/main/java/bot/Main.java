@@ -1,5 +1,6 @@
 package bot;
 
+import bot.feature.music.AutoLeaveVC;
 import bot.feature.root.BaseCommandHandler;
 import bot.listener.*;
 import net.dv8tion.jda.api.JDABuilder;
@@ -15,7 +16,7 @@ import java.util.Map;
 
 /**
  * @author Aron Navodh Kumarawatta
- * @version 30.05.2022
+ * @version 28.03.2023
  */
 public class Main {
     private static HashMap<String, String> settings;
@@ -40,21 +41,15 @@ public class Main {
         Reaction reactionParser = Reaction.getINSTANCE();
 
         JDABuilder jda = JDABuilder.create(botData.getToken(),
-                GatewayIntent.GUILD_MESSAGES,
-                GatewayIntent.GUILD_PRESENCES,
-                GatewayIntent.GUILD_MESSAGE_TYPING,
-                GatewayIntent.GUILD_MEMBERS,
-                GatewayIntent.GUILD_BANS,
-                GatewayIntent.GUILD_EMOJIS,
-                GatewayIntent.GUILD_MESSAGE_REACTIONS,
-                GatewayIntent.GUILD_VOICE_STATES,
-                GatewayIntent.GUILD_WEBHOOKS
+                GatewayIntent.getIntents(GatewayIntent.ALL_INTENTS)
         );
+
+
 
         jda.setStatus(OnlineStatus.ONLINE);
         jda.addEventListeners(new GuildMessage());
         jda.addEventListeners(reactionParser);
-        jda.addEventListeners(new ChannelJoin());
+        jda.addEventListeners(new AutoLeaveVC());
         jda.addEventListeners(new SlashCommand());
         jda.addEventListeners(new GuildJoin());
         jda.setActivity(Activity.playing("(" + botData.getGlobalPrefix() + ") " + settings.get("STATUS")));

@@ -2,7 +2,7 @@ package bot.feature.root;
 
 import bot.command.root.*;
 import bot.feature.blackjack.BlackJackHandler;
-import bot.feature.message.CommandHandler;
+import bot.command.CommandHandler;
 import bot.feature.booru.ImageHandler;
 import bot.feature.music.MusicParser;
 import bot.feature.settings.SettingsParser;

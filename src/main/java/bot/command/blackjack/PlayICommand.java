@@ -1,20 +1,21 @@
 package bot.command.blackjack;
 
-import bot.command.ICommand;
-import bot.activity.Activity;
 import bot.Bot;
-import bot.util.ColorScheme;
+import bot.activity.Activity;
 import bot.activity.blackjack.Game;
+import bot.command.ICommand;
 import bot.db.blackjack.CasinoData;
 import bot.db.blackjack.UserData;
+import bot.util.ColorScheme;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -28,8 +29,8 @@ public class PlayICommand implements ICommand {
             return;
         }
 
-        if (event instanceof SlashCommandEvent) {
-            handleSlashCommandEvent((SlashCommandEvent) event, args);
+        if (event instanceof SlashCommandInteractionEvent) {
+            handleSlashCommandEvent((SlashCommandInteractionEvent) event, args);
             return;
         }
     }
@@ -78,7 +79,7 @@ public class PlayICommand implements ICommand {
         startGame(event, bet);
     }
 
-    private void handleSlashCommandEvent(SlashCommandEvent event, List<String> args) {
+    private void handleSlashCommandEvent(SlashCommandInteractionEvent event, List<String> args) {
         Bot bot = Bot.getINSTANCE();
         EmbedBuilder embed = new EmbedBuilder();
 
@@ -127,7 +128,7 @@ public class PlayICommand implements ICommand {
         channel.sendMessageEmbeds(embed.build()).queue(newMessage -> bot.addActivity(new Game(event, newMessage, bet)));
     }
 
-    private void startGame(SlashCommandEvent event, int bet) {
+    private void startGame(SlashCommandInteractionEvent event, int bet) {
         Bot bot = Bot.getINSTANCE();
         MessageChannel channel = event.getChannel();
         EmbedBuilder embed = new EmbedBuilder();
@@ -148,8 +149,8 @@ public class PlayICommand implements ICommand {
     }
 
     @Override
-    public @NotNull CommandData getCommandData() {
-        CommandData commandData = new CommandData(getCommandWord(), getDescription());
+    public @NotNull CommandDataImpl getCommandData() {
+        CommandDataImpl commandData = new CommandDataImpl(getCommandWord(), getDescription());
         commandData.addOption(OptionType.INTEGER, "bet", "The amount of credits you would like to bet", false);
 
         return commandData;

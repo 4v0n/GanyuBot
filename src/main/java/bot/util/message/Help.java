@@ -1,8 +1,8 @@
 package bot.util.message;
 
 import bot.util.ColorScheme;
-import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.ArrayList;
@@ -12,7 +12,7 @@ import java.util.HashMap;
  * This offers a template help message
  *
  * @author Aron Navodh Kumarawatta
- * @version 09.06.2022
+ * @version 28.03.2023
  */
 public class Help {
     public static void help(String prefix, HashMap<String, String> commands, MessageReceivedEvent event) {
@@ -40,7 +40,7 @@ public class Help {
         helpMessage.sendMessage(channel);
     }
 
-    public static void help(String prefix, HashMap<String, String> commands, SlashCommandEvent event) {
+    public static void help(String prefix, HashMap<String, String> commands, SlashCommandInteractionEvent event) {
         MessageChannel channel = event.getChannel();
 
         ArrayList<String> commandStrings = new ArrayList<>();
@@ -91,7 +91,7 @@ public class Help {
         helpMessage.sendMessage(channel);
     }
 
-    public static void help(String prefix, String notes, HashMap<String, String> commands, SlashCommandEvent event) {
+    public static void help(String prefix, String notes, HashMap<String, String> commands, SlashCommandInteractionEvent event) {
         MessageChannel channel = event.getChannel();
 
         ArrayList<String> commandStrings = new ArrayList<>();

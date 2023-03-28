@@ -1,15 +1,14 @@
-package bot.feature.message;
+package bot.command;
 
-import bot.command.ICommand;
-import bot.feature.root.BaseCommandHandler;
 import bot.Bot;
 import bot.db.server.ServerData;
+import bot.feature.root.BaseCommandHandler;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
+import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -103,7 +102,7 @@ public abstract class CommandHandler {
 
             if (handler != null) {
                 // the command has children
-                CommandData commandData = ICommand.getCommandData();
+                CommandDataImpl commandData = ICommand.getCommandData();
 
                 for (ICommand subICommand : handler.getCommandCenter().getCommands().values()) {
 
@@ -122,8 +121,8 @@ public abstract class CommandHandler {
             commandCenter.parse((MessageReceivedEvent) event);
         }
 
-        if (event instanceof SlashCommandEvent) {
-            commandCenter.parse((SlashCommandEvent) event);
+        if (event instanceof SlashCommandInteractionEvent) {
+            commandCenter.parse((SlashCommandInteractionEvent) event);
         }
     }
 
@@ -203,7 +202,7 @@ public abstract class CommandHandler {
         guild.updateCommands().queue();
     }
 
-    private SubcommandData convertToSubCommand(CommandData child) {
+    private SubcommandData convertToSubCommand(CommandDataImpl child) {
         SubcommandData subcommandData = new SubcommandData(child.getName(), child.getDescription());
         subcommandData.addOptions(child.getOptions());
 

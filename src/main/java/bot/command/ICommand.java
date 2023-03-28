@@ -2,6 +2,7 @@ package bot.command;
 
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -15,7 +16,7 @@ public interface ICommand {
     @NotNull
     String getDescription();
     @NotNull
-    CommandData getCommandData();
+    CommandDataImpl getCommandData();
 
     String[] getSynonyms();
 }

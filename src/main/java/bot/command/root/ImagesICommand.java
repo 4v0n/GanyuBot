@@ -5,16 +5,17 @@ import bot.feature.root.BaseCommandHandler;
 import bot.feature.booru.ImageHandler;
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 public class ImagesICommand implements ICommand {
 
-    private final CommandData commandData;
+    private final CommandDataImpl commandData;
 
     public ImagesICommand() {
-        this.commandData = new CommandData(getCommandWord(), getDescription());
+        this.commandData = new CommandDataImpl(getCommandWord(), getDescription());
     }
 
     @Override
@@ -36,7 +37,7 @@ public class ImagesICommand implements ICommand {
     }
 
     @Override
-    public @NotNull CommandData getCommandData() {
+    public @NotNull CommandDataImpl getCommandData() {
         return commandData;
     }
 

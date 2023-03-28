@@ -5,16 +5,17 @@ import bot.feature.root.BaseCommandHandler;
 import bot.feature.blackjack.BlackJackHandler;
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 public class BlackjackICommand implements ICommand {
 
-    private final CommandData commandData;
+    private final CommandDataImpl commandData;
 
     public BlackjackICommand() {
-        this.commandData = new CommandData(getCommandWord(), getDescription());
+        this.commandData = new CommandDataImpl(getCommandWord(), getDescription());
     }
 
     @Override
@@ -34,7 +35,7 @@ public class BlackjackICommand implements ICommand {
     }
 
     @Override
-    public @NotNull CommandData getCommandData() {
+    public @NotNull CommandDataImpl getCommandData() {
         return commandData;
     }
 

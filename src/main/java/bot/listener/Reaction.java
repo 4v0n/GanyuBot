@@ -1,6 +1,6 @@
 package bot.listener;
 
-import bot.feature.reaction.ReactionCommandCenter;
+import bot.command.reaction.ReactionCommandCenter;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
@@ -13,7 +13,7 @@ import java.util.Objects;
  * and deal with them as commands
  *
  * @author Aron Navodh Kumarawatta
- * @version 29.05.2022
+ * @version 28.03.2023
  */
 public class Reaction extends ListenerAdapter {
     private static Reaction INSTANCE;

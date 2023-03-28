@@ -4,11 +4,11 @@ import bot.Bot;
 import bot.db.server.ServerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.AudioChannel;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.net.URI;
@@ -17,14 +17,14 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MusicMethods {
+public class MusicUtil {
     public static void sendEmbed(EmbedBuilder embed, Event event) {
         if (event instanceof MessageReceivedEvent) {
             ((MessageReceivedEvent) event).getChannel().sendMessageEmbeds(embed.build()).queue();
             return;
         }
-        if (event instanceof SlashCommandEvent) {
-            ((SlashCommandEvent) event).replyEmbeds(embed.build()).queue();
+        if (event instanceof SlashCommandInteractionEvent) {
+            ((SlashCommandInteractionEvent) event).replyEmbeds(embed.build()).queue();
         }
     }
 
@@ -33,8 +33,8 @@ public class MusicMethods {
             ((MessageReceivedEvent) event).getChannel().sendMessageEmbeds(embed.build()).queue();
             return;
         }
-        if (event instanceof SlashCommandEvent) {
-            ((SlashCommandEvent) event).replyEmbeds(embed.build()).setEphemeral(true).queue();
+        if (event instanceof SlashCommandInteractionEvent) {
+            ((SlashCommandInteractionEvent) event).replyEmbeds(embed.build()).setEphemeral(true).queue();
         }
     }
 

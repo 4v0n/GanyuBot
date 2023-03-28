@@ -1,12 +1,12 @@
 package bot.command.blackjack;
 
-import bot.command.ICommand;
 import bot.Bot;
 import bot.activity.blackjack.Game;
+import bot.command.ICommand;
 import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -21,8 +21,8 @@ public class InGameHitICommand implements ICommand {
             return;
         }
 
-        if (event instanceof SlashCommandEvent){
-            parseSlash((SlashCommandEvent) event);
+        if (event instanceof SlashCommandInteractionEvent){
+            parseSlash((SlashCommandInteractionEvent) event);
         }
     }
 
@@ -32,7 +32,7 @@ public class InGameHitICommand implements ICommand {
         game.update();
     }
 
-    private void parseSlash(SlashCommandEvent event) {
+    private void parseSlash(SlashCommandInteractionEvent event) {
         Game game = getGame(event);
         game.getPlayer().addCard(game.getDeck());
         game.update();
@@ -49,8 +49,8 @@ public class InGameHitICommand implements ICommand {
     }
 
     @Override
-    public @NotNull CommandData getCommandData() {
-        return new CommandData(getCommandWord(), getDescription());
+    public @NotNull CommandDataImpl getCommandData() {
+        return new CommandDataImpl(getCommandWord(), getDescription());
     }
 
     @Override
@@ -62,7 +62,7 @@ public class InGameHitICommand implements ICommand {
         return (Game) Bot.getINSTANCE().getActivities().get(event.getAuthor().getId() + event.getChannel().getId());
     }
 
-    private Game getGame(SlashCommandEvent event) {
+    private Game getGame(SlashCommandInteractionEvent event) {
         return (Game) Bot.getINSTANCE().getActivities().get(event.getUser().getId() + event.getChannel().getId());
     }
 }

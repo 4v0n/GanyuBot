@@ -3,12 +3,12 @@ package bot.command.booru;
 import bot.command.ICommand;
 import bot.util.ColorScheme;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import net.kodehawa.lib.imageboards.DefaultImageBoards;
 import net.kodehawa.lib.imageboards.entities.BoardImage;
 import org.jetbrains.annotations.NotNull;
@@ -32,8 +32,8 @@ public class R34ICommand implements ICommand {
             return;
         }
 
-        if (event instanceof SlashCommandEvent){
-            String tags = ((SlashCommandEvent) event).getOption("tags").getAsString();
+        if (event instanceof SlashCommandInteractionEvent){
+            String tags = ((SlashCommandInteractionEvent) event).getOption("tags").getAsString();
             searchRule34(tags, event);
         }
     }
@@ -50,9 +50,9 @@ public class R34ICommand implements ICommand {
         boolean nsfwChannel = false;
 
         if (event instanceof MessageReceivedEvent){
-            nsfwChannel = ((MessageReceivedEvent) event).getTextChannel().isNSFW();
-        } else if (event instanceof SlashCommandEvent){
-            nsfwChannel = ((SlashCommandEvent) event).getTextChannel().isNSFW();
+            nsfwChannel = ((MessageReceivedEvent) event).getChannel().asTextChannel().isNSFW();
+        } else if (event instanceof SlashCommandInteractionEvent){
+            nsfwChannel = ((SlashCommandInteractionEvent) event).getChannel().asTextChannel().isNSFW();
         }
 
         if (nsfwChannel) {
@@ -86,9 +86,9 @@ public class R34ICommand implements ICommand {
                             embed.setColor(ColorScheme.ERROR);
 
                             if (event instanceof MessageReceivedEvent) {
-                                ((MessageReceivedEvent) event).getChannel().sendMessageEmbeds(embed.build()).reference(((MessageReceivedEvent) event).getMessage()).queue();
+                                ((MessageReceivedEvent) event).getChannel().sendMessageEmbeds(embed.build()).queue();
                             } else {
-                                ((SlashCommandEvent) event).replyEmbeds(embed.build()).setEphemeral(true).queue();
+                                ((SlashCommandInteractionEvent) event).replyEmbeds(embed.build()).setEphemeral(true).queue();
                             }
 
                             return;
@@ -104,9 +104,9 @@ public class R34ICommand implements ICommand {
                     embed.setColor(ColorScheme.ERROR);
 
                     if (event instanceof MessageReceivedEvent) {
-                        ((MessageReceivedEvent) event).getChannel().sendMessageEmbeds(embed.build()).reference(((MessageReceivedEvent) event).getMessage()).queue();
+                        ((MessageReceivedEvent) event).getMessage().replyEmbeds(embed.build()).queue();
                     } else {
-                        ((SlashCommandEvent) event).replyEmbeds(embed.build()).setEphemeral(true).queue();
+                        ((SlashCommandInteractionEvent) event).replyEmbeds(embed.build()).setEphemeral(true).queue();
                     }
 
                 } else {
@@ -125,8 +125,8 @@ public class R34ICommand implements ICommand {
             if (event instanceof MessageReceivedEvent) {
                 ((MessageReceivedEvent) event).getChannel().sendMessageEmbeds(embed.build()).queue();
             } else {
-                assert event instanceof SlashCommandEvent;
-                ((SlashCommandEvent) event).replyEmbeds(embed.build()).setEphemeral(true).queue();
+                assert event instanceof SlashCommandInteractionEvent;
+                ((SlashCommandInteractionEvent) event).replyEmbeds(embed.build()).setEphemeral(true).queue();
             }
         }
     }
@@ -143,8 +143,8 @@ public class R34ICommand implements ICommand {
             return;
         }
 
-        if (event instanceof SlashCommandEvent){
-            ((SlashCommandEvent) event).replyEmbeds(embed.build()).setEphemeral(true).queue();
+        if (event instanceof SlashCommandInteractionEvent){
+            ((SlashCommandInteractionEvent) event).replyEmbeds(embed.build()).setEphemeral(true).queue();
         }
     }
 
@@ -178,8 +178,8 @@ public class R34ICommand implements ICommand {
             return;
         }
 
-        if (event instanceof SlashCommandEvent){
-            ((SlashCommandEvent) event).replyEmbeds(embed.build()).queue();
+        if (event instanceof SlashCommandInteractionEvent){
+            ((SlashCommandInteractionEvent) event).replyEmbeds(embed.build()).queue();
         }
     }
 
@@ -210,8 +210,8 @@ public class R34ICommand implements ICommand {
     }
 
     @Override
-    public @NotNull CommandData getCommandData() {
-        CommandData commandData = new CommandData(getCommandWord(), "Searches Rule34 for an image");
+    public @NotNull CommandDataImpl getCommandData() {
+        CommandDataImpl commandData = new CommandDataImpl(getCommandWord(), "Searches Rule34 for an image");
         commandData.addOption(OptionType.STRING, "tags", "Enter search tags here. (Separate by space)", true);
 
         return commandData;

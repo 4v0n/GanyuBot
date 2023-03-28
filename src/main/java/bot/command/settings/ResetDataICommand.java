@@ -1,16 +1,16 @@
 package bot.command.settings;
 
-import bot.command.ICommand;
-import bot.feature.root.BaseCommandHandler;
 import bot.Bot;
-import bot.feature.message.CommandMethods;
+import bot.command.ICommand;
 import bot.db.server.ServerData;
+import bot.command.CommandMethods;
+import bot.feature.root.BaseCommandHandler;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -25,8 +25,8 @@ public class ResetDataICommand implements ICommand {
 
         }
 
-        if (event instanceof SlashCommandEvent) {
-            guild = ((SlashCommandEvent) event).getGuild();
+        if (event instanceof SlashCommandInteractionEvent) {
+            guild = ((SlashCommandInteractionEvent) event).getGuild();
         }
 
         ServerData serverData = new ServerData(guild);
@@ -53,8 +53,8 @@ public class ResetDataICommand implements ICommand {
     }
 
     @Override
-    public @NotNull CommandData getCommandData() {
-        return new CommandData(getCommandWord(), getDescription());
+    public @NotNull CommandDataImpl getCommandData() {
+        return new CommandDataImpl(getCommandWord(), getDescription());
     }
 
     @Override

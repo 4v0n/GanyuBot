@@ -1,6 +1,6 @@
 package bot.feature.booru;
 
-import bot.feature.message.CommandHandler;
+import bot.command.CommandHandler;
 import bot.command.booru.R34ICommand;
 import bot.command.booru.SFWICommand;
 import net.kodehawa.lib.imageboards.ImageBoard;
@@ -13,7 +13,7 @@ import net.kodehawa.lib.imageboards.ImageBoard;
  * Added to fulfil feature request
  *
  * @author Aron Navodh Kumarawatta
- * @version 09.06.2022
+ * @version 28.03.2023
  */
 public class ImageHandler extends CommandHandler {
 

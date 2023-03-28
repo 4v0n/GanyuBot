@@ -1,5 +1,7 @@
 package bot.feature.music.lavaplayer;
 
+import bot.feature.music.MusicManager;
+import bot.util.ColorScheme;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
@@ -7,18 +9,18 @@ import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import bot.util.ColorScheme;
-import bot.feature.music.MusicManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
-import static bot.command.music.MusicMethods.*;
+import static bot.command.music.MusicUtil.*;
 
 /**
  * This class manages all active music players
@@ -26,7 +28,7 @@ import static bot.command.music.MusicMethods.*;
  * Based on MenuDocs' implementation
  *
  * @author Aron Navodh Kumarawatta
- * @version 11.10.2022
+ * @version 28.03.2023
  */
 public class PlayerManager {
     private static PlayerManager INSTANCE;
@@ -58,8 +60,8 @@ public class PlayerManager {
             musicManager = this.getMusicManager(((MessageReceivedEvent) event).getGuild());
         }
 
-        if (event instanceof SlashCommandEvent){
-            musicManager = this.getMusicManager(((SlashCommandEvent) event).getGuild());
+        if (event instanceof SlashCommandInteractionEvent){
+            musicManager = this.getMusicManager(((SlashCommandInteractionEvent) event).getGuild());
         }
 
 
@@ -216,8 +218,8 @@ public class PlayerManager {
             musicManager = this.getMusicManager(((MessageReceivedEvent) event).getGuild());
         }
 
-        if (event instanceof SlashCommandEvent){
-            musicManager = this.getMusicManager(((SlashCommandEvent) event).getGuild());
+        if (event instanceof SlashCommandInteractionEvent){
+            musicManager = this.getMusicManager(((SlashCommandInteractionEvent) event).getGuild());
         }
 
         MusicManager finalMusicManager = musicManager;

@@ -3,17 +3,17 @@ package bot.command.music;
 import bot.command.ICommand;
 import bot.util.ColorScheme;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.AudioChannel;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import static bot.command.music.MusicMethods.*;
+import static bot.command.music.MusicUtil.*;
 
 public class JoinICommand implements ICommand {
     @Override
@@ -26,9 +26,9 @@ public class JoinICommand implements ICommand {
             self = ((MessageReceivedEvent) event).getGuild().getSelfMember();
         }
 
-        if (event instanceof SlashCommandEvent) {
-            user = ((SlashCommandEvent) event).getMember();
-            self = ((SlashCommandEvent) event).getGuild().getSelfMember();
+        if (event instanceof SlashCommandInteractionEvent) {
+            user = ((SlashCommandInteractionEvent) event).getMember();
+            self = ((SlashCommandInteractionEvent) event).getGuild().getSelfMember();
         }
 
         if (!user.getVoiceState().inAudioChannel()) {
@@ -88,8 +88,8 @@ public class JoinICommand implements ICommand {
     }
 
     @Override
-    public @NotNull CommandData getCommandData() {
-        return new CommandData(getCommandWord(), getDescription());
+    public @NotNull CommandDataImpl getCommandData() {
+        return new CommandDataImpl(getCommandWord(), getDescription());
     }
 
     @Override

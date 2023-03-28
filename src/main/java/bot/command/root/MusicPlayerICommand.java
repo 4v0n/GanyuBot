@@ -3,17 +3,17 @@ package bot.command.root;
 import bot.command.ICommand;
 import bot.feature.root.BaseCommandHandler;
 import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 public class MusicPlayerICommand implements ICommand {
 
-    private final CommandData commandData;
+    private final CommandDataImpl commandData;
 
     public MusicPlayerICommand() {
-        this.commandData = new CommandData(getCommandWord(), "Music bot commands");
+        this.commandData = new CommandDataImpl(getCommandWord(), "Music bot commands");
     }
 
     @Override
@@ -32,7 +32,7 @@ public class MusicPlayerICommand implements ICommand {
     }
 
     @Override
-    public @NotNull CommandData getCommandData() {
+    public @NotNull CommandDataImpl getCommandData() {
         return commandData;
     }
 

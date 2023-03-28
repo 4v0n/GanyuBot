@@ -1,15 +1,15 @@
 package bot.command.blackjack;
 
 import bot.command.ICommand;
-import bot.util.ColorScheme;
 import bot.db.blackjack.CasinoData;
 import bot.db.blackjack.UserData;
+import bot.util.ColorScheme;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -22,12 +22,12 @@ public class ProfileICommand implements ICommand {
             return;
         }
 
-        if (event instanceof SlashCommandEvent){
-            showProfile((SlashCommandEvent) event);
+        if (event instanceof SlashCommandInteractionEvent){
+            showProfile((SlashCommandInteractionEvent) event);
         }
     }
 
-    private void showProfile(SlashCommandEvent event) {
+    private void showProfile(SlashCommandInteractionEvent event) {
         EmbedBuilder embed = new EmbedBuilder();
         MessageChannel channel = event.getChannel();
         UserData playerData = CasinoData.getInstance().getGuildData(event.getGuild()).getPlayer(event.getMember());
@@ -71,8 +71,8 @@ public class ProfileICommand implements ICommand {
     }
 
     @Override
-    public @NotNull CommandData getCommandData() {
-        return new CommandData(getCommandWord(), getDescription());
+    public @NotNull CommandDataImpl getCommandData() {
+        return new CommandDataImpl(getCommandWord(), getDescription());
     }
 
     @Override

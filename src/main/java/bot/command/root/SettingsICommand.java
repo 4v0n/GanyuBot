@@ -7,19 +7,19 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 public class SettingsICommand implements ICommand {
 
-    private final CommandData commandData;
+    private final CommandDataImpl commandData;
 
     public SettingsICommand() {
-        this.commandData = new CommandData(getCommandWord(), getDescription());
+        this.commandData = new CommandDataImpl(getCommandWord(), getDescription());
     }
 
     @Override
@@ -40,8 +40,8 @@ public class SettingsICommand implements ICommand {
             }
         }
 
-        if (event instanceof SlashCommandEvent) {
-            Member member = ((SlashCommandEvent) event).getMember();
+        if (event instanceof SlashCommandInteractionEvent) {
+            Member member = ((SlashCommandInteractionEvent) event).getMember();
 
             boolean hasPermission = member.hasPermission(Permission.ADMINISTRATOR);
 
@@ -50,7 +50,7 @@ public class SettingsICommand implements ICommand {
                 embed.setTitle("Insufficient permissions!");
                 embed.setDescription("You need to have the `Administrator` permission to use this set of commands");
                 embed.setColor(ColorScheme.ERROR);
-                ((SlashCommandEvent) event).replyEmbeds(embed.build()).queue();
+                ((SlashCommandInteractionEvent) event).replyEmbeds(embed.build()).queue();
                 return;
             }
         }
@@ -69,7 +69,7 @@ public class SettingsICommand implements ICommand {
     }
 
     @Override
-    public @NotNull CommandData getCommandData() {
+    public @NotNull CommandDataImpl getCommandData() {
         return commandData;
     }
 

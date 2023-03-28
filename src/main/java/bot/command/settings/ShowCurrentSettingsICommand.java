@@ -1,20 +1,20 @@
 package bot.command.settings;
 
-import bot.command.ICommand;
 import bot.Bot;
-import bot.util.ColorScheme;
+import bot.command.ICommand;
 import bot.db.server.ServerData;
+import bot.util.ColorScheme;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import static bot.feature.message.CommandMethods.sendEmbed;
+import static bot.command.CommandMethods.sendEmbed;
 
 public class ShowCurrentSettingsICommand implements ICommand {
     @Override
@@ -26,8 +26,8 @@ public class ShowCurrentSettingsICommand implements ICommand {
 
         }
 
-        if (event instanceof SlashCommandEvent) {
-            guild = ((SlashCommandEvent) event).getGuild();
+        if (event instanceof SlashCommandInteractionEvent) {
+            guild = ((SlashCommandInteractionEvent) event).getGuild();
         }
 
         ServerData data = Bot.getINSTANCE().getGuildData().get(guild);
@@ -52,8 +52,8 @@ public class ShowCurrentSettingsICommand implements ICommand {
     }
 
     @Override
-    public @NotNull CommandData getCommandData() {
-        return new CommandData(getCommandWord(), getDescription());
+    public @NotNull CommandDataImpl getCommandData() {
+        return new CommandDataImpl(getCommandWord(), getDescription());
     }
 
     @Override

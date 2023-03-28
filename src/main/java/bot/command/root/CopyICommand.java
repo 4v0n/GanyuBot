@@ -4,13 +4,13 @@ import bot.command.ICommand;
 import bot.util.ColorScheme;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -36,20 +36,20 @@ public class CopyICommand implements ICommand {
             return;
         }
 
-        if (event instanceof SlashCommandEvent){
-            OptionMapping optionMapping = ((SlashCommandEvent) event).getOption("text");
+        if (event instanceof SlashCommandInteractionEvent){
+            OptionMapping optionMapping = ((SlashCommandInteractionEvent) event).getOption("text");
 
             if (optionMapping == null){
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setDescription("You haven't typed anything to copy!");
                 embed.setColor(ColorScheme.ERROR);
-                ((SlashCommandEvent) event).replyEmbeds(embed.build()).queue();
+                ((SlashCommandInteractionEvent) event).replyEmbeds(embed.build()).queue();
                 return;
             }
 
             String content = optionMapping.getAsString();
 
-            ((SlashCommandEvent) event).reply(content).queue();
+            ((SlashCommandInteractionEvent) event).reply(content).queue();
             return;
         }
     }
@@ -65,8 +65,8 @@ public class CopyICommand implements ICommand {
     }
 
     @Override
-    public @NotNull CommandData getCommandData() {
-        CommandData commandData = new CommandData(getCommandWord(), getDescription());
+    public @NotNull CommandDataImpl getCommandData() {
+        CommandDataImpl commandData = new CommandDataImpl(getCommandWord(), getDescription());
         commandData.addOption(OptionType.STRING, "text", "The text to be copied", true);
 
         return commandData;

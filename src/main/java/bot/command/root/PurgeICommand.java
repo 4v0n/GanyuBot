@@ -6,24 +6,24 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static bot.feature.message.CommandMethods.*;
+import static bot.command.CommandMethods.*;
 
 public class PurgeICommand implements ICommand {
 
-    private final CommandData commandData;
+    private final CommandDataImpl commandData;
     private final OptionData isCommand;
     private final OptionData hasImage;
     private final OptionData hasVideo;
@@ -32,7 +32,7 @@ public class PurgeICommand implements ICommand {
     private final OptionData domain;
 
     public PurgeICommand() {
-        this.commandData = new CommandData(getCommandWord(), getDescription());
+        this.commandData = new CommandDataImpl(getCommandWord(), getDescription());
 
         this.isCommand = new OptionData(OptionType.BOOLEAN, "commands", "Whether to delete commands");
         this.hasImage = new OptionData(OptionType.BOOLEAN, "images", "whether to delete images");
@@ -55,8 +55,8 @@ public class PurgeICommand implements ICommand {
             return;
         }
 
-        if (event instanceof SlashCommandEvent) {
-            Member member = ((SlashCommandEvent) event).getMember();
+        if (event instanceof SlashCommandInteractionEvent) {
+            Member member = ((SlashCommandInteractionEvent) event).getMember();
 
             boolean hasPermission = member.hasPermission(Permission.ADMINISTRATOR);
 
@@ -65,11 +65,11 @@ public class PurgeICommand implements ICommand {
                 embed.setTitle("Insufficient permissions!");
                 embed.setDescription("You need to have the `Administrator` permission to use this set of commands");
                 embed.setColor(ColorScheme.ERROR);
-                ((SlashCommandEvent) event).replyEmbeds(embed.build()).queue();
+                ((SlashCommandInteractionEvent) event).replyEmbeds(embed.build()).queue();
                 return;
             }
 
-            Thread thread = new Thread(() -> purge((SlashCommandEvent) event));
+            Thread thread = new Thread(() -> purge((SlashCommandInteractionEvent) event));
             thread.start();
         }
     }
@@ -132,7 +132,7 @@ public class PurgeICommand implements ICommand {
         return 0;
     }
 
-    private void purge(SlashCommandEvent event) {
+    private void purge(SlashCommandInteractionEvent event) {
         MessageChannel channel = event.getChannel();
         List<OptionMapping> options = event.getOptions();
         EmbedBuilder preEmbed = new EmbedBuilder();
@@ -169,7 +169,7 @@ public class PurgeICommand implements ICommand {
     }
 
     @Override
-    public @NotNull CommandData getCommandData() {
+    public @NotNull CommandDataImpl getCommandData() {
         return commandData;
     }
 

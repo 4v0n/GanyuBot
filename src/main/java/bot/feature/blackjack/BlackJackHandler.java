@@ -1,7 +1,6 @@
 package bot.feature.blackjack;
 
 
-import bot.util.ColorScheme;
 import bot.command.blackjack.AddCreditsICommand;
 import bot.command.blackjack.LeaderboardICommand;
 import bot.command.blackjack.PlayICommand;
@@ -9,13 +8,14 @@ import bot.command.blackjack.ProfileICommand;
 import bot.db.blackjack.CasinoData;
 import bot.db.blackjack.CasinoGuildData;
 import bot.db.blackjack.UserData;
-import bot.feature.message.CommandHandler;
+import bot.command.CommandHandler;
+import bot.util.ColorScheme;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.io.IOException;
@@ -24,7 +24,7 @@ import java.io.IOException;
  * This class allows for blackjack commands to be handled
  *
  * @author Aron Navodh Kumarawatta
- * @version 09.06.2022
+ * @version 28.03.2023
  */
 public class BlackJackHandler extends CommandHandler {
 
@@ -71,10 +71,10 @@ public class BlackJackHandler extends CommandHandler {
             member = ((MessageReceivedEvent) event).getMember();
         }
 
-        if (event instanceof SlashCommandEvent) {
-            guild = ((SlashCommandEvent) event).getGuild();
-            channel = ((SlashCommandEvent) event).getChannel();
-            member = ((SlashCommandEvent) event).getMember();
+        if (event instanceof SlashCommandInteractionEvent) {
+            guild = ((SlashCommandInteractionEvent) event).getGuild();
+            channel = ((SlashCommandInteractionEvent) event).getChannel();
+            member = ((SlashCommandInteractionEvent) event).getMember();
         }
 
         if (guild != null && member != null) {

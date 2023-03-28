@@ -1,17 +1,17 @@
 package bot.activity.blackjack;
 
-import bot.activity.Activity;
 import bot.Bot;
-import bot.feature.blackjack.BlackJackParser;
-import bot.util.ColorScheme;
+import bot.activity.Activity;
 import bot.db.blackjack.CasinoData;
 import bot.db.blackjack.CasinoGuildData;
 import bot.db.blackjack.UserData;
+import bot.feature.blackjack.BlackJackParser;
+import bot.util.ColorScheme;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.concurrent.TimeUnit;
@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
  * This class allows for a game of blackjack to be played
  *
  * @author Aron Navodh Kumarawatta
- * @version 09.06.2022
+ * @version 28.03.2023
  */
 public class Game extends Activity {
     private final Deck deck;
@@ -79,7 +79,7 @@ public class Game extends Activity {
         channel.editMessageEmbedsById(messageID, this.embed.build()).queue();
     }
 
-    public Game(SlashCommandEvent event, Message message, int bet) {
+    public Game(SlashCommandInteractionEvent event, Message message, int bet) {
         super(event, new BlackJackParser(), message);
 
         this.dealer = new Dealer(event.getGuild().getSelfMember().getId());

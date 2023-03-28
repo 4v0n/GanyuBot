@@ -1,23 +1,23 @@
 package bot.command.music;
 
-import bot.command.ICommand;
 import bot.Bot;
-import bot.util.ColorScheme;
+import bot.command.ICommand;
 import bot.db.server.ServerData;
 import bot.feature.music.MusicManager;
 import bot.feature.music.lavaplayer.PlayerManager;
+import bot.util.ColorScheme;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import static bot.command.music.MusicMethods.*;
+import static bot.command.music.MusicUtil.*;
 
 public class StopICommand implements ICommand {
     @Override
@@ -33,10 +33,10 @@ public class StopICommand implements ICommand {
 
         }
 
-        if (event instanceof SlashCommandEvent) {
-            user = ((SlashCommandEvent) event).getMember();
-            self = ((SlashCommandEvent) event).getGuild().getSelfMember();
-            guild = ((SlashCommandEvent) event).getGuild();
+        if (event instanceof SlashCommandInteractionEvent) {
+            user = ((SlashCommandInteractionEvent) event).getMember();
+            self = ((SlashCommandInteractionEvent) event).getGuild().getSelfMember();
+            guild = ((SlashCommandInteractionEvent) event).getGuild();
         }
 
         if (inSameVC(user, self)){
@@ -84,8 +84,8 @@ public class StopICommand implements ICommand {
     }
 
     @Override
-    public @NotNull CommandData getCommandData() {
-        return new CommandData(getCommandWord(), getDescription());
+    public @NotNull CommandDataImpl getCommandData() {
+        return new CommandDataImpl(getCommandWord(), getDescription());
     }
 
     @Override

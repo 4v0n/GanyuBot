@@ -1,13 +1,13 @@
 package bot.util.message.vote;
 
-import bot.feature.reaction.ReactionCommandHandler;
+import bot.command.reaction.ReactionCommandHandler;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 
 /**
  * @author Aron Kumarawatta
- * @version 29.05.2022
+ * @version 28.03.2023
  */
 public class VoteMessage extends ReactionCommandHandler {
 

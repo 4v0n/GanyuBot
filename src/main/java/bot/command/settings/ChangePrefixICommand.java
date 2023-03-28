@@ -1,24 +1,24 @@
 package bot.command.settings;
 
-import bot.command.ICommand;
 import bot.Bot;
-import bot.util.ColorScheme;
+import bot.command.ICommand;
 import bot.db.server.ServerData;
+import bot.util.ColorScheme;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.List;
 
-import static bot.feature.message.CommandMethods.sendEmbed;
-import static bot.feature.message.CommandMethods.sendEphemeralEmbed;
+import static bot.command.CommandMethods.sendEmbed;
+import static bot.command.CommandMethods.sendEphemeralEmbed;
 
 public class ChangePrefixICommand implements ICommand {
     @Override
@@ -42,11 +42,11 @@ public class ChangePrefixICommand implements ICommand {
             newPrefix = args.get(0);
         }
 
-        if (event instanceof SlashCommandEvent) {
-            self = ((SlashCommandEvent) event).getGuild().getSelfMember();
-            guild = ((SlashCommandEvent) event).getGuild();
+        if (event instanceof SlashCommandInteractionEvent) {
+            self = ((SlashCommandInteractionEvent) event).getGuild().getSelfMember();
+            guild = ((SlashCommandInteractionEvent) event).getGuild();
 
-            newPrefix = ((SlashCommandEvent) event).getOption("prefix").getAsString();
+            newPrefix = ((SlashCommandInteractionEvent) event).getOption("prefix").getAsString();
         }
 
         ServerData data = Bot.getINSTANCE().getGuildData().get(guild);
@@ -80,8 +80,8 @@ public class ChangePrefixICommand implements ICommand {
     }
 
     @Override
-    public @NotNull CommandData getCommandData() {
-        CommandData commandData = new CommandData(getCommandWord(), "changes the prefix the bot will listen to on this server.");
+    public @NotNull CommandDataImpl getCommandData() {
+        CommandDataImpl commandData = new CommandDataImpl(getCommandWord(), "changes the prefix the bot will listen to on this server.");
         commandData.addOption(OptionType.STRING, "prefix", "the new prefix that the bot will listen to", true);
 
         return commandData;

@@ -1,28 +1,27 @@
 package bot.command.music;
 
-import bot.command.ICommand;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import bot.Bot;
-import bot.util.ColorScheme;
+import bot.command.ICommand;
 import bot.db.server.ServerData;
 import bot.feature.music.MusicManager;
 import bot.feature.music.lavaplayer.PlayerManager;
+import bot.util.ColorScheme;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
-import static bot.command.music.MusicMethods.*;
-import static bot.command.music.MusicMethods.sendErrorEmbed;
+import static bot.command.music.MusicUtil.*;
 
 public class SkipToICommand implements ICommand {
     @Override
@@ -56,12 +55,12 @@ public class SkipToICommand implements ICommand {
             target = Integer.parseInt(args.get(0));
         }
 
-        if (event instanceof SlashCommandEvent) {
-            user = ((SlashCommandEvent) event).getMember();
-            self = ((SlashCommandEvent) event).getGuild().getSelfMember();
-            guild = ((SlashCommandEvent) event).getGuild();
+        if (event instanceof SlashCommandInteractionEvent) {
+            user = ((SlashCommandInteractionEvent) event).getMember();
+            self = ((SlashCommandInteractionEvent) event).getGuild().getSelfMember();
+            guild = ((SlashCommandInteractionEvent) event).getGuild();
 
-            target = Integer.parseInt(((SlashCommandEvent) event).getOption("position").getAsString());
+            target = Integer.parseInt(((SlashCommandInteractionEvent) event).getOption("position").getAsString());
         }
 
         if (inSameVC(user, self)) {
@@ -152,8 +151,8 @@ public class SkipToICommand implements ICommand {
     }
 
     @Override
-    public @NotNull CommandData getCommandData() {
-        CommandData commandData = new CommandData(getCommandWord(), "skips all songs until a chosen point");
+    public @NotNull CommandDataImpl getCommandData() {
+        CommandDataImpl commandData = new CommandDataImpl(getCommandWord(), "skips all songs until a chosen point");
         OptionData optionData = new OptionData(OptionType.INTEGER, "position", "the position of the song to skip to", true)
                 .setMinValue(1);
         commandData.addOptions(optionData);

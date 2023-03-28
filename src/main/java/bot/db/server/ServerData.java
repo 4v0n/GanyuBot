@@ -2,7 +2,7 @@ package bot.db.server;
 
 import bot.feature.root.BaseCommandHandler;
 import bot.Bot;
-import bot.feature.message.CommandMethods;
+import bot.command.CommandMethods;
 import net.dv8tion.jda.api.entities.Guild;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -17,7 +17,7 @@ import java.io.IOException;
  * Holds server data
  *
  * @author Aron Kumarawatta
- * @version 29.05.2022
+ * @version 28.03.2023
  */
 public class ServerData {
 

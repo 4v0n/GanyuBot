@@ -1,26 +1,26 @@
 package bot.command.music;
 
 import bot.command.ICommand;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
-import bot.util.ColorScheme;
-import bot.util.message.MultiPageEmbed;
 import bot.feature.music.MusicManager;
 import bot.feature.music.lavaplayer.PlayerManager;
+import bot.util.ColorScheme;
+import bot.util.message.MultiPageEmbed;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
-import static bot.command.music.MusicMethods.*;
+import static bot.command.music.MusicUtil.*;
 
 public class ShowQueueICommand implements ICommand {
 
@@ -37,10 +37,10 @@ public class ShowQueueICommand implements ICommand {
 
         }
 
-        if (event instanceof SlashCommandEvent) {
-            user = ((SlashCommandEvent) event).getMember();
-            self = ((SlashCommandEvent) event).getGuild().getSelfMember();
-            guild = ((SlashCommandEvent) event).getGuild();
+        if (event instanceof SlashCommandInteractionEvent) {
+            user = ((SlashCommandInteractionEvent) event).getMember();
+            self = ((SlashCommandInteractionEvent) event).getGuild().getSelfMember();
+            guild = ((SlashCommandInteractionEvent) event).getGuild();
         }
 
         if (self.getVoiceState().inAudioChannel()){
@@ -110,8 +110,8 @@ public class ShowQueueICommand implements ICommand {
             return;
         }
 
-        if (event instanceof SlashCommandEvent){
-            queueListMessage.replyTo((SlashCommandEvent) event);
+        if (event instanceof SlashCommandInteractionEvent){
+            queueListMessage.replyTo((SlashCommandInteractionEvent) event);
         }
     }
 
@@ -159,8 +159,8 @@ public class ShowQueueICommand implements ICommand {
     }
 
     @Override
-    public @NotNull CommandData getCommandData() {
-        return new CommandData(getCommandWord(), getDescription());
+    public @NotNull CommandDataImpl getCommandData() {
+        return new CommandDataImpl(getCommandWord(), getDescription());
     }
 
     @Override

@@ -1,17 +1,17 @@
-package bot.feature.message;
+package bot.command;
 
-import bot.command.ICommand;
 import bot.Bot;
-import bot.util.ColorScheme;
 import bot.command.CommandExistsException;
+import bot.command.ICommand;
+import bot.util.ColorScheme;
 import bot.util.message.Help;
 import bot.util.message.MultiPageEmbed;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -66,8 +66,8 @@ import java.util.Scanner;
             }
 
             @Override
-            public @NotNull CommandData getCommandData() {
-                return new CommandData(getCommandWord(), getDescription());
+            public @NotNull CommandDataImpl getCommandData() {
+                return new CommandDataImpl(getCommandWord(), getDescription());
             }
 
             @Override
@@ -98,8 +98,8 @@ import java.util.Scanner;
                             mpe.sendMessage(((MessageReceivedEvent) event).getChannel());
                         }
 
-                        if (event instanceof SlashCommandEvent) {
-                            mpe.replyTo(((SlashCommandEvent) event));
+                        if (event instanceof SlashCommandInteractionEvent) {
+                            mpe.replyTo(((SlashCommandInteractionEvent) event));
                         }
                     }
 
@@ -114,8 +114,8 @@ import java.util.Scanner;
                     }
 
                     @Override
-                    public @NotNull CommandData getCommandData() {
-                        return new CommandData(getCommandWord(), getDescription());
+                    public @NotNull CommandDataImpl getCommandData() {
+                        return new CommandDataImpl(getCommandWord(), getDescription());
                     }
 
                     @Override
@@ -155,8 +155,8 @@ import java.util.Scanner;
             }
 
             @Override
-            public @NotNull CommandData getCommandData() {
-                return new CommandData(getCommandWord(), getDescription());
+            public @NotNull CommandDataImpl getCommandData() {
+                return new CommandDataImpl(getCommandWord(), getDescription());
             }
 
             @Override
@@ -258,7 +258,7 @@ import java.util.Scanner;
         }
     }
 
-    public void parse(SlashCommandEvent event) {
+    public void parse(SlashCommandInteractionEvent event) {
         String content = event.getCommandString().substring(1);
         List<String> args = List.of(content.split(" "));
 

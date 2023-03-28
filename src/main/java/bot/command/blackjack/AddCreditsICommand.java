@@ -1,27 +1,28 @@
 package bot.command.blackjack;
 
-import bot.command.ICommand;
 import bot.Bot;
-import bot.util.ColorScheme;
+import bot.command.ICommand;
 import bot.db.blackjack.CasinoData;
 import bot.db.blackjack.CasinoGuildData;
 import bot.db.blackjack.UserData;
+import bot.util.ColorScheme;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.List;
 
-import static bot.feature.message.CommandMethods.checkIsInt;
-import static bot.feature.message.CommandMethods.checkIsLong;
+import static bot.command.CommandMethods.checkIsInt;
+import static bot.command.CommandMethods.checkIsLong;
 
 public class AddCreditsICommand implements ICommand {
     @Override
@@ -31,8 +32,8 @@ public class AddCreditsICommand implements ICommand {
             return;
         }
 
-        if (event instanceof SlashCommandEvent){
-            parseSlash((SlashCommandEvent) event, args);
+        if (event instanceof SlashCommandInteractionEvent){
+            parseSlash((SlashCommandInteractionEvent) event, args);
         }
     }
 
@@ -84,7 +85,7 @@ public class AddCreditsICommand implements ICommand {
 
                 activityData.save();
 
-                event.getMessage().addReaction("✅").queue();
+                event.getMessage().addReaction(Emoji.fromUnicode("✅")).queue();
 
             } catch (Exception e) {
                 EmbedBuilder embed = new EmbedBuilder();
@@ -100,7 +101,7 @@ public class AddCreditsICommand implements ICommand {
         }
     }
 
-    private void parseSlash(SlashCommandEvent event, List<String> args) {
+    private void parseSlash(SlashCommandInteractionEvent event, List<String> args) {
         Bot bot = Bot.getINSTANCE();
 
         Member user = event.getOption("user").getAsMember();
@@ -142,8 +143,8 @@ public class AddCreditsICommand implements ICommand {
     }
 
     @Override
-    public @NotNull CommandData getCommandData() {
-        CommandData commandData = new CommandData(getCommandWord(), "Adds credits to the tagged user");
+    public @NotNull CommandDataImpl getCommandData() {
+        CommandDataImpl commandData = new CommandDataImpl(getCommandWord(), "Adds credits to the tagged user");
         commandData.addOption(OptionType.USER, "user", "The user you wish to add credits to", true);
         commandData.addOption(OptionType.INTEGER, "amount", "The amount of credits that you would like to add", true);
 

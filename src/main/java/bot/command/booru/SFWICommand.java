@@ -3,12 +3,12 @@ package bot.command.booru;
 import bot.command.ICommand;
 import bot.util.ColorScheme;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.MessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import net.kodehawa.lib.imageboards.DefaultImageBoards;
 import net.kodehawa.lib.imageboards.entities.BoardImage;
 import org.jetbrains.annotations.NotNull;
@@ -31,8 +31,8 @@ public class SFWICommand implements ICommand {
             return;
         }
 
-        if (event instanceof SlashCommandEvent){
-            String tags = ((SlashCommandEvent) event).getOption("tags").getAsString();
+        if (event instanceof SlashCommandInteractionEvent){
+            String tags = ((SlashCommandInteractionEvent) event).getOption("tags").getAsString();
             searchSafeBooru(tags, event);
         }
     }
@@ -76,8 +76,8 @@ public class SFWICommand implements ICommand {
             return;
         }
 
-        if (event instanceof SlashCommandEvent){
-            ((SlashCommandEvent) event).replyEmbeds(embed.build()).setEphemeral(true).queue();
+        if (event instanceof SlashCommandInteractionEvent){
+            ((SlashCommandInteractionEvent) event).replyEmbeds(embed.build()).setEphemeral(true).queue();
         }
     }
 
@@ -111,8 +111,8 @@ public class SFWICommand implements ICommand {
             return;
         }
 
-        if (event instanceof SlashCommandEvent){
-            ((SlashCommandEvent) event).replyEmbeds(embed.build()).queue();
+        if (event instanceof SlashCommandInteractionEvent){
+            ((SlashCommandInteractionEvent) event).replyEmbeds(embed.build()).queue();
         }
     }
 
@@ -143,8 +143,8 @@ public class SFWICommand implements ICommand {
     }
 
     @Override
-    public @NotNull CommandData getCommandData() {
-        CommandData commandData = new CommandData(getCommandWord(), "Searches https://safebooru.org for an image");
+    public @NotNull CommandDataImpl getCommandData() {
+        CommandDataImpl commandData = new CommandDataImpl(getCommandWord(), "Searches https://safebooru.org for an image");
         commandData.addOption(OptionType.STRING, "tags", "Enter search tags here. (Separate by space)", true);
 
         return commandData;

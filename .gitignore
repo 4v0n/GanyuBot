@@ -295,4 +295,5 @@ buildNumber.properties
 CasinoData
 ServerData
 GanyuBot.iml
+config.cfg
 # End of https://www.toptal.com/developers/gitignore/api/java,intellij,visualstudiocode,eclipse,windows,netbeans,bluej

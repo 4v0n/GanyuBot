@@ -1,8 +1,9 @@
-package bot.feature.reaction;
+package bot.command.reaction;
 
 import bot.command.CommandExistsException;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageReaction;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 
 import java.util.HashMap;
@@ -29,18 +30,18 @@ public class ReactionCommandCenter {
         }
 
         commandList.put(unicode, action);
-        controller.addReaction(unicode).queue();
+        controller.addReaction(Emoji.fromUnicode(unicode)).queue();
     }
 
     public void parse(GenericMessageReactionEvent event) {
 
         for (MessageReaction reaction : controller.getReactions()) {
-            if (!commandList.containsKey(reaction.getReactionEmote().getAsReactionCode())) {
-                controller.removeReaction(reaction.getReactionEmote().getEmote(), event.getUser()).queue();
+            if (!commandList.containsKey(reaction.getEmoji().getAsReactionCode())) {
+                controller.removeReaction(reaction.getEmoji(), event.getUser()).queue();
             }
         }
 
-        IReactionAction reactionAction = commandList.get(event.getReactionEmote().getAsReactionCode());
+        IReactionAction reactionAction = commandList.get(event.getReaction().getEmoji().getAsReactionCode());
 
         if (reactionAction != null) {
             reactionAction.run(event);

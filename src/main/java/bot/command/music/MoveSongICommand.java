@@ -1,29 +1,28 @@
 package bot.command.music;
 
-import bot.command.ICommand;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import bot.Bot;
-import bot.util.ColorScheme;
+import bot.command.ICommand;
 import bot.db.server.ServerData;
 import bot.feature.music.MusicManager;
 import bot.feature.music.lavaplayer.PlayerManager;
+import bot.util.ColorScheme;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
-import static bot.command.music.MusicMethods.*;
-import static bot.command.music.MusicMethods.sendErrorEmbed;
+import static bot.command.music.MusicUtil.*;
 
 public class MoveSongICommand implements ICommand {
     @Override
@@ -67,13 +66,13 @@ public class MoveSongICommand implements ICommand {
             newPos = Integer.parseInt(args.get(1));
         }
 
-        if (event instanceof SlashCommandEvent) {
-            user = ((SlashCommandEvent) event).getMember();
-            self = ((SlashCommandEvent) event).getGuild().getSelfMember();
-            guild = ((SlashCommandEvent) event).getGuild();
+        if (event instanceof SlashCommandInteractionEvent) {
+            user = ((SlashCommandInteractionEvent) event).getMember();
+            self = ((SlashCommandInteractionEvent) event).getGuild().getSelfMember();
+            guild = ((SlashCommandInteractionEvent) event).getGuild();
 
-            oldPos = Integer.parseInt(((SlashCommandEvent) event).getOption("old_position").getAsString());
-            newPos = Integer.parseInt(((SlashCommandEvent) event).getOption("new_position").getAsString());
+            oldPos = Integer.parseInt(((SlashCommandInteractionEvent) event).getOption("old_position").getAsString());
+            newPos = Integer.parseInt(((SlashCommandInteractionEvent) event).getOption("new_position").getAsString());
         }
 
         if (inSameVC(user, self)) {
@@ -150,8 +149,8 @@ public class MoveSongICommand implements ICommand {
     }
 
     @Override
-    public @NotNull CommandData getCommandData() {
-        CommandData commandData = new CommandData(getCommandWord(), "moves a track from one position to another");
+    public @NotNull CommandDataImpl getCommandData() {
+        CommandDataImpl commandData = new CommandDataImpl(getCommandWord(), "moves a track from one position to another");
 
         OptionData oldPosOptionData = new OptionData(OptionType.INTEGER, "old_position", "The position of the song you want to move", true).setMinValue(2);
         OptionData newPosOptionData = new OptionData(OptionType.INTEGER, "new_position", "The position you want to move the song to", true).setMinValue(1);
