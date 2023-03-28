@@ -2,6 +2,7 @@ package bot;
 
 import bot.activity.Activity;
 import bot.db.server.ServerData;
+import com.mongodb.client.MongoDatabase;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -22,7 +23,10 @@ import java.util.List;
 public class Bot {
 
     private static JDA JDA;
+
     private static Bot INSTANCE;
+
+    private MongoDatabase DB;
 
     private String token;
     private String prefix;
@@ -210,5 +214,13 @@ public class Bot {
         }
 
         return serverData;
+    }
+
+    public MongoDatabase getDB() {
+        return DB;
+    }
+
+    public void setDB(MongoDatabase DB) {
+        this.DB = DB;
     }
 }

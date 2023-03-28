@@ -3,6 +3,9 @@ package bot;
 import bot.feature.music.AutoLeaveVC;
 import bot.feature.root.BaseCommandHandler;
 import bot.listener.*;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import com.mongodb.client.MongoDatabase;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
@@ -54,9 +57,16 @@ public class Main {
         jda.addEventListeners(new GuildJoin());
         jda.setActivity(Activity.playing("(" + botData.getGlobalPrefix() + ") " + settings.get("STATUS")));
 
+        try (MongoClient mongoClient = MongoClients.create(settings.get("DB_URI"))) {
+            MongoDatabase database = mongoClient.getDatabase("GanyuBot");
+            botData.setDB(database);
+            System.out.println("Connected to DB: " + database.getName());
+        } catch (Exception e) {
+            System.out.println("Could not connect to DB");
+            return;
+        }
 
         Bot.getINSTANCE().setJDA(jda.build().awaitReady());
-
         System.out.println("Bot started");
 
         botData.addAdmin("195929905857429504");
@@ -93,6 +103,7 @@ public class Main {
             settings.put("TOKEN", null);
             settings.put("PREFIX", null);
             settings.put("STATUS", null);
+            settings.put("DB_URI", null);
 
             File configFileName = new File("config.cfg");
 
