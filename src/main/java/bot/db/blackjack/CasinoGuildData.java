@@ -1,6 +1,18 @@
 package bot.db.blackjack;
 
+import bot.Bot;
+import com.mongodb.MongoException;
+import com.mongodb.MongoQueryException;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.Projections;
+import com.mongodb.client.result.InsertManyResult;
+import dev.morphia.Datastore;
+import dev.morphia.query.filters.Filters;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.User;
+import org.bson.Document;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -9,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author Aron Kumarawatta
@@ -24,20 +37,28 @@ public class CasinoGuildData {
     public CasinoGuildData(String guildID) {
         this.players = new HashMap<>();
         this.guildID = guildID;
+
+        loadFromDB();
     }
 
-    public CasinoGuildData(String guildID, JSONArray jsonArray) {
+
+    public CasinoGuildData(Guild guild) {
         this.players = new HashMap<>();
-        jsonArray.forEach(emp -> parseUser((JSONObject) emp));
-        this.guildID = guildID;
+        this.guildID = guild.getId();
+
+        loadFromDB();
     }
 
-    private void parseUser(JSONObject json) {
-        JSONObject userJSON = (JSONObject) json.get("user");
+    private void loadFromDB() {
+        Datastore datastore = Bot.getINSTANCE().getDatastore();
 
-        if (userJSON != null) {
-            UserData userData = new UserData(userJSON);
-            players.put(userData.getMemberID(), userData);
+        List<UserData> userDataList = datastore.find(UserData.class)
+                .filter(Filters.eq("guildID", guildID))
+                .iterator()
+                .toList();
+
+        for (UserData user : userDataList) {
+            players.put(user.getMemberID(), user);
         }
     }
 
@@ -49,18 +70,11 @@ public class CasinoGuildData {
         return leaderBoard;
     }
 
-    public void save() throws IOException {
-        JSONArray jsonArray = new JSONArray();
-
+    public void save() {
+        Datastore ds = Bot.getINSTANCE().getDatastore();
         for (UserData user : players.values()) {
-            JSONObject userJSON = new JSONObject();
-            userJSON.put("user", user.getJSON());
-            jsonArray.add(userJSON);
+            ds.save(user);
         }
-
-        FileWriter fw = new FileWriter(("CasinoData/" + guildID + ".json"));
-        fw.write(jsonArray.toJSONString());
-        fw.flush();
     }
 
     public UserData getPlayer(String id){
@@ -71,7 +85,7 @@ public class CasinoGuildData {
         UserData userData = players.get(member.getId());
 
         if (userData == null) {
-            userData = new UserData(member.getId());
+            userData = new UserData(member.getId(), member.getGuild().getId());
             players.put(member.getId(), userData);
         }
 

@@ -1,5 +1,7 @@
 package bot.db.blackjack;
 
+import dev.morphia.annotations.*;
+import org.bson.Document;
 import org.joda.time.DateTime;
 import org.json.simple.JSONObject;
 
@@ -7,29 +9,32 @@ import org.json.simple.JSONObject;
  * @author Aron Kumarawatta
  * @version 09.06.2022
  */
+@Entity("CasinoUserData")
 public class UserData {
 
-    private final String memberID;
+    private String idField;
+
+    private String memberID;
     private int hour;
     private long losses;
     private long wins;
     private long credits;
 
-    public UserData(String memberID) {
+    @Id
+    private String guildID;
+
+    public UserData(){}
+
+    public UserData(String memberID, String guildID) {
         this.memberID = memberID;
         this.credits = 1000;
         this.wins = 0;
         this.losses = 0;
         DateTime dt = new DateTime();
         this.hour = dt.getHourOfDay();
-    }
+        this.guildID = guildID;
 
-    public UserData(JSONObject json) {
-        this.memberID = json.get("memberID").toString();
-        this.credits = Integer.parseInt(json.get("credits").toString());
-        this.wins = Integer.parseInt(json.get("wins").toString());
-        this.losses = Integer.parseInt(json.get("losses").toString());
-        this.hour = Integer.parseInt(json.get("hour").toString());
+        this.idField = memberID + guildID;
     }
 
     public void incrementWins() {
@@ -71,16 +76,5 @@ public class UserData {
 
     public String getMemberID() {
         return memberID;
-    }
-
-    public JSONObject getJSON() {
-        JSONObject json = new JSONObject();
-        json.put("memberID", memberID);
-        json.put("hour", hour);
-        json.put("wins", wins);
-        json.put("losses", losses);
-        json.put("credits", credits);
-
-        return json;
     }
 }

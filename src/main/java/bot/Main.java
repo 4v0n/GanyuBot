@@ -3,14 +3,21 @@ package bot;
 import bot.feature.music.AutoLeaveVC;
 import bot.feature.root.BaseCommandHandler;
 import bot.listener.*;
+import com.mongodb.*;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
+import dev.morphia.Datastore;
+import dev.morphia.Morphia;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import org.bson.BsonDocument;
+import org.bson.BsonInt64;
+import org.bson.Document;
+import org.bson.conversions.Bson;
 
 import java.io.*;
 import java.util.HashMap;
@@ -57,12 +64,24 @@ public class Main {
         jda.addEventListeners(new GuildJoin());
         jda.setActivity(Activity.playing("(" + botData.getGlobalPrefix() + ") " + settings.get("STATUS")));
 
-        try (MongoClient mongoClient = MongoClients.create(settings.get("DB_URI"))) {
-            MongoDatabase database = mongoClient.getDatabase("GanyuBot");
-            botData.setDB(database);
-            System.out.println("Connected to DB: " + database.getName());
+        ServerApi serverApi = ServerApi.builder()
+                .version(ServerApiVersion.V1)
+                .build();
+
+        MongoClientSettings dbSettings = MongoClientSettings.builder()
+                .applyConnectionString(new ConnectionString(settings.get("DB_URI")))
+                .build();
+
+        MongoClient mongoClient;
+        try {
+            mongoClient = MongoClients.create(dbSettings);
+            Datastore datastore = Morphia.createDatastore(mongoClient, "GanyuBot");
+            datastore.getMapper().mapPackage("com.mongodb.morphia.entities");
+            botData.setDatastore(datastore);
+
         } catch (Exception e) {
             System.out.println("Could not connect to DB");
+            System.err.println(e);
             return;
         }
 
@@ -75,6 +94,11 @@ public class Main {
             BaseCommandHandler.getINSTANCE().upsertCommands(guild);
         }
 
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("Shutting down");
+            mongoClient.close();
+            Bot.getJDA().shutdown();
+        }));
     }
 
     /**

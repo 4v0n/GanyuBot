@@ -1,12 +1,19 @@
 package bot.db.blackjack;
 
+import bot.Bot;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.Filters;
+import dev.morphia.Datastore;
 import net.dv8tion.jda.api.entities.Guild;
+import org.bson.Document;
 import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 
 import java.io.File;
 import java.io.FileReader;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author Aron Kumarawatta
@@ -44,27 +51,9 @@ public class CasinoData {
     }
 
     public void load() {
-        File directory = new File("CasinoData");
-
-        if (!directory.isDirectory()) {
-            directory.mkdirs();
-            return;
-        }
-
-        for (String filename : directory.list()) {
-            if (filename.endsWith(".json")) {
-                try {
-                    String guildID = filename.substring(0, filename.length() - 5);
-
-                    JSONParser parser = new JSONParser();
-                    JSONArray jsonArray = (JSONArray) parser.parse(new FileReader("CasinoData/" + filename));
-
-                    guildData.put(guildID, new CasinoGuildData(guildID, jsonArray));
-
-                } catch (Exception e) {
-                    // ignored
-                }
-            }
+        List<Guild> guilds = Bot.getJDA().getGuilds();
+        for (Guild guild : guilds) {
+            guildData.put(guild.getId(), new CasinoGuildData(guild));
         }
     }
 }

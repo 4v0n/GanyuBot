@@ -3,6 +3,7 @@ package bot;
 import bot.activity.Activity;
 import bot.db.server.ServerData;
 import com.mongodb.client.MongoDatabase;
+import dev.morphia.Datastore;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -23,20 +24,15 @@ import java.util.List;
 public class Bot {
 
     private static JDA JDA;
-
     private static Bot INSTANCE;
-
-    private MongoDatabase DB;
-
     private String token;
     private String prefix;
     private final ArrayList<String> admins;
-
     // userID+channelID activity
     private final HashMap<String, Activity> activities;
-
     // guild guildData
     private final HashMap<Guild, ServerData> guildData;
+    private Datastore datastore;
 
     /**
      * Constructor method.
@@ -216,11 +212,11 @@ public class Bot {
         return serverData;
     }
 
-    public MongoDatabase getDB() {
-        return DB;
+    public void setDatastore(Datastore datastore) {
+        this.datastore = datastore;
     }
 
-    public void setDB(MongoDatabase DB) {
-        this.DB = DB;
+    public Datastore getDatastore() {
+        return datastore;
     }
 }
