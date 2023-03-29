@@ -72,20 +72,25 @@ public class Main {
                 .applyConnectionString(new ConnectionString(settings.get("DB_URI")))
                 .build();
 
+        Bot.getINSTANCE().setJDA(jda.build().awaitReady());
+
         MongoClient mongoClient;
         try {
             mongoClient = MongoClients.create(dbSettings);
-            Datastore datastore = Morphia.createDatastore(mongoClient, "GanyuBot");
+            mongoClient.getDatabase("GanyuBot").listCollections().iterator().available();
+            Datastore datastore = Morphia.createDatastore(mongoClient, (Bot.getJDA().getSelfUser().getName() + "Bot").replaceAll(" ", ""));
+
             datastore.getMapper().mapPackage("com.mongodb.morphia.entities");
             botData.setDatastore(datastore);
 
+            System.out.println("Connected to DB");
         } catch (Exception e) {
             System.out.println("Could not connect to DB");
             System.err.println(e);
             return;
         }
 
-        Bot.getINSTANCE().setJDA(jda.build().awaitReady());
+
         System.out.println("Bot started");
 
         for (Guild guild : Bot.getJDA().getGuilds()){

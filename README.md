@@ -6,23 +6,26 @@
     Ganyu
   <br>
  </h1>
-<h3 align="center">A simple discord bot written using JDA.</h4>
+<h4 align="center">A simple discord bot written using JDA.</h4>
 
 ## Requirements
 - JDK 11+
+- A mongoDB database
 
 ## Installation
 
-1. Download the latest release from Releases.
-2. Place JAR into an empty directory.
-3. Run the JAR file in terminal:
+1. Set up a MongoDB database. You may install a [local database](https://www.mongodb.com/docs/manual/administration/install-community/) or have a cloud database using [MongoDB Atlas](https://www.mongodb.com/atlas/database).
+2. Download the latest release from Releases.
+3. Place JAR into an empty directory.
+4. Run the JAR file in terminal:
 ```bash
 java -jar GanyuBot.jar
 ```
-4. The application will quit out. Fill in the generated config.cfg. For example:
+5. The application will quit out. Fill in the generated config.cfg. For example:
 ```
 STATUS:nice
 PREFIX:>r
 TOKEN:<YOUR BOT TOKEN HERE>
+DB_URI:<YOUR DB URI HERE>
 ```
-5. Run the bot again.
+6. Run the bot again.
