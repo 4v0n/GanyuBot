@@ -88,7 +88,6 @@ public class Main {
         Bot.getINSTANCE().setJDA(jda.build().awaitReady());
         System.out.println("Bot started");
 
-        botData.addAdmin("195929905857429504");
         for (Guild guild : Bot.getJDA().getGuilds()){
             BaseCommandHandler.getINSTANCE().upsertCommands(guild);
         }
