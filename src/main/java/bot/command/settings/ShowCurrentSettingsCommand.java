@@ -30,7 +30,7 @@ public class ShowCurrentSettingsCommand implements Command {
             guild = ((SlashCommandInteractionEvent) event).getGuild();
         }
 
-        ServerData data = Bot.getINSTANCE().getGuildData().get(guild);
+        ServerData data = Bot.getINSTANCE().getGuildData(guild);
         EmbedBuilder embed = new EmbedBuilder();
         embed.setTitle("Current settings", guild.getIconUrl());
         embed.setDescription(

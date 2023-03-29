@@ -1,17 +1,8 @@
 package bot.db.blackjack;
 
 import bot.Bot;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
-import com.mongodb.client.model.Filters;
-import dev.morphia.Datastore;
 import net.dv8tion.jda.api.entities.Guild;
-import org.bson.Document;
-import org.json.simple.JSONArray;
-import org.json.simple.parser.JSONParser;
 
-import java.io.File;
-import java.io.FileReader;
 import java.util.HashMap;
 import java.util.List;
 

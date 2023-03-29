@@ -72,7 +72,7 @@ public class RemoveSongCommand implements Command {
                 removeSong(position, guild, event);
 
             } else {
-                ServerData data = Bot.getINSTANCE().getGuildData().get(guild);
+                ServerData data = Bot.getINSTANCE().getGuildData(guild);
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setColor(ColorScheme.ERROR);
                 embed.setDescription("You don't have the permissions to use this command!");

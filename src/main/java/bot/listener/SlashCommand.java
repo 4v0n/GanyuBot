@@ -12,7 +12,6 @@ public class SlashCommand extends ListenerAdapter {
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
 
         if (event.getGuild() != null){
-            Bot.getINSTANCE().loadGuildData(event.getGuild());
             BaseCommandHandler.getINSTANCE().parse(event);
         }
     }

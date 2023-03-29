@@ -2,16 +2,14 @@ package bot;
 
 import bot.activity.Activity;
 import bot.db.server.ServerData;
-import com.mongodb.client.MongoDatabase;
 import dev.morphia.Datastore;
+import dev.morphia.query.filters.Filters;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 
 /**
@@ -30,8 +28,6 @@ public class Bot {
     private final ArrayList<String> admins;
     // userID+channelID activity
     private final HashMap<String, Activity> activities;
-    // guild guildData
-    private final HashMap<Guild, ServerData> guildData;
     private Datastore datastore;
 
     /**
@@ -41,7 +37,6 @@ public class Bot {
     private Bot() {
         this.activities = new HashMap<>();
         this.admins = new ArrayList<>();
-        this.guildData = new HashMap<>();
     }
 
     public static Bot getINSTANCE() {
@@ -51,37 +46,6 @@ public class Bot {
         }
 
         return INSTANCE;
-    }
-
-    public void loadGuildData(Guild guild) {
-
-        if (guildData.containsKey(guild)) {
-            return;
-        }
-
-        File file = new File("ServerData");
-
-        if (!file.isDirectory()) {
-            file.mkdirs();
-            return;
-        }
-
-        ArrayList<String> fileNames = new ArrayList<>(List.of(file.list()));
-
-        if (!fileNames.contains(guild.getId() + ".json")) {
-            return;
-        }
-
-        String path = "ServerData/" + guild.getId() + ".json";
-
-        try {
-            File serverFile = new File(path);
-            ServerData serverData = new ServerData(guild, serverFile);
-            guildData.put(guild, serverData);
-
-        } catch (Exception e) {
-            // ignore
-        }
     }
 
     public void addAdmin(String userID) {
@@ -118,7 +82,7 @@ public class Bot {
      * @return the prefix that the bot will listen to on the server.
      */
     public String getPrefix(Guild guild) {
-        ServerData guildData = this.guildData.get(guild);
+        ServerData guildData = this.getGuildData(guild);
 
         if (guildData == null) {
             return prefix;
@@ -185,12 +149,9 @@ public class Bot {
         return activities.get(key);
     }
 
-    public HashMap<Guild, ServerData> getGuildData() {
-        return guildData;
-    }
 
     public void addGuildData(ServerData guildData) {
-        this.guildData.put(guildData.getGuild(), guildData);
+        datastore.save(guildData);
     }
 
     public void setJDA(JDA jda) {
@@ -202,7 +163,10 @@ public class Bot {
     }
 
     public ServerData getGuildData(Guild guild) {
-        ServerData serverData = guildData.get(guild);
+        ServerData serverData = datastore.find(ServerData.class)
+                    .filter(Filters.eq("guildID", guild.getId()))
+                    .iterator()
+                    .tryNext();
 
         if (serverData == null) {
             serverData = new ServerData(guild);

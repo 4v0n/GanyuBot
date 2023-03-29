@@ -4,6 +4,7 @@ import bot.Bot;
 import bot.command.Command;
 import bot.db.server.ServerData;
 import bot.util.ColorScheme;
+import dev.morphia.Datastore;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -49,16 +50,17 @@ public class ChangePrefixCommand implements Command {
             newPrefix = ((SlashCommandInteractionEvent) event).getOption("prefix").getAsString();
         }
 
-        ServerData data = Bot.getINSTANCE().getGuildData().get(guild);
+        ServerData data = Bot.getINSTANCE().getGuildData(guild);
 
         data.setPrefix(newPrefix);
 
         self.modifyNickname("(" + data.getPrefix() + ") " + self.getUser().getName()).queue();
 
         try {
-            data.save();
+            Datastore datastore = Bot.getINSTANCE().getDatastore();
+            datastore.save(data);
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
 
         } finally {

@@ -32,7 +32,6 @@ public class ResetDataCommand implements Command {
         ServerData serverData = new ServerData(guild);
         serverData.setCommandSetVersion(BaseCommandHandler.getINSTANCE().hashCode());
 
-        Bot.getINSTANCE().getGuildData().remove(guild);
         Bot.getINSTANCE().addGuildData(serverData);
 
         guild.getSelfMember().modifyNickname(guild.getSelfMember().getUser().getName()).queue();

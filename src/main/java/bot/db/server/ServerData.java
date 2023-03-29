@@ -1,17 +1,10 @@
 package bot.db.server;
 
-import bot.feature.root.BaseCommandHandler;
 import bot.Bot;
-import bot.command.CommandMethods;
+import dev.morphia.annotations.Entity;
+import dev.morphia.annotations.Id;
+import dev.morphia.annotations.Transient;
 import net.dv8tion.jda.api.entities.Guild;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 
 /**
  * Holds server data
@@ -19,67 +12,26 @@ import java.io.IOException;
  * @author Aron Kumarawatta
  * @version 28.03.2023
  */
+
+@Entity("ServerData")
 public class ServerData {
 
-    private final Guild guild;
+    @Id
+    private String guildID;
     private String prefix;
     private String DJRoleName;
     private long commandSetVersion;
 
+    public ServerData(){}
     public ServerData(Guild guild) {
         this.prefix = Bot.getINSTANCE().getGlobalPrefix();
         this.DJRoleName = "DJ";
-        this.guild = guild;
+        this.guildID = guild.getId();
         commandSetVersion = 0;
     }
 
-    public ServerData(Guild guild, File file) throws IOException, ParseException {
-        this.guild = guild;
-
-        JSONParser jsonParser = new JSONParser();
-        JSONObject json = (JSONObject) jsonParser.parse(new FileReader(file.getAbsolutePath()));
-
-        this.prefix = String.valueOf(json.get("prefix"));
-        this.DJRoleName = String.valueOf(json.get("DJRole"));
-
-        String commandsetVer = String.valueOf(json.get("commandsetVer"));
-
-        if (CommandMethods.checkIsLong(commandsetVer)){
-            this.commandSetVersion = Long.parseLong(commandsetVer);
-        } else {
-            this.commandSetVersion = BaseCommandHandler.getINSTANCE().hashCode();
-        }
-    }
-
-    public void save() throws IOException {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("prefix", prefix);
-        jsonObject.put("DJRole", DJRoleName);
-        jsonObject.put("commandsetVer", commandSetVersion);
-
-        FileWriter fw = new FileWriter(("ServerData/" + guild.getId() + ".json"));
-        fw.write(jsonObject.toJSONString());
-        fw.flush();
-    }
-
-    private String[] getArray(String string){
-        string = string.replaceAll("\\s", "");
-
-        StringBuilder sb = new StringBuilder(string);
-        if (string.equals("[]")){
-            return new String[0];
-        }
-
-        sb.deleteCharAt(string.length() - 1);
-        sb.deleteCharAt(0);
-
-        String newString = sb.toString();
-
-        return newString.split(",");
-    }
-
     public Guild getGuild() {
-        return guild;
+        return Bot.getJDA().getGuildById(guildID);
     }
 
     public String getPrefix() {

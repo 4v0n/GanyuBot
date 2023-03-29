@@ -9,7 +9,6 @@ import org.jetbrains.annotations.NotNull;
 public class GuildJoin extends ListenerAdapter {
     @Override
     public void onGuildJoin(@NotNull GuildJoinEvent event) {
-        Bot.getINSTANCE().loadGuildData(event.getGuild());
         BaseCommandHandler.getINSTANCE().upsertCommands(event.getGuild());
     }
 }

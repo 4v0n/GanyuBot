@@ -42,7 +42,7 @@ public class SkipSongCommand implements Command {
 
         if (inSameVC(user, self)){
             if (!hasPermissions(user) && !isVCEmpty(user)){
-                ServerData data = Bot.getINSTANCE().getGuildData().get(guild);
+                ServerData data = Bot.getINSTANCE().getGuildData(guild);
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setColor(ColorScheme.ERROR);
                 embed.setDescription("You don't have the permissions to use this command!");

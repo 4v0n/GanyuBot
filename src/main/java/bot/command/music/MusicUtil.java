@@ -69,7 +69,7 @@ public class MusicUtil {
 
     public static boolean hasPermissions(Member user) {
         List<Role> roles = user.getRoles();
-        ServerData serverData = Bot.getINSTANCE().getGuildData().get(user.getGuild());
+        ServerData serverData = Bot.getINSTANCE().getGuildData(user.getGuild());
 
         if (user.isOwner()) return true;
 

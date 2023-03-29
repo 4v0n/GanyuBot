@@ -3,6 +3,7 @@ package bot.command;
 import bot.Bot;
 import bot.db.server.ServerData;
 import bot.feature.root.BaseCommandHandler;
+import dev.morphia.Datastore;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -158,8 +159,10 @@ public abstract class CommandHandler {
             serverData.setCommandSetVersion(BaseCommandHandler.getINSTANCE().hashCode());
 
             try {
-                serverData.save();
-            } catch (IOException e) {
+                Datastore datastore = Bot.getINSTANCE().getDatastore();
+                datastore.save(serverData);
+
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
 
@@ -186,8 +189,9 @@ public abstract class CommandHandler {
         serverData.setCommandSetVersion(BaseCommandHandler.getINSTANCE().hashCode());
 
         try {
-            serverData.save();
-        } catch (IOException e) {
+            Datastore datastore = Bot.getINSTANCE().getDatastore();
+            datastore.save(serverData);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 

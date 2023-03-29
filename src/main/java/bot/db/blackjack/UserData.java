@@ -1,9 +1,8 @@
 package bot.db.blackjack;
 
-import dev.morphia.annotations.*;
-import org.bson.Document;
+import dev.morphia.annotations.Entity;
+import dev.morphia.annotations.Id;
 import org.joda.time.DateTime;
-import org.json.simple.JSONObject;
 
 /**
  * @author Aron Kumarawatta

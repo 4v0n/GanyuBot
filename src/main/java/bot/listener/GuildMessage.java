@@ -44,9 +44,7 @@ public class GuildMessage extends ListenerAdapter {
             return;
         }
 
-        bot.loadGuildData(event.getGuild());
-
-        ServerData guildData = bot.getGuildData().get(event.getGuild());
+        ServerData guildData = bot.getGuildData(event.getGuild());
         if (guildData == null) {
             guildData = new ServerData(event.getGuild());
             bot.addGuildData(guildData);

@@ -1,23 +1,11 @@
 package bot.db.blackjack;
 
 import bot.Bot;
-import com.mongodb.MongoException;
-import com.mongodb.MongoQueryException;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
-import com.mongodb.client.model.Projections;
-import com.mongodb.client.result.InsertManyResult;
 import dev.morphia.Datastore;
 import dev.morphia.query.filters.Filters;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.User;
-import org.bson.Document;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;

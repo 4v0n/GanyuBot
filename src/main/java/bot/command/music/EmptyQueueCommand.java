@@ -52,7 +52,7 @@ public class EmptyQueueCommand implements Command {
 
             if (!hasPermissions(user) && !isVCEmpty(self)){
                 EmbedBuilder embed = new EmbedBuilder();
-                ServerData data = Bot.getINSTANCE().getGuildData().get(guild);
+                ServerData data = Bot.getINSTANCE().getGuildData(guild);
                 embed.setDescription("You don't have the permissions to use this command!");
                 embed.setFooter("This command requires the `"+ data.getDJRoleName() +"` (case sensitive) role or a role with the 'Manage Channels' permission to use");
                 sendErrorEmbed(embed, event);
