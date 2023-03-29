@@ -11,6 +11,7 @@ import org.joda.time.DateTime;
 @Entity("CasinoUserData")
 public class UserData {
 
+    @Id
     private String idField;
 
     private String memberID;
@@ -19,7 +20,6 @@ public class UserData {
     private long wins;
     private long credits;
 
-    @Id
     private String guildID;
 
     public UserData(){}
