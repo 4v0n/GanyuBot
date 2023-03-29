@@ -25,19 +25,19 @@ public class BaseCommandHandler extends CommandHandler {
 
     @Override
     protected void buildCommands() {
-        addCommand(new CopyICommand());
+        addCommand(new CopyCommand());
 
-        addCommand(new ImagesICommand());
+        addCommand(new ImagesCommand());
 
-        addCommand(new BlackjackICommand());
+        addCommand(new BlackjackCommand());
 
-        addCommand(new MusicPlayerICommand());
+        addCommand(new MusicPlayerCommand());
 
-        addCommand(new SettingsICommand());
+        addCommand(new SettingsCommand());
 
-        addCommand(new InfoICommand());
+        addCommand(new InfoCommand());
 
-        addCommand(new PurgeICommand());
+        addCommand(new PurgeCommand());
     }
 
     @Override

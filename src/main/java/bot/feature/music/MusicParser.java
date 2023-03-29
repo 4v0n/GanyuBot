@@ -25,33 +25,33 @@ public class MusicParser extends CommandHandler {
     @Override
     public void buildCommands() {
         // voice channel commands
-        addCommand(new JoinICommand());
-        addCommand(new StopICommand());
+        addCommand(new JoinCommand());
+        addCommand(new StopCommand());
 
         // song commands
-        addCommand(new PlaySongICommand());
-        addCommand(new PlayListICommand());
+        addCommand(new PlaySongCommand());
+        addCommand(new PlayListCommand());
 
         // queue information commands
-        addCommand(new NowPlayingICommand());
-        addCommand(new ShowQueueICommand());
+        addCommand(new NowPlayingCommand());
+        addCommand(new ShowQueueCommand());
 
         // queue manipulation commands
-        addCommand(new EmptyQueueICommand());
-        addCommand(new RemoveSongICommand());
+        addCommand(new EmptyQueueCommand());
+        addCommand(new RemoveSongCommand());
 
 
-        addCommand(new SkipToICommand());
-        addCommand(new MoveSongICommand());
-        addCommand(new RemoveDuplicatesICommand());
+        addCommand(new SkipToCommand());
+        addCommand(new MoveSongCommand());
+        addCommand(new RemoveDuplicatesCommand());
 
         // player commands
-        addCommand(new PauseSongICommand());
-        addCommand(new SkipSongICommand());
-        addCommand(new ShuffleQueueICommand());
-        addCommand(new LoopQueueICommand());
-        addCommand(new LoopSongICommand());
-        addCommand(new SeekThroughICommand());
+        addCommand(new PauseSongCommand());
+        addCommand(new SkipSongCommand());
+        addCommand(new ShuffleQueueCommand());
+        addCommand(new LoopQueueCommand());
+        addCommand(new LoopSongCommand());
+        addCommand(new SeekThroughCommand());
 
 
 

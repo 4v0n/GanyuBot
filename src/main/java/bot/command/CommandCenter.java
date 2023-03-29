@@ -1,8 +1,6 @@
 package bot.command;
 
 import bot.Bot;
-import bot.command.CommandExistsException;
-import bot.command.ICommand;
 import bot.util.ColorScheme;
 import bot.util.message.Help;
 import bot.util.message.MultiPageEmbed;
@@ -28,7 +26,7 @@ import java.util.Scanner;
  */
  public class CommandCenter {
 
-    private final HashMap<String, ICommand> commands;
+    private final HashMap<String, Command> commands;
     private final int layer;
     private final Bot bot;
     private final HashMap<String, String> synonyms;
@@ -39,12 +37,12 @@ import java.util.Scanner;
         this.layer = layer;
         this.synonyms = new HashMap<>();
 
-        this.addCommand(new ICommand() {
+        this.addCommand(new Command() {
             @Override
             public void run(Event uncastedEvent, List<String> args) {
 
                 HashMap<String, String> commandStrings = new HashMap<>();
-                for (ICommand ICommand : commands.values()){
+                for (Command ICommand : commands.values()){
                     commandStrings.put(ICommand.getCommandWord(), ICommand.getDescription());
                 }
 
@@ -76,12 +74,12 @@ import java.util.Scanner;
             }
         });
 
-        this.addCommand(new ICommand() {
+        this.addCommand(new Command() {
                     @Override
                     public void run(Event event, List<String> args) {
                         List<String> array = new ArrayList<>();
 
-                        for (ICommand ICommand : commands.values()){
+                        for (Command ICommand : commands.values()){
                             for (String synonym : ICommand.getSynonyms()){
                                 array.add(
                                         synonym + " = " + ICommand.getCommandWord()
@@ -128,12 +126,12 @@ import java.util.Scanner;
     public void addHelpMessage(String message){
         this.commands.remove("help");
 
-        ICommand helpICommand = new ICommand() {
+        Command helpICommand = new Command() {
             @Override
             public void run(Event uncastedEvent, List<String> args) {
 
                 HashMap<String, String> commandStrings = new HashMap<>();
-                for (ICommand command : commands.values()){
+                for (Command command : commands.values()){
                     commandStrings.put(command.getCommandWord(), command.getDescription());
                 }
 
@@ -168,7 +166,7 @@ import java.util.Scanner;
         this.commands.put("help", helpICommand);
     }
 
-    public void addCommand(ICommand ICommand) {
+    public void addCommand(Command ICommand) {
         if (commands.containsKey(ICommand.getCommandWord().toLowerCase())) {
             throw new CommandExistsException(ICommand.getCommandWord());
         }
@@ -220,7 +218,7 @@ import java.util.Scanner;
         replaceSynonyms(commandWords, synonyms);
 
 
-        ICommand ICommand;
+        Command ICommand;
         try {
             ICommand = commands.get(commandWords.get(layer).toLowerCase());
 
@@ -262,7 +260,7 @@ import java.util.Scanner;
         String content = event.getCommandString().substring(1);
         List<String> args = List.of(content.split(" "));
 
-        ICommand ICommand = commands.get(args.get(layer - 1));
+        Command ICommand = commands.get(args.get(layer - 1));
         ICommand.run(event, null);
     }
 
@@ -274,7 +272,7 @@ import java.util.Scanner;
         return synonyms;
     }
 
-    public HashMap<String, ICommand> getCommands() {
+    public HashMap<String, Command> getCommands() {
         return commands;
     }
 }

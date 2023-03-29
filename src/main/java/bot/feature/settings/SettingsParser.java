@@ -1,10 +1,10 @@
 package bot.feature.settings;
 
 import bot.command.CommandHandler;
-import bot.command.settings.ChangeDJRoleICommand;
-import bot.command.settings.ChangePrefixICommand;
-import bot.command.settings.ResetDataICommand;
-import bot.command.settings.ShowCurrentSettingsICommand;
+import bot.command.settings.ChangeDJRoleCommand;
+import bot.command.settings.ChangePrefixCommand;
+import bot.command.settings.ResetDataCommand;
+import bot.command.settings.ShowCurrentSettingsCommand;
 
 /**
  * @author Aron Kumarawatta
@@ -22,13 +22,13 @@ public class SettingsParser extends CommandHandler {
 
     @Override
     public void buildCommands() {
-        addCommand(new ChangePrefixICommand());
+        addCommand(new ChangePrefixCommand());
 
-        addCommand(new ChangeDJRoleICommand());
+        addCommand(new ChangeDJRoleCommand());
 
-        addCommand(new ShowCurrentSettingsICommand());
+        addCommand(new ShowCurrentSettingsCommand());
 
-        addCommand(new ResetDataICommand());
+        addCommand(new ResetDataCommand());
     }
 
     @Override

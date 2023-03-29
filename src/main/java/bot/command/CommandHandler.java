@@ -76,7 +76,7 @@ public abstract class CommandHandler {
     protected abstract void buildCommands();
 
     private void buildSynonyms() {
-        for (bot.command.ICommand ICommand : commandCenter.getCommands().values()) {
+        for (Command ICommand : commandCenter.getCommands().values()) {
             for (String synonym : ICommand.getSynonyms()) {
                 addSynonym(synonym, ICommand.getCommandWord());
             }
@@ -93,7 +93,7 @@ public abstract class CommandHandler {
     protected abstract void buildChildrenCommandHandlers();
 
     private void mapCommands() {
-        for (ICommand ICommand : commandCenter.getCommands().values()) {
+        for (Command ICommand : commandCenter.getCommands().values()) {
             if (ICommand.getCommandWord().equals("help") || ICommand.getCommandWord().equals("synonyms")) {
                 continue;
             }
@@ -104,7 +104,7 @@ public abstract class CommandHandler {
                 // the command has children
                 CommandDataImpl commandData = ICommand.getCommandData();
 
-                for (ICommand subICommand : handler.getCommandCenter().getCommands().values()) {
+                for (Command subICommand : handler.getCommandCenter().getCommands().values()) {
 
                     if (subICommand.getCommandWord().equals("help") || subICommand.getCommandWord().equals("synonyms")) {
                         continue;
@@ -127,7 +127,7 @@ public abstract class CommandHandler {
     }
 
 
-    protected void addCommand(ICommand ICommand) {
+    protected void addCommand(Command ICommand) {
         commandCenter.addCommand(ICommand);
     }
 
@@ -163,7 +163,7 @@ public abstract class CommandHandler {
                 throw new RuntimeException(e);
             }
 
-            for (ICommand ICommand : commandCenter.getCommands().values()) {
+            for (Command ICommand : commandCenter.getCommands().values()) {
                 if (ICommand.getCommandWord().equals("help") || ICommand.getCommandWord().equals("synonyms")) {
                     continue;
                 }
@@ -191,7 +191,7 @@ public abstract class CommandHandler {
             throw new RuntimeException(e);
         }
 
-        for (ICommand ICommand : commandCenter.getCommands().values()) {
+        for (Command ICommand : commandCenter.getCommands().values()) {
             if (ICommand.getCommandWord().equals("help") || ICommand.getCommandWord().equals("synonyms")) {
                 continue;
             }
@@ -213,12 +213,12 @@ public abstract class CommandHandler {
     public int hashCode() {
         ArrayList<String> commandStrings = new ArrayList<>();
 
-        for (ICommand ICommand : commandCenter.getCommands().values()) {
+        for (Command ICommand : commandCenter.getCommands().values()) {
             commandStrings.add(ICommand.getCommandWord());
         }
 
         for (CommandHandler handler : childrenCommandHandlers.values()) {
-            for (ICommand ICommand : handler.getCommandCenter().getCommands().values()) {
+            for (Command ICommand : handler.getCommandCenter().getCommands().values()) {
                 commandStrings.add(ICommand.getCommandWord());
             }
         }

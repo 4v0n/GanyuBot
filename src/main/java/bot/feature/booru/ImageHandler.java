@@ -1,7 +1,7 @@
 package bot.feature.booru;
 
 import bot.command.CommandHandler;
-import bot.command.booru.R34ICommand;
+import bot.command.booru.R34Command;
 import bot.command.booru.SFWICommand;
 import net.kodehawa.lib.imageboards.ImageBoard;
 
@@ -32,7 +32,7 @@ public class ImageHandler extends CommandHandler {
     public void buildCommands() {
         addCommand(new SFWICommand());
 
-        addCommand(new R34ICommand());
+        addCommand(new R34Command());
     }
 
     @Override

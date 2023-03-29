@@ -1,9 +1,9 @@
 package bot.feature.blackjack;
 
 import bot.Bot;
-import bot.command.blackjack.InGameHitICommand;
+import bot.command.blackjack.InGameHitCommand;
 import bot.command.CommandHandler;
-import bot.command.blackjack.InGameStandICommand;
+import bot.command.blackjack.InGameStandCommand;
 
 /**
  * This allows for in-game blackjack commands to be parsed
@@ -22,9 +22,9 @@ public class BlackJackParser extends CommandHandler {
 
     @Override
     public void buildCommands() {
-        addCommand(new InGameHitICommand());
+        addCommand(new InGameHitCommand());
 
-        addCommand(new InGameStandICommand());
+        addCommand(new InGameStandCommand());
     }
 
     @Override

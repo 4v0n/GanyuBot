@@ -17,14 +17,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class SFWICommand implements Command {
+public class R34Command implements Command {
+
     @Override
     public void run(Event event, List<String> args) {
 
         if (event instanceof MessageReceivedEvent){
             if (args.size() > 0) {
                 String words = join((ArrayList<String>) args, " ");
-                searchSafeBooru(words, event);
+                searchRule34(words, event);
             } else {
                 noTagsError((MessageReceivedEvent) event);
             }
@@ -33,7 +34,7 @@ public class SFWICommand implements Command {
 
         if (event instanceof SlashCommandInteractionEvent){
             String tags = ((SlashCommandInteractionEvent) event).getOption("tags").getAsString();
-            searchSafeBooru(tags, event);
+            searchRule34(tags, event);
         }
     }
     private void noTagsError(MessageReceivedEvent event) {
@@ -44,24 +45,90 @@ public class SFWICommand implements Command {
         channel.sendMessageEmbeds(embed.build()).queue();
     }
 
-    private void searchSafeBooru(String tags, Event event) {
-        DefaultImageBoards.SAFEBOORU.search(50, tags).async(safebooruImages -> {
-            ArrayList<BoardImage> images = new ArrayList<>(safebooruImages);
+    private void searchRule34(String tags, Event event) {
 
-            if (images.size() > 0) {
-                if (images.size() == 1) {
-                    displayImage(tags, images.get(0), event);
-                } else {
-                    Random random = new Random();
-                    int choice = random.nextInt(images.size() - 1);
+        boolean nsfwChannel = false;
 
-                   displayImage(tags, images.get(choice), event);
+        if (event instanceof MessageReceivedEvent){
+            nsfwChannel = ((MessageReceivedEvent) event).getChannel().asTextChannel().isNSFW();
+        } else if (event instanceof SlashCommandInteractionEvent){
+            nsfwChannel = ((SlashCommandInteractionEvent) event).getChannel().asTextChannel().isNSFW();
+        }
+
+        if (nsfwChannel) {
+            DefaultImageBoards.RULE34.search(50, tags).async(rule34Images -> {
+
+                boolean illegal = false; // whether illegal content has been found
+
+                ArrayList<BoardImage> images = new ArrayList<>();
+                for (BoardImage image : rule34Images) {
+
+                    // prevent underage content from being shown
+                    if (image.getTags().contains("loli")) {
+                        illegal = true;
+                        continue;
+                    }
+
+                    images.add(image);
                 }
 
+                if (images.size() > 0) {
+                    if (images.size() == 1) {
+                        displayImage(tags, images.get(0), event);
+                    } else {
+                        Random random = new Random();
+                        int choice = random.nextInt(images.size() - 1);
+
+                        if (images.get(choice).getTags().contains("loli")) {
+                            EmbedBuilder embed = new EmbedBuilder();
+                            embed.setTitle("no wtf");
+                            embed.setImage("https://cdn.7tv.app/emote/60bd66d67c2d79e1a9285551/4x");
+                            embed.setColor(ColorScheme.ERROR);
+
+                            if (event instanceof MessageReceivedEvent) {
+                                ((MessageReceivedEvent) event).getChannel().sendMessageEmbeds(embed.build()).queue();
+                            } else {
+                                ((SlashCommandInteractionEvent) event).replyEmbeds(embed.build()).setEphemeral(true).queue();
+                            }
+
+                            return;
+                        }
+
+                        displayImage(tags, images.get(choice), event);
+                    }
+
+                } else if (illegal) {
+                    EmbedBuilder embed = new EmbedBuilder();
+                    embed.setTitle("No");
+                    embed.setFooter("The 'loli' tag was found");
+                    embed.setColor(ColorScheme.ERROR);
+
+                    if (event instanceof MessageReceivedEvent) {
+                        ((MessageReceivedEvent) event).getMessage().replyEmbeds(embed.build()).queue();
+                    } else {
+                        ((SlashCommandInteractionEvent) event).replyEmbeds(embed.build()).setEphemeral(true).queue();
+                    }
+
+                } else {
+                    noImagesError(event);
+                }
+
+
+            });
+        } else {
+            EmbedBuilder embed = new EmbedBuilder();
+            embed.setTitle("This isn't an nsfw channel");
+            embed.setImage("https://cdn.frankerfacez.com/emoticon/555265/4");
+            embed.setFooter("Use this command in an NSFW channel or use the SFW command instead.");
+            embed.setColor(ColorScheme.ERROR);
+
+            if (event instanceof MessageReceivedEvent) {
+                ((MessageReceivedEvent) event).getChannel().sendMessageEmbeds(embed.build()).queue();
             } else {
-                noImagesError(event);
+                assert event instanceof SlashCommandInteractionEvent;
+                ((SlashCommandInteractionEvent) event).replyEmbeds(embed.build()).setEphemeral(true).queue();
             }
-        });
+        }
     }
 
     private void noImagesError(Event event){
@@ -134,17 +201,17 @@ public class SFWICommand implements Command {
 
     @Override
     public @NotNull String getCommandWord() {
-        return "sfw";
+        return "nsfw";
     }
 
     @Override
     public @NotNull String getDescription() {
-        return "Searches https://safebooru.org for an image with the supplied tags. Usage: `[prefix] images sfw [tag1] [tag2] ...`";
+        return "Searches Rule34 for an image with the supplied tags. Usage: `[prefix] images sfw [tag1] [tag2] ...` Only works in an NSFW channel.";
     }
 
     @Override
     public @NotNull CommandDataImpl getCommandData() {
-        CommandDataImpl commandData = new CommandDataImpl(getCommandWord(), "Searches https://safebooru.org for an image");
+        CommandDataImpl commandData = new CommandDataImpl(getCommandWord(), "Searches Rule34 for an image");
         commandData.addOption(OptionType.STRING, "tags", "Enter search tags here. (Separate by space)", true);
 
         return commandData;

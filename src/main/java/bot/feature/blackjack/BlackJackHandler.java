@@ -1,10 +1,10 @@
 package bot.feature.blackjack;
 
 
-import bot.command.blackjack.AddCreditsICommand;
-import bot.command.blackjack.LeaderboardICommand;
-import bot.command.blackjack.PlayICommand;
-import bot.command.blackjack.ProfileICommand;
+import bot.command.blackjack.AddCreditsCommand;
+import bot.command.blackjack.LeaderboardCommand;
+import bot.command.blackjack.PlayCommand;
+import bot.command.blackjack.ProfileCommand;
 import bot.db.blackjack.CasinoData;
 import bot.db.blackjack.CasinoGuildData;
 import bot.db.blackjack.UserData;
@@ -39,13 +39,13 @@ public class BlackJackHandler extends CommandHandler {
 
     @Override
     public void buildCommands() {
-        addCommand(new PlayICommand());
+        addCommand(new PlayCommand());
 
-        addCommand(new ProfileICommand());
+        addCommand(new ProfileCommand());
 
-        addCommand(new LeaderboardICommand());
+        addCommand(new LeaderboardCommand());
 
-        addCommand(new AddCreditsICommand());
+        addCommand(new AddCreditsCommand());
     }
 
     @Override
@@ -92,11 +92,7 @@ public class BlackJackHandler extends CommandHandler {
                 claim.setColor(ColorScheme.RESPONSE);
                 channel.sendMessageEmbeds(claim.build()).queue();
 
-                try {
-                    activityData.save();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                activityData.save();
             }
         }
     }
