@@ -2,7 +2,7 @@ package bot.command.settings;
 
 import bot.Bot;
 import bot.command.Command;
-import bot.db.server.ServerData;
+import bot.db.legacy.server.ServerData;
 import bot.command.CommandMethods;
 import bot.feature.root.BaseCommandHandler;
 import net.dv8tion.jda.api.EmbedBuilder;

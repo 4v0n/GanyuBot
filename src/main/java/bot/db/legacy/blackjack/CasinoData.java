@@ -1,4 +1,4 @@
-package bot.db.blackjack;
+package bot.db.legacy.blackjack;
 
 import bot.Bot;
 import net.dv8tion.jda.api.entities.Guild;

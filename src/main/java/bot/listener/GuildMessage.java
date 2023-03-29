@@ -3,7 +3,7 @@ package bot.listener;
 import bot.activity.Activity;
 import bot.Bot;
 import bot.feature.root.BaseCommandHandler;
-import bot.db.server.ServerData;
+import bot.db.legacy.server.ServerData;
 import bot.feature.music.MusicParser;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;

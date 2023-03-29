@@ -1,4 +1,4 @@
-package bot.db.blackjack;
+package bot.db.legacy.blackjack;
 
 import bot.Bot;
 import dev.morphia.Datastore;

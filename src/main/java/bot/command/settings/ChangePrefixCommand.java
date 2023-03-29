@@ -2,7 +2,7 @@ package bot.command.settings;
 
 import bot.Bot;
 import bot.command.Command;
-import bot.db.server.ServerData;
+import bot.db.legacy.server.ServerData;
 import bot.util.ColorScheme;
 import dev.morphia.Datastore;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -15,7 +15,6 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.util.List;
 
 import static bot.command.CommandMethods.sendEmbed;

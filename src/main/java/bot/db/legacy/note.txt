@@ -1,0 +1,2 @@
+The way these items interact with the database is not very clean.
+The code is pretty old and I am too lazy to rewrite them at the moment.

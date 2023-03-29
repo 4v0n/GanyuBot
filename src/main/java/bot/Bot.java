@@ -1,7 +1,7 @@
 package bot;
 
 import bot.activity.Activity;
-import bot.db.server.ServerData;
+import bot.db.legacy.server.ServerData;
 import dev.morphia.Datastore;
 import dev.morphia.query.filters.Filters;
 import net.dv8tion.jda.api.JDA;

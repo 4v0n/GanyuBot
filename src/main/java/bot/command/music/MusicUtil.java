@@ -1,7 +1,7 @@
 package bot.command.music;
 
 import bot.Bot;
-import bot.db.server.ServerData;
+import bot.db.legacy.server.ServerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;

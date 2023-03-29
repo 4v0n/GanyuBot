@@ -2,7 +2,7 @@ package bot.command.music;
 
 import bot.Bot;
 import bot.command.Command;
-import bot.db.server.ServerData;
+import bot.db.legacy.server.ServerData;
 import bot.feature.music.lavaplayer.PlayerManager;
 import bot.util.ColorScheme;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;

@@ -2,7 +2,7 @@ package bot.command.settings;
 
 import bot.Bot;
 import bot.command.Command;
-import bot.db.server.ServerData;
+import bot.db.legacy.server.ServerData;
 import bot.util.ColorScheme;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;

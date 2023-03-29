@@ -1,9 +1,8 @@
-package bot.db.server;
+package bot.db.legacy.server;
 
 import bot.Bot;
 import dev.morphia.annotations.Entity;
 import dev.morphia.annotations.Id;
-import dev.morphia.annotations.Transient;
 import net.dv8tion.jda.api.entities.Guild;
 
 /**

@@ -1,4 +1,4 @@
-package bot.db.blackjack;
+package bot.db.legacy.blackjack;
 
 import dev.morphia.annotations.Entity;
 import dev.morphia.annotations.Id;

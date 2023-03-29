@@ -1,7 +1,7 @@
 package bot.command;
 
 import bot.Bot;
-import bot.db.server.ServerData;
+import bot.db.legacy.server.ServerData;
 import bot.feature.root.BaseCommandHandler;
 import dev.morphia.Datastore;
 import net.dv8tion.jda.api.entities.Guild;
@@ -11,7 +11,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 

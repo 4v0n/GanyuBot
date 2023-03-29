@@ -5,9 +5,9 @@ import bot.command.blackjack.AddCreditsCommand;
 import bot.command.blackjack.LeaderboardCommand;
 import bot.command.blackjack.PlayCommand;
 import bot.command.blackjack.ProfileCommand;
-import bot.db.blackjack.CasinoData;
-import bot.db.blackjack.CasinoGuildData;
-import bot.db.blackjack.UserData;
+import bot.db.legacy.blackjack.CasinoData;
+import bot.db.legacy.blackjack.CasinoGuildData;
+import bot.db.legacy.blackjack.UserData;
 import bot.command.CommandHandler;
 import bot.util.ColorScheme;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -17,8 +17,6 @@ import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-
-import java.io.IOException;
 
 /**
  * This class allows for blackjack commands to be handled

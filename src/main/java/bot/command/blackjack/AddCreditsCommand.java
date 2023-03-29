@@ -2,9 +2,9 @@ package bot.command.blackjack;
 
 import bot.Bot;
 import bot.command.Command;
-import bot.db.blackjack.CasinoData;
-import bot.db.blackjack.CasinoGuildData;
-import bot.db.blackjack.UserData;
+import bot.db.legacy.blackjack.CasinoData;
+import bot.db.legacy.blackjack.CasinoGuildData;
+import bot.db.legacy.blackjack.UserData;
 import bot.util.ColorScheme;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
