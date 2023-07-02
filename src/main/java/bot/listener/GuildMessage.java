@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
- * This command allows the bot to listen to guild messages and
+ * This class allows the bot to listen to guild messages and
  * process commands
  *
  * @author Aron Navodh Kumarawatta
@@ -30,8 +30,6 @@ public class GuildMessage extends ListenerAdapter {
 
     /**
      * Run when message received
-     *
-     * @param event
      */
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {

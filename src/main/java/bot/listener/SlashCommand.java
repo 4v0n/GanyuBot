@@ -1,6 +1,5 @@
 package bot.listener;
 
-import bot.Bot;
 import bot.feature.root.BaseCommandHandler;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -13,6 +12,7 @@ public class SlashCommand extends ListenerAdapter {
 
         if (event.getGuild() != null){
             BaseCommandHandler.getINSTANCE().parse(event);
+            System.out.println(event.getCommandString());
         }
     }
 }
