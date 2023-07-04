@@ -2,6 +2,7 @@ package bot.command.music;
 
 import bot.Bot;
 import bot.command.Command;
+import bot.command.CommandContext;
 import bot.db.legacy.server.ServerData;
 import bot.feature.music.MusicManager;
 import bot.feature.music.lavaplayer.PlayerManager;
@@ -27,22 +28,19 @@ import static bot.command.music.MusicUtil.*;
 
 public class RemoveSongCommand implements Command {
     @Override
-    public void run(Event event, List<String> args) {
-        Member user = null;
-        Member self = null;
-        Guild guild = null;
+    public void run(CommandContext context, List<String> args) {
+        Member user = context.getMember();
+        Member self = context.getSelfMember();
+        Guild guild = context.getGuild();
         int position = 0;
+        Event event = context.getEvent();
 
         if (event instanceof MessageReceivedEvent) {
-            user = ((MessageReceivedEvent) event).getMember();
-            self = ((MessageReceivedEvent) event).getGuild().getSelfMember();
-            guild = ((MessageReceivedEvent) event).getGuild();
-
             if (args.isEmpty()){
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setColor(ColorScheme.ERROR);
                 embed.setDescription("You haven't specified which song to remove!");
-                sendErrorEmbed(embed, event);
+                sendErrorEmbed(embed, context);
                 return;
             }
 
@@ -50,7 +48,7 @@ public class RemoveSongCommand implements Command {
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setColor(ColorScheme.ERROR);
                 embed.setDescription(args.get(0) + " isn't a number!");
-                sendErrorEmbed(embed, event);
+                sendErrorEmbed(embed, context);
                 return;
             }
 
@@ -58,10 +56,6 @@ public class RemoveSongCommand implements Command {
         }
 
         if (event instanceof SlashCommandInteractionEvent) {
-            user = ((SlashCommandInteractionEvent) event).getMember();
-            self = ((SlashCommandInteractionEvent) event).getGuild().getSelfMember();
-            guild = ((SlashCommandInteractionEvent) event).getGuild();
-
             position = Integer.parseInt(((SlashCommandInteractionEvent) event).getOption("position").getAsString());
         }
 
@@ -69,7 +63,7 @@ public class RemoveSongCommand implements Command {
 
         if (inSameVC(user, self)){
             if (hasPermissions(user) || isVCEmpty(self)){
-                removeSong(position, guild, event);
+                removeSong(position, guild, context);
 
             } else {
                 ServerData data = Bot.getINSTANCE().getGuildData(guild);
@@ -77,19 +71,19 @@ public class RemoveSongCommand implements Command {
                 embed.setColor(ColorScheme.ERROR);
                 embed.setDescription("You don't have the permissions to use this command!");
                 embed.setFooter("This command requires the `"+ data.getDJRoleName() +"` (case sensitive) role or a role with the 'Manage Channels' permission to use.");
-                sendErrorEmbed(embed, event);
+                sendErrorEmbed(embed, context);
             }
 
         } else {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setColor(ColorScheme.ERROR);
             embed.setDescription("You are not in a VC with the bot!");
-            sendErrorEmbed(embed, event);
+            sendErrorEmbed(embed, context);
         }
 
     }
 
-    private void removeSong(int choice, Guild guild, Event event) {
+    private void removeSong(int choice, Guild guild, CommandContext context) {
         MusicManager musicManager = PlayerManager.getInstance().getMusicManager(guild);
         BlockingQueue<AudioTrack> songQueue = musicManager.getScheduler().getSongQueue();
 
@@ -106,7 +100,7 @@ public class RemoveSongCommand implements Command {
             embed.setColor(ColorScheme.ERROR);
             embed.setDescription("That number is out of bounds!");
             embed.setFooter("There is no song in that position in the song queue");
-            sendErrorEmbed(embed, event);
+            sendErrorEmbed(embed, context);
             return;
         }
 
@@ -121,7 +115,7 @@ public class RemoveSongCommand implements Command {
         EmbedBuilder embed = new EmbedBuilder();
         embed.setColor(ColorScheme.RESPONSE);
         embed.setDescription("Removed `" + removedSong.title + "` by `" + removedSong.author + "`");
-        sendEmbed(embed, event);
+        context.respondEmbed(embed);
     }
 
     @Override

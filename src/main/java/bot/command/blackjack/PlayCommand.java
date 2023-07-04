@@ -4,6 +4,7 @@ import bot.Bot;
 import bot.activity.Activity;
 import bot.activity.blackjack.Game;
 import bot.command.Command;
+import bot.command.CommandContext;
 import bot.db.legacy.blackjack.CasinoData;
 import bot.db.legacy.blackjack.UserData;
 import bot.util.ColorScheme;
@@ -22,7 +23,9 @@ import java.util.List;
 public class PlayCommand implements Command {
 
     @Override
-    public void run(Event event, List<String> args) {
+    public void run(CommandContext context, List<String> args) {
+        Event event = context.getEvent();
+
         if (event instanceof MessageReceivedEvent) {
             handleMessageReceivedEvent((MessageReceivedEvent) event, args);
             return;
@@ -87,7 +90,7 @@ public class PlayCommand implements Command {
             embed.setDescription("You are already playing a mini-game in this channel!" +
                     "\nCurrent game: " + activity.getMessage().getJumpUrl());
             embed.setColor(ColorScheme.ERROR);
-            event.replyEmbeds(embed.build()).queue();
+            event.getHook().sendMessageEmbeds(embed.build()).queue();
             return;
         }
 
@@ -97,7 +100,7 @@ public class PlayCommand implements Command {
         if (betOption == null) {
             embed.setDescription("The game will have no bet!");
             embed.setColor(ColorScheme.INFO);
-            event.replyEmbeds(embed.build()).queue();
+            event.getHook().sendMessageEmbeds(embed.build()).queue();
             startGame(event, 0);
             return;
 
@@ -110,7 +113,7 @@ public class PlayCommand implements Command {
                 embed.setDescription("You don't have enough credits!" +
                         "\nYou currently have " + playerData.getCredits() + " credits.");
                 embed.setColor(ColorScheme.ERROR);
-                event.replyEmbeds(embed.build()).queue();
+                event.getHook().sendMessageEmbeds(embed.build()).queue();
                 return;
             }
         }
@@ -133,7 +136,6 @@ public class PlayCommand implements Command {
         EmbedBuilder embed = new EmbedBuilder();
         embed.setDescription("The game will be starting soon!");
         embed.setColor(ColorScheme.INFO);
-        event.deferReply().queue();
         event.getHook().sendMessageEmbeds(embed.build()).queue(newMessage -> bot.addActivity(new Game(event, newMessage, bet)));
     }
 

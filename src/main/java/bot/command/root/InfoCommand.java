@@ -1,6 +1,7 @@
 package bot.command.root;
 
 import bot.command.Command;
+import bot.command.CommandContext;
 import bot.util.ColorScheme;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.Event;
@@ -13,22 +14,14 @@ import java.util.List;
 
 public class InfoCommand implements Command {
     @Override
-    public void run(Event event, List<String> args) {
-
+    public void run(CommandContext context, List<String> args) {
         EmbedBuilder embed = new EmbedBuilder();
         embed.setTitle("Info:");
         embed.setDescription("A bot programmed by <@195929905857429504> using Java 11.0.15 and JDA 5.0.0-beta.6 \n" +
                 "Last updated: 28/03/2023 \n");
         embed.setColor(ColorScheme.RESPONSE);
 
-        if (event instanceof MessageReceivedEvent){
-            ((MessageReceivedEvent) event).getChannel().sendMessageEmbeds(embed.build()).queue();
-            return;
-        }
-
-        if (event instanceof SlashCommandInteractionEvent){
-            ((SlashCommandInteractionEvent) event).replyEmbeds(embed.build()).queue();
-        }
+        context.respondEmbed(embed);
     }
 
     @Override

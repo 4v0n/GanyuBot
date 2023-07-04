@@ -1,6 +1,7 @@
 package bot.command.music;
 
 import bot.command.Command;
+import bot.command.CommandContext;
 import bot.feature.music.lavaplayer.PlayerManager;
 import bot.util.ColorScheme;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -19,21 +20,17 @@ import static bot.command.music.MusicUtil.*;
 
 public class PlaySongCommand implements Command {
     @Override
-    public void run(Event event, List<String> args) {
-        Member user = null;
-        Member self = null;
+    public void run(CommandContext context, List<String> args) {
+        Member user = context.getMember();
+        Member self = context.getSelfMember();
         String link = null;
+        Event event = context.getEvent();
 
         if (event instanceof MessageReceivedEvent) {
-            user = ((MessageReceivedEvent) event).getMember();
-            self = ((MessageReceivedEvent) event).getGuild().getSelfMember();
             link = String.join(" ", args);
         }
 
         if (event instanceof SlashCommandInteractionEvent) {
-            user = ((SlashCommandInteractionEvent) event).getMember();
-            self = ((SlashCommandInteractionEvent) event).getGuild().getSelfMember();
-
             link = ((SlashCommandInteractionEvent) event).getOption("query").getAsString();
         }
 
@@ -42,7 +39,7 @@ public class PlaySongCommand implements Command {
             embed.setColor(ColorScheme.ERROR);
             embed.setDescription("You are not in a voice channel!");
             embed.setFooter("Join a voice channel before using this command!");
-            sendErrorEmbed(embed, event);
+            sendErrorEmbed(embed, context);
             return;
         }
 
@@ -50,18 +47,18 @@ public class PlaySongCommand implements Command {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setColor(ColorScheme.ERROR);
             embed.setDescription("You haven't provided a link / search query for a song!");
-            sendErrorEmbed(embed, event);
+            sendErrorEmbed(embed, context);
             return;
         }
 
         if (inSameVC(user, self)) {
-            queueSong(event,link, user);
+            queueSong(context, link, user);
             return;
         }
 
         if (isVCEmpty(self)) {
-            joinVoiceChannel(user, self, event);
-            queueSong(event,link, user);
+            joinVoiceChannel(user, self, context);
+            queueSong(context,link, user);
 
         } else {
 
@@ -69,24 +66,24 @@ public class PlaySongCommand implements Command {
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setDescription("The bot is already in another VC!");
                 embed.setFooter("Join VC: `" + self.getVoiceState().getChannel().getName() + "` or wait for the users to finish");
-                sendErrorEmbed(embed, event);
+                sendErrorEmbed(embed, context);
 
             } else {
-                joinVoiceChannel(user, self, event);
-                queueSong(event,link, user);
+                joinVoiceChannel(user, self, context);
+                queueSong(context,link, user);
             }
         }
     }
 
-    private void queueSong(Event event, String link, Member user) {
+    private void queueSong(CommandContext context, String link, Member user) {
         if (!isURL(link)){
             link = link = "ytsearch:" + link + "audio";
         }
 
-        PlayerManager.getInstance().loadAndPlay(event, link, user);
+        PlayerManager.getInstance().loadAndPlay(context, link, user);
     }
 
-    private void joinVoiceChannel(Member user, Member self, Event event) {
+    private void joinVoiceChannel(Member user, Member self, CommandContext context) {
         AudioChannel audioChannel = user.getVoiceState().getChannel();
         self.getGuild().getAudioManager().openAudioConnection(audioChannel);
 
@@ -94,9 +91,7 @@ public class PlaySongCommand implements Command {
         embed.setDescription("Joining channel: `" + audioChannel.getName() + "`" );
         embed.setColor(ColorScheme.RESPONSE);
 
-        if (event instanceof MessageReceivedEvent){
-            sendEmbed(embed, event);
-        }
+        context.respondEmbed(embed);
     }
 
 

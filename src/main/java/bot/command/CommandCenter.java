@@ -39,18 +39,14 @@ import java.util.Scanner;
 
         this.addCommand(new Command() {
             @Override
-            public void run(Event uncastedEvent, List<String> args) {
+            public void run(CommandContext context, List<String> args) {
 
                 HashMap<String, String> commandStrings = new HashMap<>();
                 for (Command ICommand : commands.values()){
                     commandStrings.put(ICommand.getCommandWord(), ICommand.getDescription());
                 }
 
-                if (uncastedEvent instanceof MessageReceivedEvent){
-                    MessageReceivedEvent event = (MessageReceivedEvent) uncastedEvent;
-
-                    Help.help(bot.getPrefix(event.getGuild()), commandStrings, event);
-                }
+                Help.help(bot.getPrefix(context.getGuild()), commandStrings, (MessageReceivedEvent) context.getEvent());
             }
 
             @Override
@@ -76,7 +72,7 @@ import java.util.Scanner;
 
         this.addCommand(new Command() {
                     @Override
-                    public void run(Event event, List<String> args) {
+                    public void run(CommandContext context, List<String> args) {
                         List<String> array = new ArrayList<>();
 
                         for (Command ICommand : commands.values()){
@@ -91,14 +87,7 @@ import java.util.Scanner;
                         mpe.setTitle("Command synonyms");
                         mpe.setDescription("These synonyms equate to these commands:");
                         mpe.setColor(ColorScheme.RESPONSE);
-
-                        if (event instanceof MessageReceivedEvent){
-                            mpe.sendMessage(((MessageReceivedEvent) event).getChannel());
-                        }
-
-                        if (event instanceof SlashCommandInteractionEvent) {
-                            mpe.replyTo(((SlashCommandInteractionEvent) event));
-                        }
+                        mpe.respond(context);
                     }
 
                     @Override
@@ -128,18 +117,13 @@ import java.util.Scanner;
 
         Command helpICommand = new Command() {
             @Override
-            public void run(Event uncastedEvent, List<String> args) {
+            public void run(CommandContext context, List<String> args) {
 
                 HashMap<String, String> commandStrings = new HashMap<>();
                 for (Command command : commands.values()){
                     commandStrings.put(command.getCommandWord(), command.getDescription());
                 }
-
-                if (uncastedEvent instanceof MessageReceivedEvent){
-                    MessageReceivedEvent event = (MessageReceivedEvent) uncastedEvent;
-
-                    Help.help(bot.getPrefix(event.getGuild()),message, commandStrings, event);
-                }
+                Help.help(bot.getPrefix(context.getGuild()),message, commandStrings, (MessageReceivedEvent) context.getEvent());
             }
 
             @Override
@@ -251,7 +235,7 @@ import java.util.Scanner;
                 }
             }
 
-            ICommand.run(event, commandWords);
+            ICommand.run(new CommandContext(event), commandWords);
 
         }
     }
@@ -261,7 +245,7 @@ import java.util.Scanner;
         List<String> args = List.of(content.split(" "));
 
         Command ICommand = commands.get(args.get(layer - 1));
-        ICommand.run(event, null);
+        ICommand.run(new CommandContext(event), null);
     }
 
     public void addSynonym(String synonym, String original) {

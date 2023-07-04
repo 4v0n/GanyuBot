@@ -1,6 +1,7 @@
 package bot.command.music;
 
 import bot.command.Command;
+import bot.command.CommandContext;
 import bot.feature.music.MusicManager;
 import bot.feature.music.lavaplayer.PlayerManager;
 import bot.util.ColorScheme;
@@ -25,35 +26,22 @@ import static bot.command.music.MusicUtil.*;
 public class ShowQueueCommand implements Command {
 
     @Override
-    public void run(Event event, List<String> args) {
-        Member user = null;
-        Member self = null;
-        Guild guild = null;
-
-        if (event instanceof MessageReceivedEvent) {
-            user = ((MessageReceivedEvent) event).getMember();
-            self = ((MessageReceivedEvent) event).getGuild().getSelfMember();
-            guild = ((MessageReceivedEvent) event).getGuild();
-
-        }
-
-        if (event instanceof SlashCommandInteractionEvent) {
-            user = ((SlashCommandInteractionEvent) event).getMember();
-            self = ((SlashCommandInteractionEvent) event).getGuild().getSelfMember();
-            guild = ((SlashCommandInteractionEvent) event).getGuild();
-        }
+    public void run(CommandContext context, List<String> args) {
+        Member user = context.getMember();
+        Member self = context.getSelfMember();
+        Guild guild = context.getGuild();
 
         if (self.getVoiceState().inAudioChannel()){
-            showSongQueue(guild, event);
+            showSongQueue(guild, context);
         } else {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setDescription("The music player is currently inactive!");
             embed.setColor(ColorScheme.ERROR);
-            sendErrorEmbed(embed, event);
+            sendErrorEmbed(embed, context);
         }
     }
 
-    private void showSongQueue(Guild guild, Event event) {
+    private void showSongQueue(Guild guild, CommandContext context) {
         MusicManager musicManager = PlayerManager.getInstance().getMusicManager(guild);
         final BlockingQueue<AudioTrack> queue = musicManager.getScheduler().getSongQueue();
 
@@ -61,7 +49,7 @@ public class ShowQueueCommand implements Command {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setColor(ColorScheme.ERROR);
             embed.setDescription("There is nothing playing at the moment!");
-            sendErrorEmbed(embed, event);
+            sendErrorEmbed(embed, context);
             return;
         }
 
@@ -76,7 +64,8 @@ public class ShowQueueCommand implements Command {
                 name + "\n";
 
         if (queue.isEmpty()) {
-            showNowPlaying(guild, event);
+            showNowPlaying(guild, context);
+            return;
         }
 
         ArrayList<AudioTrack> trackList = new ArrayList<>(queue);
@@ -104,18 +93,10 @@ public class ShowQueueCommand implements Command {
         queueListMessage.setTitle("Now playing:", trackInfo.uri);
         queueListMessage.setDescription(nowPlayingString);
         queueListMessage.setThumbnail("http://img.youtube.com/vi/" + trackInfo.identifier + "/0.jpg");
-
-        if (event instanceof MessageReceivedEvent) {
-            queueListMessage.sendMessage(((MessageReceivedEvent) event).getChannel());
-            return;
-        }
-
-        if (event instanceof SlashCommandInteractionEvent){
-            queueListMessage.replyTo((SlashCommandInteractionEvent) event);
-        }
+        queueListMessage.respond(context);
     }
 
-    private void showNowPlaying(Guild guild, Event event) {
+    private void showNowPlaying(Guild guild, CommandContext context) {
         MusicManager musicManager = PlayerManager.getInstance().getMusicManager(guild);
         AudioTrack track = musicManager.getAudioPlayer().getPlayingTrack();
 
@@ -124,7 +105,7 @@ public class ShowQueueCommand implements Command {
             embed.setColor(ColorScheme.ERROR);
             embed.setDescription("There is nothing playing at the moment!");
             embed.setFooter("Queue something up before using this command.");
-            sendErrorEmbed(embed, event);
+            sendErrorEmbed(embed, context);
 
         } else {
             String string =
@@ -143,7 +124,7 @@ public class ShowQueueCommand implements Command {
             embed.setColor(ColorScheme.RESPONSE);
             embed.setThumbnail("http://img.youtube.com/vi/" + track.getInfo().identifier + "/0.jpg");
 
-            sendEmbed(embed, event);
+            context.respondEmbed(embed);
         }
     }
 

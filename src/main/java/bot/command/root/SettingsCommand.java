@@ -1,6 +1,7 @@
 package bot.command.root;
 
 import bot.command.Command;
+import bot.command.CommandContext;
 import bot.feature.root.BaseCommandHandler;
 import bot.util.ColorScheme;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -23,7 +24,8 @@ public class SettingsCommand implements Command {
     }
 
     @Override
-    public void run(Event event, List<String> args) {
+    public void run(CommandContext context, List<String> args) {
+        Event event = context.getEvent();
 
         if (event instanceof MessageReceivedEvent){
             Member member = ((MessageReceivedEvent) event).getMember();
@@ -35,7 +37,7 @@ public class SettingsCommand implements Command {
                 embed.setTitle("Insufficient permissions!");
                 embed.setDescription("You need to have the `Administrator` permission to use this set of commands");
                 embed.setColor(ColorScheme.ERROR);
-                ((MessageReceivedEvent) event).getChannel().sendMessageEmbeds(embed.build()).queue();
+                context.respondEmbed(embed);
                 return;
             }
         }
@@ -50,7 +52,7 @@ public class SettingsCommand implements Command {
                 embed.setTitle("Insufficient permissions!");
                 embed.setDescription("You need to have the `Administrator` permission to use this set of commands");
                 embed.setColor(ColorScheme.ERROR);
-                ((SlashCommandInteractionEvent) event).replyEmbeds(embed.build()).queue();
+                context.respondEmbed(embed);
                 return;
             }
         }

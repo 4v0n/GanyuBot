@@ -1,15 +1,13 @@
 package bot.command.music;
 
 import bot.command.Command;
+import bot.command.CommandContext;
 import bot.feature.music.lavaplayer.PlayerManager;
 import bot.util.ColorScheme;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,7 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
-import static bot.command.music.MusicUtil.*;
+import static bot.command.music.MusicUtil.inSameVC;
+import static bot.command.music.MusicUtil.sendErrorEmbed;
 
 /**
  * This class outlines the remove duplicates command
@@ -31,29 +30,13 @@ public class RemoveDuplicatesCommand implements Command {
     /**
      * This is called when the command is given.
      *
-     * @param event The event causing the command
      * @param args Arguments passed to the command - arg 0 is Youtube query / link
      */
     @Override
-    public void run(Event event, List<String> args) {
-        Member user = null;
-        Member self = null;
-        Guild guild = null;
-
-        // get required variables
-        // to be depricated
-        if (event instanceof MessageReceivedEvent) {
-            user = ((MessageReceivedEvent) event).getMember();
-            self = ((MessageReceivedEvent) event).getGuild().getSelfMember();
-            guild = ((MessageReceivedEvent) event).getGuild();
-
-        }
-
-        if (event instanceof SlashCommandInteractionEvent) {
-            user = ((SlashCommandInteractionEvent) event).getMember();
-            self = ((SlashCommandInteractionEvent) event).getGuild().getSelfMember();
-            guild = ((SlashCommandInteractionEvent) event).getGuild();
-        }
+    public void run(CommandContext context, List<String> args) {
+        Member user = context.getMember();
+        Member self = context.getSelfMember();
+        Guild guild = context.getGuild();
 
         // guard clauses
 
@@ -63,7 +46,7 @@ public class RemoveDuplicatesCommand implements Command {
             embed.setColor(ColorScheme.ERROR);
             embed.setDescription("You are not in a Voice channel!");
             embed.setFooter("Join a voice channel before using this command!");
-            sendErrorEmbed(embed, event);
+            sendErrorEmbed(embed, context);
             return;
         }
 
@@ -71,20 +54,20 @@ public class RemoveDuplicatesCommand implements Command {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setColor(ColorScheme.ERROR);
             embed.setDescription("The music player is currently inactive!");
-            sendErrorEmbed(embed, event);
+            sendErrorEmbed(embed, context);
             return;
         }
 
         if (inSameVC(user, self)) {
             // user in same VC as bot
-            removeDuplicates(guild,event);
+            removeDuplicates(guild,context);
         } else {
             // user in different VC from bot
             EmbedBuilder embed = new EmbedBuilder();
             embed.setColor(ColorScheme.ERROR);
             embed.setDescription("The music player is currently in a different VC!");
             embed.setFooter("You must be in the same VC to control the music player");
-            sendErrorEmbed(embed, event);
+            sendErrorEmbed(embed, context);
         }
     }
 
@@ -92,9 +75,8 @@ public class RemoveDuplicatesCommand implements Command {
      * Removes duplicate songs from song queue in given guild
      *
      * @param guild Guild the song queue is for
-     * @param event The event that requested the command
      */
-    private void removeDuplicates(Guild guild, Event event) {
+    private void removeDuplicates(Guild guild, CommandContext context) {
         BlockingQueue<AudioTrack> songQueue = PlayerManager.getInstance().getMusicManager(guild).getScheduler().getSongQueue();
         int initialSize = songQueue.size();
         ArrayList<String> songs = new ArrayList<>();
@@ -117,7 +99,7 @@ public class RemoveDuplicatesCommand implements Command {
         EmbedBuilder embed = new EmbedBuilder();
         embed.setColor(ColorScheme.RESPONSE);
         embed.setDescription("Removed " + (initialSize - finalSize) + " songs from the song queue");
-        sendEmbed(embed, event);
+        context.respondEmbed(embed);
     }
 
     /**

@@ -1,15 +1,19 @@
 package bot.command.blackjack;
 
 import bot.command.Command;
+import bot.command.CommandContext;
 import bot.db.legacy.blackjack.CasinoData;
 import bot.db.legacy.blackjack.CasinoGuildData;
 import bot.db.legacy.blackjack.UserData;
 import bot.util.ColorScheme;
 import bot.util.message.MultiPageEmbed;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.internal.entities.channel.concrete.TextChannelImpl;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,51 +22,28 @@ import java.util.List;
 
 public class LeaderboardCommand implements Command {
     @Override
-    public void run(Event event, List<String> args) {
-        if (event instanceof MessageReceivedEvent) {
+    public void run(CommandContext context, List<String> args) {
+        CasinoGuildData activityData = CasinoData.getInstance().getGuildData(context.getGuild());
+        ArrayList<UserData> leaderBoard = activityData.getLeaderBoard();
 
-            CasinoGuildData activityData = CasinoData.getInstance().getGuildData(((MessageReceivedEvent) event).getGuild());
-            ArrayList<UserData> leaderBoard = activityData.getLeaderBoard();
-
-            if (leaderBoard == null || leaderBoard.isEmpty()) {
-                EmbedBuilder embed = new EmbedBuilder();
-                embed.setDescription("No one has played blackjack in this server before!");
-                embed.setColor(ColorScheme.ERROR);
-                ((MessageReceivedEvent) event).getChannel().sendMessageEmbeds(embed.build()).queue();
-                return;
-            }
-
-            MultiPageEmbed embed = buildMessage(leaderBoard);
-            embed.sendMessage(((MessageReceivedEvent) event).getChannel());
-
+        if (leaderBoard == null || leaderBoard.isEmpty()) {
+            EmbedBuilder embed = new EmbedBuilder();
+            embed.setDescription("No one has played blackjack in this server before!");
+            embed.setColor(ColorScheme.ERROR);
+            context.respondEmbed(embed);
             return;
         }
 
-        if (event instanceof SlashCommandInteractionEvent){
+        MultiPageEmbed embed = buildMessage(leaderBoard);
+        context.respondMPE(embed);
 
-            CasinoGuildData activityData = CasinoData.getInstance().getGuildData(((SlashCommandInteractionEvent) event).getGuild());
-            ArrayList<UserData> leaderBoard = activityData.getLeaderBoard();
-
-            if (leaderBoard == null || leaderBoard.isEmpty()) {
-                EmbedBuilder embed = new EmbedBuilder();
-                embed.setDescription("No one has played blackjack in this server before!");
-                embed.setColor(ColorScheme.ERROR);
-                ((SlashCommandInteractionEvent) event).replyEmbeds(embed.build()).queue();
-                return;
-            }
-
-            MultiPageEmbed embed = buildMessage(leaderBoard);
-            embed.replyTo((SlashCommandInteractionEvent) event);
-
-            return;
-        }
     }
 
-    private MultiPageEmbed buildMessage(ArrayList<UserData> leaderBoard){
+    private MultiPageEmbed buildMessage(ArrayList<UserData> leaderBoard) {
         ArrayList<String> stringArray = new ArrayList<>();
 
         int i = 1;
-        for (UserData user : leaderBoard){
+        for (UserData user : leaderBoard) {
             String sb = "- " +
                     i +
                     " - " +

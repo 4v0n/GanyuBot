@@ -1,6 +1,7 @@
 package bot.command.booru;
 
 import bot.command.Command;
+import bot.command.CommandContext;
 import bot.util.ColorScheme;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
@@ -19,8 +20,9 @@ import java.util.Random;
 
 public class SFWICommand implements Command {
     @Override
-    public void run(Event event, List<String> args) {
+    public void run(CommandContext context, List<String> args) {
 
+        Event event = context.getEvent();
         if (event instanceof MessageReceivedEvent){
             if (args.size() > 0) {
                 String words = join((ArrayList<String>) args, " ");

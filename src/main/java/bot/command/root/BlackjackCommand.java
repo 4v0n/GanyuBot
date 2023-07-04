@@ -1,6 +1,7 @@
 package bot.command.root;
 
 import bot.command.Command;
+import bot.command.CommandContext;
 import bot.feature.root.BaseCommandHandler;
 import bot.feature.blackjack.BlackJackHandler;
 import net.dv8tion.jda.api.events.Event;
@@ -18,9 +19,9 @@ public class BlackjackCommand implements Command {
     }
 
     @Override
-    public void run(Event event, List<String> args) {
+    public void run(CommandContext context, List<String> args) {
         BlackJackHandler handler = (BlackJackHandler) BaseCommandHandler.getINSTANCE().getChildren().get(getCommandWord());
-        handler.parse(event);
+        handler.parse(context.getEvent());
     }
 
     @Override

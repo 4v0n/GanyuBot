@@ -1,6 +1,7 @@
 package bot.command.music;
 
 import bot.Bot;
+import bot.command.CommandContext;
 import bot.db.legacy.server.ServerData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -18,24 +19,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MusicUtil {
-    public static void sendEmbed(EmbedBuilder embed, Event event) {
-        if (event instanceof MessageReceivedEvent) {
-            ((MessageReceivedEvent) event).getChannel().sendMessageEmbeds(embed.build()).queue();
-            return;
-        }
+    public static void sendErrorEmbed(EmbedBuilder embed, CommandContext context) {
+        Event event = context.getEvent();
         if (event instanceof SlashCommandInteractionEvent) {
-            ((SlashCommandInteractionEvent) event).replyEmbeds(embed.build()).queue();
+            ((SlashCommandInteractionEvent) event).getHook().setEphemeral(true);
         }
-    }
-
-    public static void sendErrorEmbed(EmbedBuilder embed, Event event) {
-        if (event instanceof MessageReceivedEvent) {
-            ((MessageReceivedEvent) event).getChannel().sendMessageEmbeds(embed.build()).queue();
-            return;
-        }
-        if (event instanceof SlashCommandInteractionEvent) {
-            ((SlashCommandInteractionEvent) event).replyEmbeds(embed.build()).setEphemeral(true).queue();
-        }
+        context.respondEmbed(embed);
     }
 
     public static boolean inSameVC(Member user, Member self) {

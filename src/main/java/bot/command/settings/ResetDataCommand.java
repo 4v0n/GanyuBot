@@ -2,6 +2,7 @@ package bot.command.settings;
 
 import bot.Bot;
 import bot.command.Command;
+import bot.command.CommandContext;
 import bot.db.legacy.server.ServerData;
 import bot.command.CommandMethods;
 import bot.feature.root.BaseCommandHandler;
@@ -17,17 +18,8 @@ import java.util.List;
 
 public class ResetDataCommand implements Command {
     @Override
-    public void run(Event event, List<String> args) {
-        Guild guild = null;
-
-        if (event instanceof MessageReceivedEvent) {
-            guild = ((MessageReceivedEvent) event).getGuild();
-
-        }
-
-        if (event instanceof SlashCommandInteractionEvent) {
-            guild = ((SlashCommandInteractionEvent) event).getGuild();
-        }
+    public void run(CommandContext context, List<String> args) {
+        Guild guild = context.getGuild();
 
         ServerData serverData = new ServerData(guild);
         serverData.setCommandSetVersion(BaseCommandHandler.getINSTANCE().hashCode());
@@ -38,7 +30,7 @@ public class ResetDataCommand implements Command {
 
         EmbedBuilder embed = new EmbedBuilder();
         embed.setDescription("Reset settings to defaults");
-        CommandMethods.sendEmbed(embed, event);
+        context.respondEmbed(embed);
     }
 
     @Override

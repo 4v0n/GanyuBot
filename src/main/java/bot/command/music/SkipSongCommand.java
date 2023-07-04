@@ -2,6 +2,7 @@ package bot.command.music;
 
 import bot.Bot;
 import bot.command.Command;
+import bot.command.CommandContext;
 import bot.db.legacy.server.ServerData;
 import bot.feature.music.MusicManager;
 import bot.feature.music.lavaplayer.PlayerManager;
@@ -22,23 +23,10 @@ import static bot.command.music.MusicUtil.*;
 
 public class SkipSongCommand implements Command {
     @Override
-    public void run(Event event, List<String> args) {
-        Member user = null;
-        Member self = null;
-        Guild guild = null;
-
-        if (event instanceof MessageReceivedEvent) {
-            user = ((MessageReceivedEvent) event).getMember();
-            self = ((MessageReceivedEvent) event).getGuild().getSelfMember();
-            guild = ((MessageReceivedEvent) event).getGuild();
-
-        }
-
-        if (event instanceof SlashCommandInteractionEvent) {
-            user = ((SlashCommandInteractionEvent) event).getMember();
-            self = ((SlashCommandInteractionEvent) event).getGuild().getSelfMember();
-            guild = ((SlashCommandInteractionEvent) event).getGuild();
-        }
+    public void run(CommandContext context, List<String> args) {
+        Member user = context.getMember();
+        Member self = context.getSelfMember();
+        Guild guild = context.getGuild();
 
         if (inSameVC(user, self)){
             if (!hasPermissions(user) && !isVCEmpty(user)){
@@ -47,21 +35,21 @@ public class SkipSongCommand implements Command {
                 embed.setColor(ColorScheme.ERROR);
                 embed.setDescription("You don't have the permissions to use this command!");
                 embed.setFooter("This command requires the `"+ data.getDJRoleName() +"` (case sensitive) role or a role with the `Manage Channels` permission to use.");
-                sendErrorEmbed(embed, event);
+                sendErrorEmbed(embed, context);
                 return;
             }
 
-            skipSong(guild, event);
+            skipSong(guild, context);
 
         } else {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setColor(ColorScheme.ERROR);
             embed.setDescription("You are not in a VC with the bot!");
-            sendErrorEmbed(embed, event);
+            sendErrorEmbed(embed, context);
         }
     }
 
-    private void skipSong(Guild guild, Event event) {
+    private void skipSong(Guild guild, CommandContext context) {
         MusicManager musicManager = PlayerManager.getInstance().getMusicManager(guild);
         AudioTrackInfo currentTrack = musicManager.getAudioPlayer().getPlayingTrack().getInfo();
 
@@ -69,7 +57,7 @@ public class SkipSongCommand implements Command {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setColor(ColorScheme.ERROR);
             embed.setDescription("There is currently no song playing!");
-            sendErrorEmbed(embed, event);
+            sendErrorEmbed(embed, context);
             return;
         }
 
@@ -82,7 +70,7 @@ public class SkipSongCommand implements Command {
         EmbedBuilder embed = new EmbedBuilder();
         embed.setDescription("Skipped `" + currentTrack.title + "` by `" + currentTrack.author + "`");
         embed.setColor(ColorScheme.RESPONSE);
-        sendEmbed(embed, event);
+        context.respondEmbed(embed);
     }
 
     @Override

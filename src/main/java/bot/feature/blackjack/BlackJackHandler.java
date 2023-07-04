@@ -1,7 +1,6 @@
 package bot.feature.blackjack;
 
 
-import bot.command.blackjack.AddCreditsCommand;
 import bot.command.blackjack.LeaderboardCommand;
 import bot.command.blackjack.PlayCommand;
 import bot.command.blackjack.ProfileCommand;
@@ -42,8 +41,6 @@ public class BlackJackHandler extends CommandHandler {
         addCommand(new ProfileCommand());
 
         addCommand(new LeaderboardCommand());
-
-        addCommand(new AddCreditsCommand());
     }
 
     @Override

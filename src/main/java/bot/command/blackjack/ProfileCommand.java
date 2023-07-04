@@ -1,6 +1,7 @@
 package bot.command.blackjack;
 
 import bot.command.Command;
+import bot.command.CommandContext;
 import bot.db.legacy.blackjack.CasinoData;
 import bot.db.legacy.blackjack.UserData;
 import bot.util.ColorScheme;
@@ -16,7 +17,8 @@ import java.util.List;
 
 public class ProfileCommand implements Command {
     @Override
-    public void run(Event event, List<String> args) {
+    public void run(CommandContext context, List<String> args) {
+        Event event = context.getEvent();
         if (event instanceof MessageReceivedEvent){
             showProfile((MessageReceivedEvent) event);
             return;
@@ -40,7 +42,7 @@ public class ProfileCommand implements Command {
                 "\nLosses :" + playerData.getLosses());
 
         embed.setColor(ColorScheme.RESPONSE);
-        event.replyEmbeds(embed.build()).queue();
+        event.getHook().sendMessageEmbeds(embed.build()).queue();
     }
 
     private void showProfile(MessageReceivedEvent event) {

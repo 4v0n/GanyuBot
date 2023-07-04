@@ -2,6 +2,7 @@ package bot.command.settings;
 
 import bot.Bot;
 import bot.command.Command;
+import bot.command.CommandContext;
 import bot.db.legacy.server.ServerData;
 import bot.util.ColorScheme;
 import dev.morphia.Datastore;
@@ -21,26 +22,22 @@ import static bot.command.CommandMethods.sendEphemeralEmbed;
 
 public class ChangeDJRoleCommand implements Command {
     @Override
-    public void run(Event event, List<String> args) {
-        Guild guild = null;
+    public void run(CommandContext context, List<String> args) {
+        Guild guild = context.getGuild();
         String newRoleName = null;
+        Event event = context.getEvent();
 
         if (event instanceof MessageReceivedEvent) {
-            guild = ((MessageReceivedEvent) event).getGuild();
-
             if (args.get(0) == null || args.get(0).equals("")) {
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setDescription("You need to provide a role name!");
                 sendEphemeralEmbed(embed, event);
                 return;
             }
-
             newRoleName = args.get(0);
         }
 
         if (event instanceof SlashCommandInteractionEvent) {
-            guild = ((SlashCommandInteractionEvent) event).getGuild();
-
             newRoleName = ((SlashCommandInteractionEvent) event).getOption("role").getAsRole().getName();
         }
 
@@ -59,7 +56,7 @@ public class ChangeDJRoleCommand implements Command {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setDescription("DJ role changed to: " + args.get(0));
             embed.setColor(ColorScheme.RESPONSE);
-            sendEmbed(embed, event);
+            context.respondEmbed(embed);
         }
     }
 

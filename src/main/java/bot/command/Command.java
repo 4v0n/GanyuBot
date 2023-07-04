@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public interface Command {
-    void run(Event event, List<String> args);
+    void run(CommandContext context, List<String> args);
 
     @NotNull
     String getCommandWord();

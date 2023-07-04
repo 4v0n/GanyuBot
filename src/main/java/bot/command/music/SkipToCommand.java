@@ -2,6 +2,7 @@ package bot.command.music;
 
 import bot.Bot;
 import bot.command.Command;
+import bot.command.CommandContext;
 import bot.db.legacy.server.ServerData;
 import bot.feature.music.MusicManager;
 import bot.feature.music.lavaplayer.PlayerManager;
@@ -25,47 +26,38 @@ import static bot.command.music.MusicUtil.*;
 
 public class SkipToCommand implements Command {
     @Override
-    public void run(Event event, List<String> args) {
-        Member user = null;
-        Member self = null;
-        Guild guild = null;
+    public void run(CommandContext context, List<String> args) {
+        Member user = context.getMember();
+        Member self = context.getSelfMember();
+        Guild guild = context.getGuild();
         int target = 0;
+        Event event = context.getEvent();
 
         if (event instanceof MessageReceivedEvent) {
-            user = ((MessageReceivedEvent) event).getMember();
-            self = ((MessageReceivedEvent) event).getGuild().getSelfMember();
-            guild = ((MessageReceivedEvent) event).getGuild();
-
             if (args.isEmpty()) {
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setColor(ColorScheme.ERROR);
                 embed.setDescription("You haven't specified which song to skip!");
-                sendErrorEmbed(embed, event);
+                sendErrorEmbed(embed, context);
                 return;
             }
-
             if (!checkIsNumber(args.get(0))) {
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setColor(ColorScheme.ERROR);
                 embed.setDescription(args.get(0) + " isn't a number!");
-                sendErrorEmbed(embed, event);
+                sendErrorEmbed(embed, context);
                 return;
             }
-
             target = Integer.parseInt(args.get(0));
         }
 
         if (event instanceof SlashCommandInteractionEvent) {
-            user = ((SlashCommandInteractionEvent) event).getMember();
-            self = ((SlashCommandInteractionEvent) event).getGuild().getSelfMember();
-            guild = ((SlashCommandInteractionEvent) event).getGuild();
-
             target = Integer.parseInt(((SlashCommandInteractionEvent) event).getOption("position").getAsString());
         }
 
         if (inSameVC(user, self)) {
             if (hasPermissions(user) || isVCEmpty(self)) {
-                skiptoSong(target, guild, event);
+                skiptoSong(target, guild, context);
 
             } else {
                 ServerData data = Bot.getINSTANCE().getGuildData(guild);
@@ -73,18 +65,18 @@ public class SkipToCommand implements Command {
                 embed.setColor(ColorScheme.ERROR);
                 embed.setDescription("You don't have the permissions to use this command!");
                 embed.setFooter("This command requires the `" + data.getDJRoleName() + "` (case sensitive) role or a role with the 'Manage Channels' permission to use.");
-                sendErrorEmbed(embed, event);
+                sendErrorEmbed(embed, context);
             }
 
         } else {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setColor(ColorScheme.ERROR);
             embed.setDescription("You are not in a VC with the bot!");
-            sendErrorEmbed(embed, event);
+            sendErrorEmbed(embed, context);
         }
     }
 
-    private void skiptoSong(int target, Guild guild, Event event) {
+    private void skiptoSong(int target, Guild guild, CommandContext context) {
         MusicManager musicManager = PlayerManager.getInstance().getMusicManager(guild);
         BlockingQueue<AudioTrack> songQueue = musicManager.getScheduler().getSongQueue();
 
@@ -93,7 +85,7 @@ public class SkipToCommand implements Command {
             embed.setColor(ColorScheme.ERROR);
             embed.setDescription("The number you have entered is out of range!");
             embed.setFooter("The number you have entered is larger than the length of the list");
-            sendErrorEmbed(embed, event);
+            sendErrorEmbed(embed, context);
             return;
         }
 
@@ -105,10 +97,10 @@ public class SkipToCommand implements Command {
             }
         }
 
-        showNowPlaying(guild, event);
+        showNowPlaying(guild, context);
     }
 
-    private void showNowPlaying(Guild guild, Event event) {
+    private void showNowPlaying(Guild guild, CommandContext context) {
         MusicManager musicManager = PlayerManager.getInstance().getMusicManager(guild);
         AudioTrack track = musicManager.getAudioPlayer().getPlayingTrack();
 
@@ -117,7 +109,7 @@ public class SkipToCommand implements Command {
             embed.setColor(ColorScheme.ERROR);
             embed.setDescription("There is nothing playing at the moment!");
             embed.setFooter("Queue something up before using this command.");
-            sendErrorEmbed(embed, event);
+            sendErrorEmbed(embed, context);
 
         } else {
             String string =
@@ -136,7 +128,7 @@ public class SkipToCommand implements Command {
             embed.setColor(ColorScheme.RESPONSE);
             embed.setThumbnail("http://img.youtube.com/vi/" + track.getInfo().identifier + "/0.jpg");
 
-            sendEmbed(embed, event);
+            context.respondEmbed(embed);
         }
     }
 

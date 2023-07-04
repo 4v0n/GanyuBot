@@ -2,6 +2,7 @@ package bot.command.music;
 
 import bot.Bot;
 import bot.command.Command;
+import bot.command.CommandContext;
 import bot.db.legacy.server.ServerData;
 import bot.feature.music.MusicManager;
 import bot.feature.music.lavaplayer.PlayerManager;
@@ -25,22 +26,19 @@ import static bot.command.music.MusicUtil.*;
 
 public class SeekThroughCommand implements Command {
     @Override
-    public void run(Event event, List<String> args) {
-        Member user = null;
-        Member self = null;
-        Guild guild = null;
+    public void run(CommandContext context, List<String> args) {
+        Member user = context.getMember();
+        Member self = context.getSelfMember();
+        Guild guild = context.getGuild();
         int amount = 0;
+        Event event = context.getEvent();
 
         if (event instanceof MessageReceivedEvent) {
-            user = ((MessageReceivedEvent) event).getMember();
-            self = ((MessageReceivedEvent) event).getGuild().getSelfMember();
-            guild = ((MessageReceivedEvent) event).getGuild();
-
             if (args.isEmpty()) {
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setColor(ColorScheme.ERROR);
                 embed.setDescription("You haven't specified how much time to seek by!");
-                sendErrorEmbed(embed, event);
+                sendErrorEmbed(embed, context);
                 return;
             }
 
@@ -48,7 +46,7 @@ public class SeekThroughCommand implements Command {
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setColor(ColorScheme.ERROR);
                 embed.setDescription(args.get(0) + " isn't a number!");
-                sendErrorEmbed(embed, event);
+                sendErrorEmbed(embed, context);
                 return;
             }
 
@@ -56,16 +54,12 @@ public class SeekThroughCommand implements Command {
         }
 
         if (event instanceof SlashCommandInteractionEvent) {
-            user = ((SlashCommandInteractionEvent) event).getMember();
-            self = ((SlashCommandInteractionEvent) event).getGuild().getSelfMember();
-            guild = ((SlashCommandInteractionEvent) event).getGuild();
-
             amount = Integer.parseInt(((SlashCommandInteractionEvent) event).getOption("position").getAsString());
         }
 
         if (inSameVC(user, self)) {
             if (hasPermissions(user) || isVCEmpty(self)) {
-                seekBy(amount, guild, event);
+                seekBy(amount, guild, context);
 
             } else {
                 ServerData data = Bot.getINSTANCE().getGuildData(guild);
@@ -73,18 +67,18 @@ public class SeekThroughCommand implements Command {
                 embed.setColor(ColorScheme.ERROR);
                 embed.setDescription("You don't have the permissions to use this command!");
                 embed.setFooter("This command requires the `" + data.getDJRoleName() + "` (case sensitive) role or a role with the 'Manage Channels' permission to use.");
-                sendErrorEmbed(embed, event);
+                sendErrorEmbed(embed, context);
             }
 
         } else {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setColor(ColorScheme.ERROR);
             embed.setDescription("You are not in a VC with the bot!");
-            sendErrorEmbed(embed, event);
+            sendErrorEmbed(embed, context);
         }
     }
 
-    private void seekBy(int amount, Guild guild, Event event) {
+    private void seekBy(int amount, Guild guild, CommandContext context) {
         MusicManager musicManager = PlayerManager.getInstance().getMusicManager(guild);
         AudioTrack playingTrack = musicManager.getAudioPlayer().getPlayingTrack();
 
@@ -93,7 +87,7 @@ public class SeekThroughCommand implements Command {
             embed.setColor(ColorScheme.ERROR);
             embed.setDescription("The amount u have provided is out of range!");
             embed.setFooter("The current track is at: " + formatTime(playingTrack.getPosition()));
-            sendErrorEmbed(embed, event);
+            sendErrorEmbed(embed, context);
             return;
         }
 
@@ -102,15 +96,15 @@ public class SeekThroughCommand implements Command {
             embed.setColor(ColorScheme.ERROR);
             embed.setDescription("The amount u have provided is out of range!");
             embed.setFooter("The current track is at: " + formatTime(playingTrack.getPosition()));
-            sendErrorEmbed(embed, event);
+            sendErrorEmbed(embed, context);
             return;
         }
 
         playingTrack.setPosition(playingTrack.getPosition() + TimeUnit.SECONDS.toMillis(amount));
-        showNowPlaying(guild, event);
+        showNowPlaying(guild, context);
     }
 
-    private void showNowPlaying(Guild guild, Event event) {
+    private void showNowPlaying(Guild guild, CommandContext context) {
         MusicManager musicManager = PlayerManager.getInstance().getMusicManager(guild);
         AudioTrack track = musicManager.getAudioPlayer().getPlayingTrack();
 
@@ -119,7 +113,7 @@ public class SeekThroughCommand implements Command {
             embed.setColor(ColorScheme.ERROR);
             embed.setDescription("There is nothing playing at the moment!");
             embed.setFooter("Queue something up before using this command.");
-            sendErrorEmbed(embed, event);
+            sendErrorEmbed(embed, context);
 
         } else {
             String string =
@@ -138,7 +132,7 @@ public class SeekThroughCommand implements Command {
             embed.setColor(ColorScheme.RESPONSE);
             embed.setThumbnail("http://img.youtube.com/vi/" + track.getInfo().identifier + "/0.jpg");
 
-            sendEmbed(embed, event);
+            context.respondEmbed(embed);
         }
     }
 

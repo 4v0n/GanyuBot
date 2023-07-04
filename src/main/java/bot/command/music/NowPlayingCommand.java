@@ -1,6 +1,7 @@
 package bot.command.music;
 
 import bot.command.Command;
+import bot.command.CommandContext;
 import bot.feature.music.MusicManager;
 import bot.feature.music.lavaplayer.PlayerManager;
 import bot.util.ColorScheme;
@@ -20,31 +21,21 @@ import static bot.command.music.MusicUtil.*;
 
 public class NowPlayingCommand implements Command {
     @Override
-    public void run(Event event, List<String> args) {
-        Member self = null;
-        Guild guild = null;
-
-        if (event instanceof MessageReceivedEvent) {
-            self = ((MessageReceivedEvent) event).getGuild().getSelfMember();
-            guild = ((MessageReceivedEvent) event).getGuild();
-        }
-
-        if (event instanceof SlashCommandInteractionEvent) {
-            self = ((SlashCommandInteractionEvent) event).getGuild().getSelfMember();
-            guild = ((SlashCommandInteractionEvent) event).getGuild();
-        }
+    public void run(CommandContext context, List<String> args) {
+        Member self = context.getSelfMember();
+        Guild guild = context.getGuild();
 
         if (self.getVoiceState().inAudioChannel()){
-            showNowPlaying(guild, event);
+            showNowPlaying(guild, context);
         } else {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setDescription("The music player is currently inactive!");
             embed.setColor(ColorScheme.ERROR);
-            sendErrorEmbed(embed, event);
+            sendErrorEmbed(embed, context);
         }
     }
 
-    private void showNowPlaying(Guild guild, Event event) {
+    private void showNowPlaying(Guild guild, CommandContext context) {
         MusicManager musicManager = PlayerManager.getInstance().getMusicManager(guild);
         AudioTrack track = musicManager.getAudioPlayer().getPlayingTrack();
 
@@ -53,7 +44,7 @@ public class NowPlayingCommand implements Command {
             embed.setColor(ColorScheme.ERROR);
             embed.setDescription("There is nothing playing at the moment!");
             embed.setFooter("Queue something up before using this command.");
-            sendErrorEmbed(embed, event);
+            sendErrorEmbed(embed, context);
 
         } else {
             String string =
@@ -72,7 +63,7 @@ public class NowPlayingCommand implements Command {
             embed.setColor(ColorScheme.RESPONSE);
             embed.setThumbnail("http://img.youtube.com/vi/" + track.getInfo().identifier + "/0.jpg");
 
-            sendEmbed(embed, event);
+            context.respondEmbed(embed);
         }
     }
 

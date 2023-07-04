@@ -2,6 +2,7 @@ package bot.command.settings;
 
 import bot.Bot;
 import bot.command.Command;
+import bot.command.CommandContext;
 import bot.db.legacy.server.ServerData;
 import bot.util.ColorScheme;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -18,17 +19,8 @@ import static bot.command.CommandMethods.sendEmbed;
 
 public class ShowCurrentSettingsCommand implements Command {
     @Override
-    public void run(Event event, List<String> args) {
-        Guild guild = null;
-
-        if (event instanceof MessageReceivedEvent) {
-            guild = ((MessageReceivedEvent) event).getGuild();
-
-        }
-
-        if (event instanceof SlashCommandInteractionEvent) {
-            guild = ((SlashCommandInteractionEvent) event).getGuild();
-        }
+    public void run(CommandContext context, List<String> args) {
+        Guild guild = context.getGuild();
 
         ServerData data = Bot.getINSTANCE().getGuildData(guild);
         EmbedBuilder embed = new EmbedBuilder();
@@ -38,7 +30,7 @@ public class ShowCurrentSettingsCommand implements Command {
                         "DJ role name: " + data.getDJRoleName()
         );
         embed.setColor(ColorScheme.RESPONSE);
-        sendEmbed(embed, event);
+        context.respondEmbed(embed);
     }
 
     @Override

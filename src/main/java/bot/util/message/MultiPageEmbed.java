@@ -1,11 +1,14 @@
 package bot.util.message;
 
+import bot.command.CommandContext;
 import bot.command.reaction.ReactionCommandHandler;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -108,8 +111,20 @@ public class MultiPageEmbed{
     }
 
     public void replyTo(SlashCommandInteractionEvent event) {
-        event.deferReply().queue();
         event.getHook().sendMessageEmbeds(buildEmbed()).queue(this::setMessage);
+    }
+
+    public void respond(CommandContext context) {
+        Event event = context.getEvent();
+        context.setResponded();
+        if (event instanceof SlashCommandInteractionEvent) {
+            replyTo((SlashCommandInteractionEvent) event);
+            return;
+        }
+
+        if (event instanceof MessageReceivedEvent) {
+            sendMessage(context.getMessageChannel());
+        }
     }
 
     private void editMessage() {

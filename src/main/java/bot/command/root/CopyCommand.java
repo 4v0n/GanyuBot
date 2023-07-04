@@ -1,6 +1,7 @@
 package bot.command.root;
 
 import bot.command.Command;
+import bot.command.CommandContext;
 import bot.util.ColorScheme;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -17,7 +18,8 @@ import java.util.List;
 
 public class CopyCommand implements Command {
     @Override
-    public void run(Event event, List<String> args) {
+    public void run(CommandContext context, List<String> args) {
+        Event event = context.getEvent();
 
         if (event instanceof MessageReceivedEvent) {
             Message message = ((MessageReceivedEvent) event).getMessage();
@@ -50,7 +52,6 @@ public class CopyCommand implements Command {
             String content = optionMapping.getAsString();
 
             ((SlashCommandInteractionEvent) event).reply(content).queue();
-            return;
         }
     }
 

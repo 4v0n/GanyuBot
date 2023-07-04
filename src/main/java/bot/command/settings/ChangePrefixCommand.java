@@ -2,6 +2,7 @@ package bot.command.settings;
 
 import bot.Bot;
 import bot.command.Command;
+import bot.command.CommandContext;
 import bot.db.legacy.server.ServerData;
 import bot.util.ColorScheme;
 import dev.morphia.Datastore;
@@ -22,15 +23,13 @@ import static bot.command.CommandMethods.sendEphemeralEmbed;
 
 public class ChangePrefixCommand implements Command {
     @Override
-    public void run(Event event, List<String> args) {
-        Member self = null;
-        Guild guild = null;
+    public void run(CommandContext context, List<String> args) {
+        Member self = context.getSelfMember();
+        Guild guild = context.getGuild();
         String newPrefix = null;
+        Event event = context.getEvent();
 
         if (event instanceof MessageReceivedEvent) {
-            self = ((MessageReceivedEvent) event).getGuild().getSelfMember();
-            guild = ((MessageReceivedEvent) event).getGuild();
-
             if (args.get(0) == null || args.get(0).equals("")) {
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setDescription("You need to provide a new prefix!");
@@ -38,14 +37,10 @@ public class ChangePrefixCommand implements Command {
                 sendEphemeralEmbed(embed, event);
                 return;
             }
-
             newPrefix = args.get(0);
         }
 
         if (event instanceof SlashCommandInteractionEvent) {
-            self = ((SlashCommandInteractionEvent) event).getGuild().getSelfMember();
-            guild = ((SlashCommandInteractionEvent) event).getGuild();
-
             newPrefix = ((SlashCommandInteractionEvent) event).getOption("prefix").getAsString();
         }
 
@@ -66,7 +61,7 @@ public class ChangePrefixCommand implements Command {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setDescription("prefix changed to: " + args.get(0));
             embed.setColor(ColorScheme.RESPONSE);
-            sendEmbed(embed, event);
+            context.respondEmbed(embed);
         }
     }
 

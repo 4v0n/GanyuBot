@@ -2,6 +2,7 @@ package bot.command.music;
 
 import bot.Bot;
 import bot.command.Command;
+import bot.command.CommandContext;
 import bot.db.legacy.server.ServerData;
 import bot.feature.music.MusicManager;
 import bot.feature.music.lavaplayer.PlayerManager;
@@ -26,23 +27,20 @@ import static bot.command.music.MusicUtil.*;
 
 public class MoveSongCommand implements Command {
     @Override
-    public void run(Event event, List<String> args) {
-        Member user = null;
-        Member self = null;
-        Guild guild = null;
+    public void run(CommandContext context, List<String> args) {
+        Event event = context.getEvent();
+        Member user = context.getMember();
+        Member self = context.getSelfMember();
+        Guild guild = context.getGuild();
         int oldPos = 0;
         int newPos = 1;
 
         if (event instanceof MessageReceivedEvent) {
-            user = ((MessageReceivedEvent) event).getMember();
-            self = ((MessageReceivedEvent) event).getGuild().getSelfMember();
-            guild = ((MessageReceivedEvent) event).getGuild();
-
             if (args.size() < 2) {
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setColor(ColorScheme.ERROR);
                 embed.setDescription("This command requires 2 arguments!");
-                sendErrorEmbed(embed, event);
+                sendErrorEmbed(embed, context);
                 return;
             }
 
@@ -50,7 +48,7 @@ public class MoveSongCommand implements Command {
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setColor(ColorScheme.ERROR);
                 embed.setDescription(args.get(0) + " isn't a number!");
-                sendErrorEmbed(embed, event);
+                sendErrorEmbed(embed, context);
                 return;
             }
 
@@ -58,7 +56,7 @@ public class MoveSongCommand implements Command {
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setColor(ColorScheme.ERROR);
                 embed.setDescription(args.get(1) + " isn't a number!");
-                sendErrorEmbed(embed, event);
+                sendErrorEmbed(embed, context);
                 return;
             }
 
@@ -67,17 +65,13 @@ public class MoveSongCommand implements Command {
         }
 
         if (event instanceof SlashCommandInteractionEvent) {
-            user = ((SlashCommandInteractionEvent) event).getMember();
-            self = ((SlashCommandInteractionEvent) event).getGuild().getSelfMember();
-            guild = ((SlashCommandInteractionEvent) event).getGuild();
-
             oldPos = Integer.parseInt(((SlashCommandInteractionEvent) event).getOption("old_position").getAsString());
             newPos = Integer.parseInt(((SlashCommandInteractionEvent) event).getOption("new_position").getAsString());
         }
 
         if (inSameVC(user, self)) {
             if (hasPermissions(user) || isVCEmpty(self)) {
-                moveSong(oldPos, newPos, guild, event);
+                moveSong(oldPos, newPos, guild, context);
 
             } else {
                 ServerData data = Bot.getINSTANCE().getGuildData(guild);
@@ -85,18 +79,18 @@ public class MoveSongCommand implements Command {
                 embed.setColor(ColorScheme.ERROR);
                 embed.setDescription("You don't have the permissions to use this command!");
                 embed.setFooter("This command requires the `" + data.getDJRoleName() + "` (case sensitive) role or a role with the 'Manage Channels' permission to use.");
-                sendErrorEmbed(embed, event);
+                sendErrorEmbed(embed, context);
             }
 
         } else {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setColor(ColorScheme.ERROR);
             embed.setDescription("You are not in a VC with the bot!");
-            sendErrorEmbed(embed, event);
+            sendErrorEmbed(embed, context);
         }
     }
 
-    private void moveSong(int oldPos, int newPos, Guild guild, Event event) {
+    private void moveSong(int oldPos, int newPos, Guild guild, CommandContext context) {
         MusicManager musicManager = PlayerManager.getInstance().getMusicManager(guild);
         BlockingQueue<AudioTrack> songQueue = musicManager.getScheduler().getSongQueue();
 
@@ -104,7 +98,7 @@ public class MoveSongCommand implements Command {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setColor(ColorScheme.ERROR);
             embed.setDescription("There aren't enough songs to move around!");
-            sendErrorEmbed(embed, event);
+            sendErrorEmbed(embed, context);
             return;
         }
 
@@ -135,7 +129,7 @@ public class MoveSongCommand implements Command {
         EmbedBuilder embed = new EmbedBuilder();
         embed.setColor(ColorScheme.RESPONSE);
         embed.setDescription("Moved `" + movedSong.getInfo().title + "` to position `" + (newPos + 1) + "`");
-        sendEmbed(embed, event);
+        context.respondEmbed(embed);
     }
 
     @Override

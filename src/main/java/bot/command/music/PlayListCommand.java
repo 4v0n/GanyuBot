@@ -1,6 +1,7 @@
 package bot.command.music;
 
 import bot.command.Command;
+import bot.command.CommandContext;
 import bot.feature.music.lavaplayer.PlayerManager;
 import bot.util.ColorScheme;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -19,21 +20,17 @@ import static bot.command.music.MusicUtil.*;
 
 public class PlayListCommand implements Command {
     @Override
-    public void run(Event event, List<String> args) {
-        Member user = null;
-        Member self = null;
+    public void run(CommandContext context, List<String> args) {
+        Event event = context.getEvent();
+        Member user = context.getMember();
+        Member self = context.getSelfMember();
         String link = null;
 
         if (event instanceof MessageReceivedEvent) {
-            user = ((MessageReceivedEvent) event).getMember();
-            self = ((MessageReceivedEvent) event).getGuild().getSelfMember();
             link = String.join(" ", args);
         }
 
         if (event instanceof SlashCommandInteractionEvent) {
-            user = ((SlashCommandInteractionEvent) event).getMember();
-            self = ((SlashCommandInteractionEvent) event).getGuild().getSelfMember();
-
             link = ((SlashCommandInteractionEvent) event).getOption("url").getAsString();
         }
 
@@ -42,64 +39,62 @@ public class PlayListCommand implements Command {
             embed.setColor(ColorScheme.ERROR);
             embed.setDescription("You are not in a voice channel!");
             embed.setFooter("Join a voice channel before using this command!");
-            sendErrorEmbed(embed, event);
+            sendErrorEmbed(embed, context);
             return;
         }
 
-        if (link == null || link.isBlank() || link.isEmpty()){
+        if (link == null || link.isBlank() || link.isEmpty()) {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setColor(ColorScheme.ERROR);
             embed.setDescription("You haven't provided a link / search query for a song!");
-            sendErrorEmbed(embed, event);
+            sendErrorEmbed(embed, context);
             return;
         }
 
-        if (!isURL(link)){
+        if (!isURL(link)) {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setDescription("That is not a link!\nYou need to provide a url for this command to work!");
             embed.setColor(ColorScheme.ERROR);
-            sendErrorEmbed(embed, event);
+            sendErrorEmbed(embed, context);
         }
 
         if (inSameVC(user, self)) {
-            queuePlaylist(event,link, user);
+            queuePlaylist(context, link, user);
             return;
         }
 
         if (isVCEmpty(self)) {
-            joinVoiceChannel(user, self, event);
-            queuePlaylist(event,link, user);
+            joinVoiceChannel(user, self, context);
+            queuePlaylist(context, link, user);
 
         } else {
 
-            if (!hasPermissions(user)){
+            if (!hasPermissions(user)) {
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setDescription("The bot is already in another VC!");
                 embed.setFooter("Join VC: `" + self.getVoiceState().getChannel().getName() + "` or wait for the users to finish");
-                sendErrorEmbed(embed, event);
+                sendErrorEmbed(embed, context);
 
             } else {
-                joinVoiceChannel(user, self, event);
-                queuePlaylist(event,link, user);
+                joinVoiceChannel(user, self, context);
+                queuePlaylist(context, link, user);
             }
         }
     }
 
-    private void joinVoiceChannel(Member user, Member self, Event event) {
+    private void joinVoiceChannel(Member user, Member self, CommandContext context) {
         AudioChannel audioChannel = user.getVoiceState().getChannel();
         self.getGuild().getAudioManager().openAudioConnection(audioChannel);
 
         EmbedBuilder embed = new EmbedBuilder();
-        embed.setDescription("Joining channel: `" + audioChannel.getName() + "`" );
+        embed.setDescription("Joining channel: `" + audioChannel.getName() + "`");
         embed.setColor(ColorScheme.RESPONSE);
 
-        if (event instanceof MessageReceivedEvent){
-            sendEmbed(embed, event);
-        }
+        context.respondEmbed(embed);
     }
 
-    private void queuePlaylist(Event event, String link, Member user) {
-        PlayerManager.getInstance().loadPlaylist(event, link, user);
+    private void queuePlaylist(CommandContext context, String link, Member user) {
+        PlayerManager.getInstance().loadPlaylist(context, link, user);
     }
 
     @Override

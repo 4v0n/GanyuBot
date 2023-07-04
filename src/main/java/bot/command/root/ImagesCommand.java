@@ -1,6 +1,7 @@
 package bot.command.root;
 
 import bot.command.Command;
+import bot.command.CommandContext;
 import bot.feature.root.BaseCommandHandler;
 import bot.feature.booru.ImageHandler;
 import net.dv8tion.jda.api.events.Event;
@@ -18,11 +19,11 @@ public class ImagesCommand implements Command {
     }
 
     @Override
-    public void run(Event event, List<String> args) {
+    public void run(CommandContext context, List<String> args) {
         BaseCommandHandler baseCommandHandler = BaseCommandHandler.getINSTANCE();
         ImageHandler handler = (ImageHandler) baseCommandHandler.getChildren().get(getCommandWord());
 
-        handler.parse(event);
+        handler.parse(context.getEvent());
     }
 
     @Override

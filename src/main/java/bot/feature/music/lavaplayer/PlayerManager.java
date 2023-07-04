@@ -1,5 +1,6 @@
 package bot.feature.music.lavaplayer;
 
+import bot.command.CommandContext;
 import bot.feature.music.MusicManager;
 import bot.util.ColorScheme;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
@@ -52,8 +53,8 @@ public class PlayerManager {
         });
     }
 
-    public void loadAndPlay(Event event, String url, Member member) {
-
+    public void loadAndPlay(CommandContext context, String url, Member member) {
+        Event event = context.getEvent();
         MusicManager musicManager = null;
 
         if (event instanceof MessageReceivedEvent){
@@ -103,7 +104,7 @@ public class PlayerManager {
                     embed.setFooter("Duration: " + formatTime(audioTrack.getDuration()));
                 }
 
-                sendEmbed(embed, event);
+                context.respondEmbed(embed);
             }
 
             @Override
@@ -148,7 +149,7 @@ public class PlayerManager {
                     embed.setFooter("Duration: " + formatTime(selectedTrack.getDuration()));
                 }
 
-                sendEmbed(embed, event);
+                context.respondEmbed(embed);
             }
 
             @Override
@@ -157,7 +158,7 @@ public class PlayerManager {
                 if (isURL(url)) {
                     String link = "ytsearch:" + url;
 
-                    loadAndPlay(event, link, member);
+                    loadAndPlay(context, link, member);
                     return;
                 }
 
@@ -165,7 +166,7 @@ public class PlayerManager {
                 embed.setColor(ColorScheme.ERROR);
                 embed.setDescription("No close matches were found! \nTry a more precise search query.");
                 embed.setFooter("Remember that only youtube songs may be requested");
-                sendErrorEmbed(embed, event);
+                sendErrorEmbed(embed, context);
             }
 
             @Override
@@ -174,7 +175,7 @@ public class PlayerManager {
                 embed.setColor(ColorScheme.ERROR);
                 embed.setDescription("An error has occurred! \nPerhaps the song / query is invalid");
                 embed.setFooter("Remember that only youtube songs may be requested");
-                sendErrorEmbed(embed, event);
+                sendErrorEmbed(embed, context);
             }
         });
     }
@@ -211,7 +212,8 @@ public class PlayerManager {
         });
     }
 
-    public void loadPlaylist(Event event, String url, Member member) {
+    public void loadPlaylist(CommandContext context, String url, Member member) {
+        Event event = context.getEvent();
         MusicManager musicManager = null;
 
         if (event instanceof MessageReceivedEvent){
@@ -229,7 +231,7 @@ public class PlayerManager {
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setColor(ColorScheme.ERROR);
                 embed.setDescription("This is not a playlist!");
-                sendErrorEmbed(embed, event);
+                sendErrorEmbed(embed, context);
             }
 
             @Override
@@ -288,7 +290,7 @@ public class PlayerManager {
                 embed.appendDescription("\nStarting from: `" + selectedTrack.getInfo().title + "" +
                         "` by `" + selectedTrack.getInfo().author + "`");
                 embed.setFooter("Total duration: " + formatTime(totalTime));
-                sendEmbed(embed, event);
+                context.respondEmbed(embed);
             }
 
             @Override
@@ -297,7 +299,7 @@ public class PlayerManager {
                 embed.setColor(ColorScheme.ERROR);
                 embed.setDescription("No close matches were found! \nTry a more precise search query.");
                 embed.setFooter("Remember that only youtube songs may be requested");
-                sendErrorEmbed(embed, event);
+                sendErrorEmbed(embed, context);
             }
 
             @Override
@@ -306,7 +308,7 @@ public class PlayerManager {
                 embed.setColor(ColorScheme.ERROR);
                 embed.setDescription("An error has occurred! \nPerhaps the song / query is invalid");
                 embed.setFooter("Remember that only youtube songs may be requested");
-                sendErrorEmbed(embed, event);
+                sendErrorEmbed(embed, context);
             }
         });
     }

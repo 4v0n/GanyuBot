@@ -1,6 +1,7 @@
 package bot.command.root;
 
 import bot.command.Command;
+import bot.command.CommandContext;
 import bot.util.ColorScheme;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -45,13 +46,14 @@ public class PurgeCommand implements Command {
     }
 
     @Override
-    public void run(Event event, List<String> args) {
+    public void run(CommandContext context, List<String> args) {
+        Event event = context.getEvent();
         if (event instanceof MessageReceivedEvent) {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setTitle("Incorrect usage!");
             embed.setDescription("This command may only be used through a slash command");
             embed.setColor(ColorScheme.ERROR);
-            ((MessageReceivedEvent) event).getChannel().sendMessageEmbeds(embed.build()).queue();
+            context.respondEmbed(embed);
             return;
         }
 
@@ -65,7 +67,7 @@ public class PurgeCommand implements Command {
                 embed.setTitle("Insufficient permissions!");
                 embed.setDescription("You need to have the `Administrator` permission to use this set of commands");
                 embed.setColor(ColorScheme.ERROR);
-                ((SlashCommandInteractionEvent) event).replyEmbeds(embed.build()).queue();
+                context.respondEmbed(embed);
                 return;
             }
 
@@ -128,7 +130,6 @@ public class PurgeCommand implements Command {
     }
 
     private int purgeSpecific(MessageChannel channel, List<OptionMapping> options) {
-
         return 0;
     }
 

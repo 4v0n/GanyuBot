@@ -119,6 +119,7 @@ public abstract class CommandHandler {
     public void parse(Event event) {
         if (event instanceof MessageReceivedEvent) {
             commandCenter.parse((MessageReceivedEvent) event);
+            return;
         }
 
         if (event instanceof SlashCommandInteractionEvent) {

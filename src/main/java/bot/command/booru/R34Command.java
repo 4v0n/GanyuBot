@@ -1,6 +1,7 @@
 package bot.command.booru;
 
 import bot.command.Command;
+import bot.command.CommandContext;
 import bot.util.ColorScheme;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
@@ -20,8 +21,9 @@ import java.util.Random;
 public class R34Command implements Command {
 
     @Override
-    public void run(Event event, List<String> args) {
+    public void run(CommandContext context, List<String> args) {
 
+        Event event = context.getEvent();
         if (event instanceof MessageReceivedEvent){
             if (args.size() > 0) {
                 String words = join((ArrayList<String>) args, " ");
@@ -88,7 +90,7 @@ public class R34Command implements Command {
                             if (event instanceof MessageReceivedEvent) {
                                 ((MessageReceivedEvent) event).getChannel().sendMessageEmbeds(embed.build()).queue();
                             } else {
-                                ((SlashCommandInteractionEvent) event).replyEmbeds(embed.build()).setEphemeral(true).queue();
+                                ((SlashCommandInteractionEvent) event).getHook().sendMessageEmbeds(embed.build()).setEphemeral(true).queue();
                             }
 
                             return;
@@ -106,7 +108,7 @@ public class R34Command implements Command {
                     if (event instanceof MessageReceivedEvent) {
                         ((MessageReceivedEvent) event).getMessage().replyEmbeds(embed.build()).queue();
                     } else {
-                        ((SlashCommandInteractionEvent) event).replyEmbeds(embed.build()).setEphemeral(true).queue();
+                        ((SlashCommandInteractionEvent) event).getHook().setEphemeral(true).sendMessageEmbeds(embed.build()).setEphemeral(true).queue();
                     }
 
                 } else {
@@ -126,7 +128,7 @@ public class R34Command implements Command {
                 ((MessageReceivedEvent) event).getChannel().sendMessageEmbeds(embed.build()).queue();
             } else {
                 assert event instanceof SlashCommandInteractionEvent;
-                ((SlashCommandInteractionEvent) event).replyEmbeds(embed.build()).setEphemeral(true).queue();
+                ((SlashCommandInteractionEvent) event).getHook().setEphemeral(true).sendMessageEmbeds(embed.build()).setEphemeral(true).queue();
             }
         }
     }
@@ -144,7 +146,7 @@ public class R34Command implements Command {
         }
 
         if (event instanceof SlashCommandInteractionEvent){
-            ((SlashCommandInteractionEvent) event).replyEmbeds(embed.build()).setEphemeral(true).queue();
+            ((SlashCommandInteractionEvent) event).getHook().sendMessageEmbeds(embed.build()).setEphemeral(true).queue();
         }
     }
 
@@ -179,7 +181,7 @@ public class R34Command implements Command {
         }
 
         if (event instanceof SlashCommandInteractionEvent){
-            ((SlashCommandInteractionEvent) event).replyEmbeds(embed.build()).queue();
+            ((SlashCommandInteractionEvent) event).getHook().sendMessageEmbeds(embed.build()).queue();
         }
     }
 
