@@ -15,8 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
-import static bot.command.music.MusicUtil.inSameVC;
-import static bot.command.music.MusicUtil.sendErrorEmbed;
+import static bot.command.music.MusicUtil.*;
 
 /**
  * This class outlines the remove duplicates command
@@ -34,49 +33,26 @@ public class RemoveDuplicatesCommand implements Command {
      */
     @Override
     public void run(CommandContext context, List<String> args) {
-        Member user = context.getMember();
-        Member self = context.getSelfMember();
-        Guild guild = context.getGuild();
-
-        // guard clauses
-
-        if (!user.getVoiceState().inAudioChannel()) {
-            // user not in a VC
-            EmbedBuilder embed = new EmbedBuilder();
-            embed.setColor(ColorScheme.ERROR);
-            embed.setDescription("You are not in a Voice channel!");
-            embed.setFooter("Join a voice channel before using this command!");
-            sendErrorEmbed(embed, context);
+        if (!inVC(context, true)) {
             return;
         }
-
-        if (!self.getVoiceState().inAudioChannel()){
-            EmbedBuilder embed = new EmbedBuilder();
-            embed.setColor(ColorScheme.ERROR);
-            embed.setDescription("The music player is currently inactive!");
-            sendErrorEmbed(embed, context);
+        if (!playerActive(context, true)) {
             return;
         }
-
-        if (inSameVC(user, self)) {
-            // user in same VC as bot
-            removeDuplicates(guild,context);
-        } else {
-            // user in different VC from bot
-            EmbedBuilder embed = new EmbedBuilder();
-            embed.setColor(ColorScheme.ERROR);
-            embed.setDescription("The music player is currently in a different VC!");
-            embed.setFooter("You must be in the same VC to control the music player");
-            sendErrorEmbed(embed, context);
+        if (!inSameVC(context, true)) {
+            return;
         }
+        if (!hasPermissions(context, true)) {
+            return;
+        }
+        removeDuplicates(context);
     }
 
     /**
      * Removes duplicate songs from song queue in given guild
-     *
-     * @param guild Guild the song queue is for
      */
-    private void removeDuplicates(Guild guild, CommandContext context) {
+    private void removeDuplicates(CommandContext context) {
+        Guild guild = context.getGuild();
         BlockingQueue<AudioTrack> songQueue = PlayerManager.getInstance().getMusicManager(guild).getScheduler().getSongQueue();
         int initialSize = songQueue.size();
         ArrayList<String> songs = new ArrayList<>();

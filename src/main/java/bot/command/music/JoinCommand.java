@@ -19,19 +19,7 @@ import static bot.command.music.MusicUtil.*;
 public class JoinCommand implements Command {
     @Override
     public void run(CommandContext context, List<String> args) {
-        Member user = context.getMember();
-        Member self = context.getSelfMember();
-
-        if (!user.getVoiceState().inAudioChannel()) {
-            EmbedBuilder embed = new EmbedBuilder();
-            embed.setColor(ColorScheme.ERROR);
-            embed.setDescription("You are not in a voice channel!");
-            embed.setFooter("Join a voice channel before using this command!");
-            sendErrorEmbed(embed, context);
-            return;
-        }
-
-        if (inSameVC(user, self)) {
+        if (inSameVC(context, false)) {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setColor(ColorScheme.ERROR);
             embed.setDescription("The bot is already in the same voice channel as you!");
@@ -39,25 +27,16 @@ public class JoinCommand implements Command {
             sendErrorEmbed(embed, context);
             return;
         }
-
-        if (isVCEmpty(self)) {
-            joinVoiceChannel(user, self, context);
-
-        } else {
-
-            if (!hasPermissions(user)){
-                EmbedBuilder embed = new EmbedBuilder();
-                embed.setDescription("The bot is already in another VC!");
-                embed.setFooter("Join VC: `" + self.getVoiceState().getChannel().getName() + "` or wait for the users to finish");
-                sendErrorEmbed(embed, context);
-
-            } else {
-                joinVoiceChannel(user, self, context);
-            }
+        if (!hasPermissions(context, true)) {
+            return;
         }
+        joinVoiceChannel(context);
     }
 
-    private void joinVoiceChannel(Member user, Member self, CommandContext context) {
+    private void joinVoiceChannel(CommandContext context) {
+        Member user = context.getMember();
+        Member self = context.getSelfMember();
+
         AudioChannel audioChannel = user.getVoiceState().getChannel();
         self.getGuild().getAudioManager().openAudioConnection(audioChannel);
 

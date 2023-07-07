@@ -27,22 +27,13 @@ public class ShowQueueCommand implements Command {
 
     @Override
     public void run(CommandContext context, List<String> args) {
-        Member user = context.getMember();
-        Member self = context.getSelfMember();
-        Guild guild = context.getGuild();
-
-        if (self.getVoiceState().inAudioChannel()){
-            showSongQueue(guild, context);
-        } else {
-            EmbedBuilder embed = new EmbedBuilder();
-            embed.setDescription("The music player is currently inactive!");
-            embed.setColor(ColorScheme.ERROR);
-            sendErrorEmbed(embed, context);
+        if (!playerActive(context, true)) {
+            showSongQueue(context);
         }
     }
 
-    private void showSongQueue(Guild guild, CommandContext context) {
-        MusicManager musicManager = PlayerManager.getInstance().getMusicManager(guild);
+    private void showSongQueue(CommandContext context) {
+        MusicManager musicManager = PlayerManager.getInstance().getMusicManager(context.getGuild());
         final BlockingQueue<AudioTrack> queue = musicManager.getScheduler().getSongQueue();
 
         if (queue.isEmpty() && (musicManager.getAudioPlayer().getPlayingTrack() == null || musicManager.getAudioPlayer().isPaused())) {
@@ -64,7 +55,7 @@ public class ShowQueueCommand implements Command {
                 name + "\n";
 
         if (queue.isEmpty()) {
-            showNowPlaying(guild, context);
+            showNowPlaying(context);
             return;
         }
 
@@ -96,8 +87,8 @@ public class ShowQueueCommand implements Command {
         queueListMessage.respond(context);
     }
 
-    private void showNowPlaying(Guild guild, CommandContext context) {
-        MusicManager musicManager = PlayerManager.getInstance().getMusicManager(guild);
+    private void showNowPlaying(CommandContext context) {
+        MusicManager musicManager = PlayerManager.getInstance().getMusicManager(context.getGuild());
         AudioTrack track = musicManager.getAudioPlayer().getPlayingTrack();
 
         if (track == null) {

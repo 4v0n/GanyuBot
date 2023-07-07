@@ -23,34 +23,24 @@ import static bot.command.music.MusicUtil.*;
 public class StopCommand implements Command {
     @Override
     public void run(CommandContext context, List<String> args) {
-        Member user = context.getMember();
-        Member self = context.getSelfMember();
-        Guild guild = context.getGuild();
-
-        if (inSameVC(user, self)){
-            if (!hasPermissions(user) && !isVCEmpty(user)){
-                ServerData data = Bot.getINSTANCE().getGuildData(guild);
-                EmbedBuilder embed = new EmbedBuilder();
-                embed.setColor(ColorScheme.ERROR);
-                embed.setDescription("You don't have the permissions to use this command!");
-                embed.setFooter("This command requires the `"+ data.getDJRoleName() +"` (case sensitive) role or a role with the `Manage Channels` permission to use.");
-                sendErrorEmbed(embed, context);
-                return;
-            }
-
-            stopMusicPlayer(guild, context);
-
-        } else {
-            EmbedBuilder embed = new EmbedBuilder();
-            embed.setColor(ColorScheme.ERROR);
-            embed.setDescription("You are not in a VC with the bot!");
-            sendErrorEmbed(embed, context);
+        if (!inVC(context, true)) {
+            return;
         }
+        if (!playerActive(context, true)) {
+            return;
+        }
+        if (!inSameVC(context, true)) {
+            return;
+        }
+        if (!hasPermissions(context, true)) {
+            return;
+        }
+        stopMusicPlayer(context);
     }
 
-    private void stopMusicPlayer(Guild guild, CommandContext context) {
-        MusicManager musicManager = PlayerManager.getInstance().getMusicManager(guild);
-        guild.getAudioManager().closeAudioConnection();
+    private void stopMusicPlayer(CommandContext context) {
+        MusicManager musicManager = PlayerManager.getInstance().getMusicManager(context.getGuild());
+        context.getGuild().getAudioManager().closeAudioConnection();
         musicManager.getAudioPlayer().destroy();
         musicManager.getScheduler().getSongQueue().clear();
 

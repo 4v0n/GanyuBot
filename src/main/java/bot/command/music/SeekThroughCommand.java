@@ -27,9 +27,6 @@ import static bot.command.music.MusicUtil.*;
 public class SeekThroughCommand implements Command {
     @Override
     public void run(CommandContext context, List<String> args) {
-        Member user = context.getMember();
-        Member self = context.getSelfMember();
-        Guild guild = context.getGuild();
         int amount = 0;
         Event event = context.getEvent();
 
@@ -57,29 +54,23 @@ public class SeekThroughCommand implements Command {
             amount = Integer.parseInt(((SlashCommandInteractionEvent) event).getOption("position").getAsString());
         }
 
-        if (inSameVC(user, self)) {
-            if (hasPermissions(user) || isVCEmpty(self)) {
-                seekBy(amount, guild, context);
-
-            } else {
-                ServerData data = Bot.getINSTANCE().getGuildData(guild);
-                EmbedBuilder embed = new EmbedBuilder();
-                embed.setColor(ColorScheme.ERROR);
-                embed.setDescription("You don't have the permissions to use this command!");
-                embed.setFooter("This command requires the `" + data.getDJRoleName() + "` (case sensitive) role or a role with the 'Manage Channels' permission to use.");
-                sendErrorEmbed(embed, context);
-            }
-
-        } else {
-            EmbedBuilder embed = new EmbedBuilder();
-            embed.setColor(ColorScheme.ERROR);
-            embed.setDescription("You are not in a VC with the bot!");
-            sendErrorEmbed(embed, context);
+        if (!inVC(context, true)) {
+            return;
         }
+        if (!playerActive(context, true)) {
+            return;
+        }
+        if (!inSameVC(context, true)) {
+            return;
+        }
+        if (!hasPermissions(context, true)) {
+            return;
+        }
+        seekBy(amount, context);
     }
 
-    private void seekBy(int amount, Guild guild, CommandContext context) {
-        MusicManager musicManager = PlayerManager.getInstance().getMusicManager(guild);
+    private void seekBy(int amount, CommandContext context) {
+        MusicManager musicManager = PlayerManager.getInstance().getMusicManager(context.getGuild());
         AudioTrack playingTrack = musicManager.getAudioPlayer().getPlayingTrack();
 
         if (amount < 0 && playingTrack.getPosition() < Math.abs(amount)) {
@@ -101,11 +92,11 @@ public class SeekThroughCommand implements Command {
         }
 
         playingTrack.setPosition(playingTrack.getPosition() + TimeUnit.SECONDS.toMillis(amount));
-        showNowPlaying(guild, context);
+        showNowPlaying(context);
     }
 
-    private void showNowPlaying(Guild guild, CommandContext context) {
-        MusicManager musicManager = PlayerManager.getInstance().getMusicManager(guild);
+    private void showNowPlaying(CommandContext context) {
+        MusicManager musicManager = PlayerManager.getInstance().getMusicManager(context.getGuild());
         AudioTrack track = musicManager.getAudioPlayer().getPlayingTrack();
 
         if (track == null) {

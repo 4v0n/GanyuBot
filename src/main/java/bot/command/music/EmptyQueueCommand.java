@@ -1,18 +1,12 @@
 package bot.command.music;
 
-import bot.Bot;
 import bot.command.Command;
 import bot.command.CommandContext;
-import bot.db.legacy.server.ServerData;
 import bot.feature.music.MusicManager;
 import bot.feature.music.lavaplayer.PlayerManager;
 import bot.util.ColorScheme;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,48 +17,20 @@ import static bot.command.music.MusicUtil.*;
 public class EmptyQueueCommand implements Command {
     @Override
     public void run(CommandContext context, List<String> args) {
-        Member user = context.getMember();
-        Member self = context.getSelfMember();
-        Guild guild = context.getGuild();
-
-        if (!user.getVoiceState().inAudioChannel()){
-            EmbedBuilder embed = new EmbedBuilder();
-            embed.setColor(ColorScheme.ERROR);
-            embed.setDescription("You are not in a voice channel!");
-            embed.setFooter("You need to be in a voice channel in order to use this command!");
-            sendErrorEmbed(embed, context);
+        if (!playerActive(context, true)) {
             return;
         }
-
-        if (inSameVC(user, self)) {
-
-            if (!hasPermissions(user) && !isVCEmpty(self)){
-                EmbedBuilder embed = new EmbedBuilder();
-                ServerData data = Bot.getINSTANCE().getGuildData(guild);
-                embed.setDescription("You don't have the permissions to use this command!");
-                embed.setFooter("This command requires the `"+ data.getDJRoleName() +"` (case sensitive) role or a role with the 'Manage Channels' permission to use");
-                sendErrorEmbed(embed, context);
-                return;
-            }
-
-            emptySongQueue(guild, context);
+        if (!inVC(context, true)) {
             return;
-
-        } else {
-            EmbedBuilder embed = new EmbedBuilder();
-            embed.setColor(ColorScheme.ERROR);
-            embed.setDescription("The musicplayer is currently in a different VC!");
-            embed.setFooter("You need to be in the same VC to use this command!");
-            sendErrorEmbed(embed, context);
         }
-
-        EmbedBuilder embed = new EmbedBuilder();
-        embed.setColor(ColorScheme.ERROR);
-        embed.setDescription("The music player is currently inactive!");
-        sendErrorEmbed(embed, context);
+        if (!inSameVC(context, true) || !hasPermissions(context, true)) {
+            return;
+        }
+        emptySongQueue(context);
     }
 
-    private void emptySongQueue(Guild guild, CommandContext context) {
+    private void emptySongQueue(CommandContext context) {
+        Guild guild = context.getGuild();
         MusicManager musicManager = PlayerManager.getInstance().getMusicManager(guild);
         musicManager.getScheduler().getSongQueue().clear();
 

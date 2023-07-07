@@ -29,9 +29,6 @@ public class MoveSongCommand implements Command {
     @Override
     public void run(CommandContext context, List<String> args) {
         Event event = context.getEvent();
-        Member user = context.getMember();
-        Member self = context.getSelfMember();
-        Guild guild = context.getGuild();
         int oldPos = 0;
         int newPos = 1;
 
@@ -69,29 +66,21 @@ public class MoveSongCommand implements Command {
             newPos = Integer.parseInt(((SlashCommandInteractionEvent) event).getOption("new_position").getAsString());
         }
 
-        if (inSameVC(user, self)) {
-            if (hasPermissions(user) || isVCEmpty(self)) {
-                moveSong(oldPos, newPos, guild, context);
-
-            } else {
-                ServerData data = Bot.getINSTANCE().getGuildData(guild);
-                EmbedBuilder embed = new EmbedBuilder();
-                embed.setColor(ColorScheme.ERROR);
-                embed.setDescription("You don't have the permissions to use this command!");
-                embed.setFooter("This command requires the `" + data.getDJRoleName() + "` (case sensitive) role or a role with the 'Manage Channels' permission to use.");
-                sendErrorEmbed(embed, context);
-            }
-
-        } else {
-            EmbedBuilder embed = new EmbedBuilder();
-            embed.setColor(ColorScheme.ERROR);
-            embed.setDescription("You are not in a VC with the bot!");
-            sendErrorEmbed(embed, context);
+        if (!inVC(context, true)) {
+            return;
         }
+        if (!inSameVC(context, true)) {
+            return;
+        }
+        if (!hasPermissions(context, true)) {
+            return;
+        }
+
+        moveSong(oldPos, newPos, context);
     }
 
-    private void moveSong(int oldPos, int newPos, Guild guild, CommandContext context) {
-        MusicManager musicManager = PlayerManager.getInstance().getMusicManager(guild);
+    private void moveSong(int oldPos, int newPos, CommandContext context) {
+        MusicManager musicManager = PlayerManager.getInstance().getMusicManager(context.getGuild());
         BlockingQueue<AudioTrack> songQueue = musicManager.getScheduler().getSongQueue();
 
         if (songQueue.size() < 2){

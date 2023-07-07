@@ -23,49 +23,17 @@ import static bot.command.music.MusicUtil.*;
 public class PauseSongCommand implements Command {
     @Override
     public void run(CommandContext context, List<String> args) {
-        Member user = context.getMember();
-        Member self = context.getSelfMember();
-        Guild guild = context.getGuild();
-
-        if (!user.getVoiceState().inAudioChannel()){
-            EmbedBuilder embed = new EmbedBuilder();
-            embed.setColor(ColorScheme.ERROR);
-            embed.setDescription("You are not in a voice channel!");
-            embed.setFooter("You need to be in a voice channel in order to use this command!");
-            sendErrorEmbed(embed, context);
+        if (!inVC(context, true)) {
             return;
         }
-
-        if (inSameVC(user, self)) {
-
-            if (!hasPermissions(user) && !isVCEmpty(self)){
-                EmbedBuilder embed = new EmbedBuilder();
-                ServerData data = Bot.getINSTANCE().getGuildData(guild);
-                embed.setDescription("You don't have the permissions to use this command!");
-                embed.setFooter("This command requires the `"+ data.getDJRoleName() +"` (case sensitive) role or a role with the 'Manage Channels' permission to use");
-                sendErrorEmbed(embed, context);
-                return;
-            }
-
-            pauseSong(guild, context);
+        if (!(inSameVC(context, true) && hasPermissions(context, true))) {
             return;
-
-        } else {
-            EmbedBuilder embed = new EmbedBuilder();
-            embed.setColor(ColorScheme.ERROR);
-            embed.setDescription("The musicplayer is currently in a different VC!");
-            embed.setFooter("You need to be in the same VC to use this command!");
-            sendErrorEmbed(embed, context);
         }
-
-        EmbedBuilder embed = new EmbedBuilder();
-        embed.setColor(ColorScheme.ERROR);
-        embed.setDescription("The music player is currently inactive!");
-        sendErrorEmbed(embed, context);
+        pauseSong(context);
     }
 
-    private void pauseSong(Guild guild, CommandContext context) {
-        AudioPlayer audioPlayer = PlayerManager.getInstance().getMusicManager(guild).getAudioPlayer();
+    private void pauseSong(CommandContext context) {
+        AudioPlayer audioPlayer = PlayerManager.getInstance().getMusicManager(context.getGuild()).getAudioPlayer();
         audioPlayer.setPaused(!audioPlayer.isPaused());
 
         EmbedBuilder embed = new EmbedBuilder();

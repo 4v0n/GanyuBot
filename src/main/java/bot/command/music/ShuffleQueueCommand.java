@@ -23,33 +23,23 @@ import static bot.command.music.MusicUtil.*;
 public class ShuffleQueueCommand implements Command {
     @Override
     public void run(CommandContext context, List<String> args) {
-        Member user = context.getMember();
-        Member self = context.getSelfMember();
-        Guild guild = context.getGuild();
-
-        if (inSameVC(user, self)){
-            if (!hasPermissions(user) && !isVCEmpty(user)){
-                ServerData data = Bot.getINSTANCE().getGuildData(guild);
-                EmbedBuilder embed = new EmbedBuilder();
-                embed.setColor(ColorScheme.ERROR);
-                embed.setDescription("You don't have the permissions to use this command!");
-                embed.setFooter("This command requires the `"+ data.getDJRoleName() +"` (case sensitive) role or a role with the `Manage Channels` permission to use.");
-                sendErrorEmbed(embed, context);
-                return;
-            }
-
-            shuffleQueue(guild, context);
-
-        } else {
-            EmbedBuilder embed = new EmbedBuilder();
-            embed.setColor(ColorScheme.ERROR);
-            embed.setDescription("You are not in a VC with the bot!");
-            sendErrorEmbed(embed, context);
+        if (!inVC(context, true)) {
+            return;
         }
+        if (!playerActive(context, true)) {
+            return;
+        }
+        if (!inSameVC(context, true)) {
+            return;
+        }
+        if (!hasPermissions(context, true)) {
+            return;
+        }
+        shuffleQueue(context);
     }
 
-    private void shuffleQueue(Guild guild, CommandContext context) {
-        TrackScheduler scheduler = PlayerManager.getInstance().getMusicManager(guild).getScheduler();
+    private void shuffleQueue(CommandContext context) {
+        TrackScheduler scheduler = PlayerManager.getInstance().getMusicManager(context.getGuild()).getScheduler();
         scheduler.toggleShuffle();
 
         EmbedBuilder embed = new EmbedBuilder();

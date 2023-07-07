@@ -22,21 +22,14 @@ import static bot.command.music.MusicUtil.*;
 public class NowPlayingCommand implements Command {
     @Override
     public void run(CommandContext context, List<String> args) {
-        Member self = context.getSelfMember();
-        Guild guild = context.getGuild();
-
-        if (self.getVoiceState().inAudioChannel()){
-            showNowPlaying(guild, context);
-        } else {
-            EmbedBuilder embed = new EmbedBuilder();
-            embed.setDescription("The music player is currently inactive!");
-            embed.setColor(ColorScheme.ERROR);
-            sendErrorEmbed(embed, context);
+        if (!playerActive(context, true)) {
+            return;
         }
+        showNowPlaying(context);
     }
 
-    private void showNowPlaying(Guild guild, CommandContext context) {
-        MusicManager musicManager = PlayerManager.getInstance().getMusicManager(guild);
+    private void showNowPlaying(CommandContext context) {
+        MusicManager musicManager = PlayerManager.getInstance().getMusicManager(context.getGuild());
         AudioTrack track = musicManager.getAudioPlayer().getPlayingTrack();
 
         if (track == null) {

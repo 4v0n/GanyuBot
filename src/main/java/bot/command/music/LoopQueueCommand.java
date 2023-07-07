@@ -23,32 +23,20 @@ import static bot.command.music.MusicUtil.*;
 public class LoopQueueCommand implements Command {
     @Override
     public void run(CommandContext context, List<String> args) {
-        Member user = context.getMember();
-        Member self = context.getSelfMember();
-        Guild guild = context.getGuild();
-
-        if (inSameVC(user, self)){
-            if (!hasPermissions(user) && !isVCEmpty(user)){
-                ServerData data = Bot.getINSTANCE().getGuildData(guild);
-                EmbedBuilder embed = new EmbedBuilder();
-                embed.setColor(ColorScheme.ERROR);
-                embed.setDescription("You don't have the permissions to use this command!");
-                embed.setFooter("This command requires the `"+ data.getDJRoleName() +"` (case sensitive) role or a role with the `Manage Channels` permission to use.");
-                sendErrorEmbed(embed, context);
-                return;
-            }
-
-            loopQueue(guild, context);
-
-        } else {
-            EmbedBuilder embed = new EmbedBuilder();
-            embed.setColor(ColorScheme.ERROR);
-            embed.setDescription("You are not in a VC with the bot!");
-            sendErrorEmbed(embed, context);
+        if (!inVC(context, true)) {
+            return;
         }
+        if (!inSameVC(context, true)) {
+            return;
+        }
+        if (!hasPermissions(context, true)) {
+            return;
+        }
+        loopQueue(context);
     }
 
-    private void loopQueue(Guild guild, CommandContext context) {
+    private void loopQueue(CommandContext context) {
+        Guild guild = context.getGuild();
         TrackScheduler scheduler = PlayerManager.getInstance().getMusicManager(guild).getScheduler();
         scheduler.toggleLoop();
 

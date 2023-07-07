@@ -22,8 +22,6 @@ public class PlayListCommand implements Command {
     @Override
     public void run(CommandContext context, List<String> args) {
         Event event = context.getEvent();
-        Member user = context.getMember();
-        Member self = context.getSelfMember();
         String link = null;
 
         if (event instanceof MessageReceivedEvent) {
@@ -32,15 +30,6 @@ public class PlayListCommand implements Command {
 
         if (event instanceof SlashCommandInteractionEvent) {
             link = ((SlashCommandInteractionEvent) event).getOption("url").getAsString();
-        }
-
-        if (!user.getVoiceState().inAudioChannel()) {
-            EmbedBuilder embed = new EmbedBuilder();
-            embed.setColor(ColorScheme.ERROR);
-            embed.setDescription("You are not in a voice channel!");
-            embed.setFooter("Join a voice channel before using this command!");
-            sendErrorEmbed(embed, context);
-            return;
         }
 
         if (link == null || link.isBlank() || link.isEmpty()) {
@@ -58,31 +47,26 @@ public class PlayListCommand implements Command {
             sendErrorEmbed(embed, context);
         }
 
-        if (inSameVC(user, self)) {
-            queuePlaylist(context, link, user);
+        if (!playerActive(context, false)) {
+            if (isVCEmpty(context, true)) {
+                joinVoiceChannel(context);
+                queuePlaylist(context, link);
+            }
             return;
         }
-
-        if (isVCEmpty(self)) {
-            joinVoiceChannel(user, self, context);
-            queuePlaylist(context, link, user);
-
-        } else {
-
-            if (!hasPermissions(user)) {
-                EmbedBuilder embed = new EmbedBuilder();
-                embed.setDescription("The bot is already in another VC!");
-                embed.setFooter("Join VC: `" + self.getVoiceState().getChannel().getName() + "` or wait for the users to finish");
-                sendErrorEmbed(embed, context);
-
-            } else {
-                joinVoiceChannel(user, self, context);
-                queuePlaylist(context, link, user);
-            }
+        if (!inVC(context, true)) {
+            return;
         }
+        if (!inSameVC(context, true)) {
+            return;
+        }
+        queuePlaylist(context, link);
     }
 
-    private void joinVoiceChannel(Member user, Member self, CommandContext context) {
+    private void joinVoiceChannel(CommandContext context) {
+        Member user = context.getMember();
+        Member self = context.getSelfMember();
+
         AudioChannel audioChannel = user.getVoiceState().getChannel();
         self.getGuild().getAudioManager().openAudioConnection(audioChannel);
 
@@ -90,11 +74,11 @@ public class PlayListCommand implements Command {
         embed.setDescription("Joining channel: `" + audioChannel.getName() + "`");
         embed.setColor(ColorScheme.RESPONSE);
 
-        context.respondEmbed(embed);
+        context.getMessageChannel().sendMessageEmbeds(embed.build()).queue();
     }
 
-    private void queuePlaylist(CommandContext context, String link, Member user) {
-        PlayerManager.getInstance().loadPlaylist(context, link, user);
+    private void queuePlaylist(CommandContext context, String link) {
+        PlayerManager.getInstance().loadPlaylist(context, link, context.getMember());
     }
 
     @Override

@@ -27,9 +27,6 @@ import static bot.command.music.MusicUtil.*;
 public class SkipToCommand implements Command {
     @Override
     public void run(CommandContext context, List<String> args) {
-        Member user = context.getMember();
-        Member self = context.getSelfMember();
-        Guild guild = context.getGuild();
         int target = 0;
         Event event = context.getEvent();
 
@@ -55,29 +52,23 @@ public class SkipToCommand implements Command {
             target = Integer.parseInt(((SlashCommandInteractionEvent) event).getOption("position").getAsString());
         }
 
-        if (inSameVC(user, self)) {
-            if (hasPermissions(user) || isVCEmpty(self)) {
-                skiptoSong(target, guild, context);
-
-            } else {
-                ServerData data = Bot.getINSTANCE().getGuildData(guild);
-                EmbedBuilder embed = new EmbedBuilder();
-                embed.setColor(ColorScheme.ERROR);
-                embed.setDescription("You don't have the permissions to use this command!");
-                embed.setFooter("This command requires the `" + data.getDJRoleName() + "` (case sensitive) role or a role with the 'Manage Channels' permission to use.");
-                sendErrorEmbed(embed, context);
-            }
-
-        } else {
-            EmbedBuilder embed = new EmbedBuilder();
-            embed.setColor(ColorScheme.ERROR);
-            embed.setDescription("You are not in a VC with the bot!");
-            sendErrorEmbed(embed, context);
+        if (!inVC(context, true)) {
+            return;
         }
+        if (!playerActive(context, true)) {
+            return;
+        }
+        if (!inSameVC(context, true)) {
+            return;
+        }
+        if (!hasPermissions(context, true)) {
+            return;
+        }
+        skiptoSong(target, context);
     }
 
-    private void skiptoSong(int target, Guild guild, CommandContext context) {
-        MusicManager musicManager = PlayerManager.getInstance().getMusicManager(guild);
+    private void skiptoSong(int target, CommandContext context) {
+        MusicManager musicManager = PlayerManager.getInstance().getMusicManager(context.getGuild());
         BlockingQueue<AudioTrack> songQueue = musicManager.getScheduler().getSongQueue();
 
         if (songQueue.size() < target){
@@ -97,11 +88,11 @@ public class SkipToCommand implements Command {
             }
         }
 
-        showNowPlaying(guild, context);
+        showNowPlaying(context);
     }
 
-    private void showNowPlaying(Guild guild, CommandContext context) {
-        MusicManager musicManager = PlayerManager.getInstance().getMusicManager(guild);
+    private void showNowPlaying(CommandContext context) {
+        MusicManager musicManager = PlayerManager.getInstance().getMusicManager(context.getGuild());
         AudioTrack track = musicManager.getAudioPlayer().getPlayingTrack();
 
         if (track == null) {

@@ -21,8 +21,6 @@ import static bot.command.music.MusicUtil.*;
 public class PlaySongCommand implements Command {
     @Override
     public void run(CommandContext context, List<String> args) {
-        Member user = context.getMember();
-        Member self = context.getSelfMember();
         String link = null;
         Event event = context.getEvent();
 
@@ -34,15 +32,6 @@ public class PlaySongCommand implements Command {
             link = ((SlashCommandInteractionEvent) event).getOption("query").getAsString();
         }
 
-        if (!user.getVoiceState().inAudioChannel()) {
-            EmbedBuilder embed = new EmbedBuilder();
-            embed.setColor(ColorScheme.ERROR);
-            embed.setDescription("You are not in a voice channel!");
-            embed.setFooter("Join a voice channel before using this command!");
-            sendErrorEmbed(embed, context);
-            return;
-        }
-
         if (link == null || link.isBlank() || link.isEmpty()){
             EmbedBuilder embed = new EmbedBuilder();
             embed.setColor(ColorScheme.ERROR);
@@ -51,47 +40,38 @@ public class PlaySongCommand implements Command {
             return;
         }
 
-        if (inSameVC(user, self)) {
-            queueSong(context, link, user);
+        if (!playerActive(context, false)) {
+            if (isVCEmpty(context, true)) {
+                joinVoiceChannel(context);
+                queueSong(context, link);
+            }
             return;
         }
-
-        if (isVCEmpty(self)) {
-            joinVoiceChannel(user, self, context);
-            queueSong(context,link, user);
-
-        } else {
-
-            if (!hasPermissions(user)){
-                EmbedBuilder embed = new EmbedBuilder();
-                embed.setDescription("The bot is already in another VC!");
-                embed.setFooter("Join VC: `" + self.getVoiceState().getChannel().getName() + "` or wait for the users to finish");
-                sendErrorEmbed(embed, context);
-
-            } else {
-                joinVoiceChannel(user, self, context);
-                queueSong(context,link, user);
-            }
+        if (!inVC(context, true)) {
+            return;
         }
+        if (!inSameVC(context, true)) {
+            return;
+        }
+        queueSong(context, link);
     }
 
-    private void queueSong(CommandContext context, String link, Member user) {
+    private void queueSong(CommandContext context, String link) {
         if (!isURL(link)){
             link = link = "ytsearch:" + link + "audio";
         }
-
-        PlayerManager.getInstance().loadAndPlay(context, link, user);
+        PlayerManager.getInstance().loadAndPlay(context, link, context.getMember());
     }
 
-    private void joinVoiceChannel(Member user, Member self, CommandContext context) {
-        AudioChannel audioChannel = user.getVoiceState().getChannel();
-        self.getGuild().getAudioManager().openAudioConnection(audioChannel);
+    private void joinVoiceChannel(CommandContext context) {
+        AudioChannel audioChannel = context.getMember().getVoiceState().getChannel();
+        context.getSelfMember().getGuild().getAudioManager().openAudioConnection(audioChannel);
 
         EmbedBuilder embed = new EmbedBuilder();
         embed.setDescription("Joining channel: `" + audioChannel.getName() + "`" );
         embed.setColor(ColorScheme.RESPONSE);
 
-        context.respondEmbed(embed);
+        context.getMessageChannel().sendMessageEmbeds(embed.build()).queue();
     }
 
 
