@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.events.guild.voice.GenericGuildVoiceEvent;
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,7 +33,7 @@ public class AutoLeaveVC extends ListenerAdapter {
      * @param event
      */
     @Override
-    public void onGenericGuildVoice(@NotNull GenericGuildVoiceEvent event) {
+    public void onGuildVoiceUpdate(@NotNull GuildVoiceUpdateEvent event) {
         if (inVC(event)) {
             Bot bot = Bot.getINSTANCE();
 
