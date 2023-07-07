@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
  * @author Aron Navodh Kumarawatta
  * @version 15.05.2022
  */
-public interface IReactionAction {
+public interface ReactionAction {
     /**
      * What the command does
      *

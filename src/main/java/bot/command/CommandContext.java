@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 
@@ -42,6 +43,16 @@ public class CommandContext {
         this.messageChannel = event.getChannel().asGuildMessageChannel();
         this.selfMember = event.getGuild().getSelfMember();
         this.author = event.getAuthor();
+        this.responded = false;
+    }
+
+    public CommandContext(ButtonInteractionEvent event) {
+        this.event = event;
+        this.guild = event.getGuild();
+        this.member = event.getMember();
+        this.messageChannel = event.getMessageChannel();
+        this.selfMember = event.getGuild().getSelfMember();
+        this.author = event.getUser();
         this.responded = false;
     }
 

@@ -53,13 +53,13 @@ public class MusicParser extends CommandHandler {
         addCommand(new LoopSongCommand());
         addCommand(new SeekThroughCommand());
 
-
+        addCommand(new ListCommand());
 
         addHelpMessage("Note that these commands can be directly accessed using `[prefix]m [command]`");
     }
 
     @Override
     protected void buildChildrenCommandHandlers() {
-
+        addHandler(new PlaylistParser(this, "list"));
     }
 }

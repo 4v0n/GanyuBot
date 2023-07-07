@@ -15,21 +15,20 @@ import java.util.Objects;
  * @author Aron Navodh Kumarawatta
  * @version 28.03.2023
  */
-public class Reaction extends ListenerAdapter {
-    private static Reaction INSTANCE;
+public class ReactionListener extends ListenerAdapter {
+    private static ReactionListener INSTANCE;
 
     //messageid || parser
     private final HashMap<String, ReactionCommandCenter> controllers;
 
-    public Reaction() {
+    private ReactionListener() {
         controllers = new HashMap<>();
     }
 
-    public static Reaction getINSTANCE() {
+    public static ReactionListener getINSTANCE() {
         if (INSTANCE == null) {
-            INSTANCE = new Reaction();
+            INSTANCE = new ReactionListener();
         }
-
         return INSTANCE;
     }
 
