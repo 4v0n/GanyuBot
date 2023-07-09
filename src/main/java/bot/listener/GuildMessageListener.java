@@ -19,11 +19,11 @@ import java.util.Scanner;
  * @author Aron Navodh Kumarawatta
  * @version 09.06.2022
  */
-public class GuildMessage extends ListenerAdapter {
+public class GuildMessageListener extends ListenerAdapter {
     private final Bot bot;
     private final BaseCommandHandler commandHandler;
 
-    public GuildMessage() {
+    public GuildMessageListener() {
         this.bot = Bot.getINSTANCE();
         this.commandHandler = BaseCommandHandler.getINSTANCE();
     }

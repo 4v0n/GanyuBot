@@ -1,6 +1,6 @@
 package bot.command.reaction;
 
-import bot.listener.Reaction;
+import bot.listener.ReactionListener;
 import net.dv8tion.jda.api.entities.Message;
 
 import java.util.concurrent.TimeUnit;
@@ -29,8 +29,8 @@ public abstract class ReactionCommandHandler {
     }
 
     public void activate(int activeTimeInMins) {
-        Reaction reactionParser = Reaction.getINSTANCE();
-        reactionParser.addCommandCenter(commandCenter);
+        ReactionListener reactionListener = ReactionListener.getINSTANCE();
+        reactionListener.addCommandCenter(commandCenter);
         buildCommands();
 
         Thread waitThread = new Thread(() -> {
@@ -46,8 +46,8 @@ public abstract class ReactionCommandHandler {
     }
 
     public void deactivate() {
-        Reaction reactionParser = Reaction.getINSTANCE();
-        reactionParser.removeCommandCenter(commandCenter);
+        ReactionListener reactionListener = ReactionListener.getINSTANCE();
+        reactionListener.removeCommandCenter(commandCenter);
         getController().clearReactions().queue();
     }
 }

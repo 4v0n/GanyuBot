@@ -6,7 +6,6 @@ import bot.listener.*;
 import com.mongodb.*;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoDatabase;
 import dev.morphia.Datastore;
 import dev.morphia.Morphia;
 import net.dv8tion.jda.api.JDABuilder;
@@ -14,10 +13,6 @@ import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-import org.bson.BsonDocument;
-import org.bson.BsonInt64;
-import org.bson.Document;
-import org.bson.conversions.Bson;
 
 import java.io.*;
 import java.util.HashMap;
@@ -48,7 +43,8 @@ public class Main {
         botData.setToken(settings.get("TOKEN"));
         botData.setPrefix(settings.get("PREFIX"));
 
-        Reaction reactionParser = Reaction.getINSTANCE();
+        ReactionListener reactionListener = ReactionListener.getINSTANCE();
+        ButtonInteractionListener buttonInteractionListener = ButtonInteractionListener.getINSTANCE();
 
         JDABuilder jda = JDABuilder.create(botData.getToken(),
                 GatewayIntent.getIntents(GatewayIntent.ALL_INTENTS)
@@ -57,11 +53,14 @@ public class Main {
 
 
         jda.setStatus(OnlineStatus.ONLINE);
-        jda.addEventListeners(new GuildMessage());
-        jda.addEventListeners(reactionParser);
+
+        jda.addEventListeners(new GuildMessageListener());
+        jda.addEventListeners(reactionListener);
+        jda.addEventListeners(buttonInteractionListener);
         jda.addEventListeners(new AutoLeaveVC());
-        jda.addEventListeners(new SlashCommand());
-        jda.addEventListeners(new GuildJoin());
+        jda.addEventListeners(new SlashCommandListener());
+        jda.addEventListeners(new GuildJoinListener());
+
         jda.setActivity(Activity.playing("(" + botData.getGlobalPrefix() + ") " + settings.get("STATUS")));
 
         ServerApi serverApi = ServerApi.builder()

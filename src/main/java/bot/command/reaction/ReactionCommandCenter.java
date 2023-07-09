@@ -16,7 +16,7 @@ import java.util.HashMap;
  */
 public class ReactionCommandCenter {
 
-    private final HashMap<String, IReactionAction> commandList;
+    private final HashMap<String, ReactionAction> commandList;
     private final Message controller;
 
     public ReactionCommandCenter(Message controller) {
@@ -24,7 +24,7 @@ public class ReactionCommandCenter {
         this.controller = controller;
     }
 
-    public void addCommand(String unicode, IReactionAction action) {
+    public void addCommand(String unicode, ReactionAction action) {
         if (commandList.containsKey(unicode)) {
             throw new CommandExistsException(unicode);
         }
@@ -41,7 +41,7 @@ public class ReactionCommandCenter {
             }
         }
 
-        IReactionAction reactionAction = commandList.get(event.getReaction().getEmoji().getAsReactionCode());
+        ReactionAction reactionAction = commandList.get(event.getReaction().getEmoji().getAsReactionCode());
 
         if (reactionAction != null) {
             reactionAction.run(event);
