@@ -1,4 +1,4 @@
-package bot.command.Button;
+package bot.command.button;
 
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 

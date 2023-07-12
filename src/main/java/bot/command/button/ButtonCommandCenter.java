@@ -1,4 +1,4 @@
-package bot.command.Button;
+package bot.command.button;
 
 import bot.command.CommandExistsException;
 import net.dv8tion.jda.api.entities.Message;
