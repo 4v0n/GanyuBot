@@ -1,6 +1,6 @@
 package bot.listener;
 
-import bot.command.reaction.ReactionCommandCenter;
+import bot.command.interaction.reaction.ReactionCommandCenter;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;

@@ -1,7 +1,7 @@
 package bot.util.message;
 
 import bot.command.CommandContext;
-import bot.command.reaction.ReactionCommandHandler;
+import bot.command.interaction.reaction.ReactionCommandHandler;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;

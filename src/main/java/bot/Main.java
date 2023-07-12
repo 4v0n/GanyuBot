@@ -1,9 +1,13 @@
 package bot;
 
 import bot.feature.music.AutoLeaveVC;
+import bot.feature.music.spotify.SpotifyManager;
 import bot.feature.root.BaseCommandHandler;
 import bot.listener.*;
-import com.mongodb.*;
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
+import com.mongodb.ServerApi;
+import com.mongodb.ServerApiVersion;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import dev.morphia.Datastore;
@@ -21,7 +25,7 @@ import java.util.Map;
 
 /**
  * @author Aron Navodh Kumarawatta
- * @version 28.03.2023
+ * @version 12.07.2023
  */
 public class Main {
     private static HashMap<String, String> settings;
@@ -89,6 +93,8 @@ public class Main {
             return;
         }
 
+        SpotifyManager instance = SpotifyManager.getINSTANCE();
+        instance.setup(settings);
 
         System.out.println("Bot started");
 
@@ -130,6 +136,9 @@ public class Main {
             settings.put("PREFIX", null);
             settings.put("STATUS", null);
             settings.put("DB_URI", null);
+            settings.put("SPOTIFY_CLIENT_ID", null);
+            settings.put("SPOTIFY_CLIENT_SECRET", null);
+            settings.put("REDIRECT_URL", null);
 
             File configFileName = new File("config.cfg");
 

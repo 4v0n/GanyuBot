@@ -1,4 +1,4 @@
-package bot.command.reaction;
+package bot.command.interaction.reaction;
 
 import bot.command.CommandExistsException;
 import net.dv8tion.jda.api.entities.Message;

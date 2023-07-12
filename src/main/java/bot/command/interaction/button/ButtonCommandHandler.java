@@ -1,4 +1,4 @@
-package bot.command.button;
+package bot.command.interaction.button;
 
 import bot.listener.ButtonInteractionListener;
 import net.dv8tion.jda.api.entities.Guild;

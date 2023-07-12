@@ -1,4 +1,4 @@
-package bot.command.reaction;
+package bot.command.interaction.reaction;
 
 import bot.listener.ReactionListener;
 import net.dv8tion.jda.api.entities.Message;

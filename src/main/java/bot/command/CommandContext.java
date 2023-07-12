@@ -1,6 +1,6 @@
 package bot.command;
 
-import bot.command.button.ButtonCommandHandler;
+import bot.command.interaction.button.ButtonCommandHandler;
 import bot.util.ColorScheme;
 import bot.util.message.MultiPageEmbed;
 import net.dv8tion.jda.api.EmbedBuilder;

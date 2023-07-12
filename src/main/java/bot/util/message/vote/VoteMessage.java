@@ -1,6 +1,6 @@
 package bot.util.message.vote;
 
-import bot.command.reaction.ReactionCommandHandler;
+import bot.command.interaction.reaction.ReactionCommandHandler;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;

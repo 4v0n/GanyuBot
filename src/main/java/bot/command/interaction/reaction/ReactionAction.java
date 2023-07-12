@@ -1,4 +1,4 @@
-package bot.command.reaction;
+package bot.command.interaction.reaction;
 
 import net.dv8tion.jda.api.events.message.react.GenericMessageReactionEvent;
 

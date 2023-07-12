@@ -1,6 +1,6 @@
 package bot.listener;
 
-import bot.command.button.ButtonCommandCenter;
+import bot.command.interaction.button.ButtonCommandCenter;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
