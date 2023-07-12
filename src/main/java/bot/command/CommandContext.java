@@ -1,5 +1,7 @@
 package bot.command;
 
+import bot.command.Button.ButtonCommandHandler;
+import bot.util.ColorScheme;
 import bot.util.message.MultiPageEmbed;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -10,7 +12,6 @@ import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.requests.restaction.interactions.ReplyCallbackAction;
 
 public class CommandContext {
 
@@ -82,6 +83,10 @@ public class CommandContext {
 
     public void setResponded() {
         this.responded = true;
+        if (event instanceof SlashCommandInteractionEvent) {
+            SlashCommandInteractionEvent sEvent = (SlashCommandInteractionEvent) event;
+            sEvent.getHook().sendMessage("✅").queue();
+        }
     }
 
     public boolean isResponded() {
@@ -126,5 +131,71 @@ public class CommandContext {
         }
 
         mpe.respond(this);
+    }
+
+    public void sendMessageButtons(String message, ButtonCommandHandler bch) {
+        messageChannel.sendMessage("⚙️Building buttons...").queue(msg -> {
+            bch.setController(msg);
+            bch.buildCommands();
+            msg.editMessage(message).setActionRow(bch.getButtons()).queue();
+            bch.activate(1);
+        });
+    }
+
+    public void respondMessageButtons(String message, ButtonCommandHandler bch) {
+        if (responded) {
+            throw new RuntimeException("Command responded to multiple times");
+        }
+
+        responded = true;
+        if (event instanceof SlashCommandInteractionEvent) {
+            SlashCommandInteractionEvent sEvent = (SlashCommandInteractionEvent) event;
+            sEvent.getHook().sendMessage("⚙️Building buttons...").queue(msg -> {
+                bch.setController(msg);
+                bch.buildCommands();
+                msg.editMessage(message).setActionRow(bch.getButtons()).queue();
+                bch.activate(1);
+            });
+            return;
+        }
+        sendMessageButtons(message, bch);
+    }
+
+    public void sendEmbedButtons(EmbedBuilder embed, ButtonCommandHandler bch) {
+        EmbedBuilder tempEmbed = new EmbedBuilder();
+        tempEmbed.setColor(ColorScheme.INFO);
+        tempEmbed.setTitle("Doing Things!");
+        tempEmbed.setDescription("⚙️Building buttons...");
+
+        messageChannel.sendMessageEmbeds(tempEmbed.build()).queue(msg -> {
+            bch.setController(msg);
+            bch.buildCommands();
+            msg.editMessageEmbeds(embed.build()).setActionRow(bch.getButtons()).queue();
+            bch.activate(1);
+        });
+    }
+
+    public void respondEmbedButtons(EmbedBuilder embed, ButtonCommandHandler bch) {
+        if (responded) {
+            throw new RuntimeException("Command responded to multiple times");
+        }
+
+        EmbedBuilder tempEmbed = new EmbedBuilder();
+        tempEmbed.setColor(ColorScheme.INFO);
+        tempEmbed.setTitle("Doing Things!");
+        tempEmbed.setDescription("⚙️Building buttons...");
+
+        responded = true;
+        if (event instanceof SlashCommandInteractionEvent) {
+            SlashCommandInteractionEvent sEvent = (SlashCommandInteractionEvent) event;
+            sEvent.getHook().sendMessageEmbeds(tempEmbed.build()).queue(msg -> {
+                bch.setController(msg);
+                bch.buildCommands();
+                msg.editMessageEmbeds(embed.build()).setActionRow(bch.getButtons()).queue();
+                bch.activate(1);
+            });
+            return;
+        }
+        sendEmbedButtons(embed, bch);
     }
 }

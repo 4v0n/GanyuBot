@@ -21,7 +21,7 @@ public class ReactionListener extends ListenerAdapter {
     //messageid || parser
     private final HashMap<String, ReactionCommandCenter> controllers;
 
-    private ReactionListener() {
+    public ReactionListener() {
         controllers = new HashMap<>();
     }
 
@@ -29,6 +29,7 @@ public class ReactionListener extends ListenerAdapter {
         if (INSTANCE == null) {
             INSTANCE = new ReactionListener();
         }
+
         return INSTANCE;
     }
 

@@ -44,6 +44,7 @@ public class Main {
         botData.setPrefix(settings.get("PREFIX"));
 
         ReactionListener reactionListener = ReactionListener.getINSTANCE();
+        ButtonInteractionListener buttonInteractionListener = ButtonInteractionListener.getINSTANCE();
 
         JDABuilder jda = JDABuilder.create(botData.getToken(),
                 GatewayIntent.getIntents(GatewayIntent.ALL_INTENTS)
@@ -52,11 +53,14 @@ public class Main {
 
 
         jda.setStatus(OnlineStatus.ONLINE);
+
         jda.addEventListeners(new GuildMessageListener());
         jda.addEventListeners(reactionListener);
+        jda.addEventListeners(buttonInteractionListener);
         jda.addEventListeners(new AutoLeaveVC());
         jda.addEventListeners(new SlashCommandListener());
         jda.addEventListeners(new GuildJoinListener());
+
         jda.setActivity(Activity.playing("(" + botData.getGlobalPrefix() + ") " + settings.get("STATUS")));
 
         ServerApi serverApi = ServerApi.builder()
