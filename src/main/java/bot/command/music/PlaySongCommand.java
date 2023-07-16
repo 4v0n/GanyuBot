@@ -2,7 +2,9 @@ package bot.command.music;
 
 import bot.command.Command;
 import bot.command.CommandContext;
+import bot.db.music.DiscoveredVidId;
 import bot.feature.music.lavaplayer.PlayerManager;
+import bot.feature.music.spotify.SpotifyManager;
 import bot.util.ColorScheme;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
@@ -12,7 +14,11 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
+import se.michaelthelin.spotify.model_objects.specification.ArtistSimplified;
+import se.michaelthelin.spotify.model_objects.specification.Track;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 import static bot.command.music.MusicUtil.*;
@@ -57,9 +63,51 @@ public class PlaySongCommand implements Command {
 
     private void queueSong(CommandContext context, String link) {
         if (!isURL(link)){
-            link = link = "ytsearch:" + link + "audio";
+            link = "ytsearch:" + link + "audio";
+        } else {
+            URI uri = null;
+            try {
+                uri = new URI(link);
+            } catch (URISyntaxException ignored) {
+                // will always be ignored due to guard clause
+            }
+
+            if (uri.getAuthority().equals("open.spotify.com")) {
+                queueSpotifySong(context, link, uri);
+                return;
+            }
         }
         PlayerManager.getInstance().loadAndPlay(context, link, context.getMember());
+    }
+
+    private void queueSpotifySong(CommandContext context, String link, URI uri) {
+        EmbedBuilder warning = new EmbedBuilder();
+        warning.setAuthor("Queuing playlist");
+        warning.setDescription("Songs found from spotify links may not be accurate or may not even be found!");
+        warning.setFooter("This process may take a while.\nSongs queued during the process will be added in the middle of the playlist.");
+        warning.setColor(ColorScheme.INFO);
+        context.getMessageChannel().sendMessageEmbeds(warning.build()).queue();
+
+        Track track = SpotifyManager.getINSTANCE().getSong(link);
+        String ytId = DiscoveredVidId.getYoutubeIdFromSpotifyId(track.getId());
+        String query;
+
+        if (ytId != null) {
+            query = "https://youtu.be/" + ytId;
+        } else {
+            query = ("ytsearch:" + buildArtistString(track.getArtists()) + "- " + track.getName());
+        }
+
+        PlayerManager.getInstance().loadAndPlay(context, query, context.getMember());
+    }
+
+    private String buildArtistString(ArtistSimplified[] artists) {
+        StringBuilder sb = new StringBuilder();
+        for (ArtistSimplified artist : artists) {
+            sb.append(artist.getName());
+            sb.append(" ");
+        }
+        return sb.toString();
     }
 
     private void joinVoiceChannel(CommandContext context) {
