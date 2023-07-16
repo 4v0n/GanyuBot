@@ -1,17 +1,17 @@
 package bot.feature.music;
 
 import bot.command.CommandHandler;
-import bot.command.music.playlist.SaveToPlaylistCommand;
+import bot.command.music.admin.MatchSongCommand;
 
-public class PlaylistParser extends CommandHandler {
+public class MusicAdminParser extends CommandHandler {
 
-    public PlaylistParser(CommandHandler parent, String accessCommand) {
+    protected MusicAdminParser(CommandHandler parent, String accessCommand) {
         super(parent, accessCommand);
     }
 
     @Override
     protected void buildCommands() {
-        addCommand(new SaveToPlaylistCommand());
+        addCommand(new MatchSongCommand());
     }
 
     @Override

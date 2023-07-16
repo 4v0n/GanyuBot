@@ -2,6 +2,7 @@ package bot.feature.music;
 
 import bot.command.music.*;
 import bot.command.CommandHandler;
+import bot.command.music.AdminCommand;
 
 /**
  * This handles music bot commands
@@ -54,6 +55,7 @@ public class MusicParser extends CommandHandler {
         addCommand(new SeekThroughCommand());
 
         addCommand(new ListCommand());
+        addCommand(new AdminCommand());
 
         addHelpMessage("Note that these commands can be directly accessed using `[prefix]m [command]`");
     }
@@ -61,5 +63,6 @@ public class MusicParser extends CommandHandler {
     @Override
     protected void buildChildrenCommandHandlers() {
         addHandler(new PlaylistParser(this, "list"));
+        addHandler(new MusicAdminParser(this, "admin"));
     }
 }

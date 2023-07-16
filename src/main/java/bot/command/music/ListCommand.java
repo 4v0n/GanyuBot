@@ -27,7 +27,7 @@ public class ListCommand implements Command {
 
     @Override
     public @NotNull String getDescription() {
-        return "Music bot commands. use `[prefix] mp l help` for more info. These commands can be directly accessed by using `[prefix]m l ...`";
+        return "Music bot list commands. use `[prefix] mp l help` for more info. These commands can be directly accessed by using `[prefix]m l ...`";
     }
 
     @Override

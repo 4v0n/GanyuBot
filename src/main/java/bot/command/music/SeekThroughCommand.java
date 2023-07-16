@@ -140,7 +140,7 @@ public class SeekThroughCommand implements Command {
         CommandDataImpl commandData = new CommandDataImpl(getCommandWord(),"Allows you to seek backwards or forwards by a certain amount");
 
         OptionData optionData = new OptionData(OptionType.INTEGER, "amount",
-                "Amount of time in seconds to seek by (-/+)").setMinValue(Integer.MIN_VALUE).setMaxValue(Integer.MAX_VALUE);
+                "Amount of time in seconds to seek by (-/+)", true).setMinValue(Integer.MIN_VALUE).setMaxValue(Integer.MAX_VALUE);
 
         commandData.addOptions(optionData);
 
