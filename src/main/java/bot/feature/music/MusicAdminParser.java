@@ -2,6 +2,7 @@ package bot.feature.music;
 
 import bot.command.CommandHandler;
 import bot.command.music.admin.MatchSongCommand;
+import bot.command.music.admin.ResetMatchCommand;
 
 public class MusicAdminParser extends CommandHandler {
 
@@ -12,6 +13,7 @@ public class MusicAdminParser extends CommandHandler {
     @Override
     protected void buildCommands() {
         addCommand(new MatchSongCommand());
+        addCommand(new ResetMatchCommand());
     }
 
     @Override

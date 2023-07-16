@@ -73,18 +73,17 @@ public class PlaySongCommand implements Command {
             }
 
             if (uri.getAuthority().equals("open.spotify.com")) {
-                queueSpotifySong(context, link, uri);
+                queueSpotifySong(context, link);
                 return;
             }
         }
         PlayerManager.getInstance().loadAndPlay(context, link, context.getMember());
     }
 
-    private void queueSpotifySong(CommandContext context, String link, URI uri) {
+    private void queueSpotifySong(CommandContext context, String link) {
         EmbedBuilder warning = new EmbedBuilder();
-        warning.setAuthor("Queuing playlist");
+        warning.setAuthor("Queuing song");
         warning.setDescription("Songs found from spotify links may not be accurate or may not even be found!");
-        warning.setFooter("This process may take a while.\nSongs queued during the process will be added in the middle of the playlist.");
         warning.setColor(ColorScheme.INFO);
         context.getMessageChannel().sendMessageEmbeds(warning.build()).queue();
 

@@ -27,6 +27,13 @@ public class DiscoveredVidId {
         return spotifyId.getYoutubeId();
     }
 
+    public static DiscoveredVidId getFromSpotifyId(String spotifyID) {
+        Datastore datastore = Bot.getINSTANCE().getDatastore();
+        return datastore.find(DiscoveredVidId.class)
+                .filter(Filters.eq("spotifyId", spotifyID))
+                .iterator().tryNext();
+    }
+
     public DiscoveredVidId() {}
 
     public DiscoveredVidId(String spotifyID, String youtubeID, String title) {
