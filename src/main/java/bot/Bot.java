@@ -8,7 +8,6 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 
@@ -25,7 +24,6 @@ public class Bot {
     private static Bot INSTANCE;
     private String token;
     private String prefix;
-    private final ArrayList<String> admins;
     // userID+channelID activity
     private final HashMap<String, Activity> activities;
     private Datastore datastore;
@@ -36,7 +34,6 @@ public class Bot {
      */
     private Bot() {
         this.activities = new HashMap<>();
-        this.admins = new ArrayList<>();
     }
 
     public static Bot getINSTANCE() {
@@ -46,14 +43,6 @@ public class Bot {
         }
 
         return INSTANCE;
-    }
-
-    public void addAdmin(String userID) {
-        admins.add(userID);
-    }
-
-    public ArrayList<String> getAdmins() {
-        return admins;
     }
 
     /**

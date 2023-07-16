@@ -10,8 +10,8 @@ import dev.morphia.query.filters.Filters;
 public class DiscoveredVidId {
 
     @Id
-    String spotifyId;
-    String youtubeId;
+    private String spotifyId;
+    private String youtubeId;
     private String title;
 
     public static String getYoutubeIdFromSpotifyId(String spotifyID) {

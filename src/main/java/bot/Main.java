@@ -1,5 +1,6 @@
 package bot;
 
+import bot.db.Admin;
 import bot.feature.music.AutoLeaveVC;
 import bot.feature.music.spotify.SpotifyManager;
 import bot.feature.root.BaseCommandHandler;
@@ -98,6 +99,8 @@ public class Main {
 
         System.out.println("Bot started");
 
+        setupAdmins(settings);
+
         for (Guild guild : Bot.getJDA().getGuilds()){
             BaseCommandHandler.getINSTANCE().upsertCommands(guild);
         }
@@ -107,6 +110,13 @@ public class Main {
             mongoClient.close();
             Bot.getJDA().shutdown();
         }));
+    }
+
+    private static void setupAdmins(HashMap<String, String> settings) {
+        if (!Admin.isAdmin(settings.get("OWNER_ID"))) {
+            Admin admin = new Admin(settings.get("OWNER_ID"));
+            Bot.getINSTANCE().getDatastore().save(admin);
+        }
     }
 
     /**
@@ -129,7 +139,7 @@ public class Main {
 
             return true;
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.out.println("Config file missing/empty , please fill in the config file config file.");
             System.out.println("Please fill in the config file.");
             settings.put("TOKEN", null);
@@ -139,6 +149,7 @@ public class Main {
             settings.put("SPOTIFY_CLIENT_ID", null);
             settings.put("SPOTIFY_CLIENT_SECRET", null);
             settings.put("REDIRECT_URL", null);
+            settings.put("OWNER_ID", null);
 
             File configFileName = new File("config.cfg");
 
