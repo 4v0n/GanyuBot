@@ -20,6 +20,8 @@ import se.michaelthelin.spotify.model_objects.specification.Track;
 
 import java.net.URL;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static bot.command.music.MusicUtil.isURL;
 import static bot.command.music.MusicUtil.sendErrorEmbed;
@@ -91,10 +93,11 @@ public class MatchSongCommand implements Command {
 
     private String extractYoutubeIdIdNeeded(String youtubeId) {
         if (isURL(youtubeId)) {
-            try {
-                URL url = new URL(youtubeId);
-                return url.getQuery().substring(2, 13);
-            } catch (Exception ignored) {
+            String pattern = "(?<=youtu.be/|watch\\?v=|/videos/|embed\\/)[^#\\&\\?]*";
+            Pattern compiledPattern = Pattern.compile(pattern);
+            Matcher matcher = compiledPattern.matcher(youtubeId);
+            if(matcher.find()){
+                return matcher.group();
             }
         }
         return youtubeId;
@@ -133,7 +136,7 @@ public class MatchSongCommand implements Command {
     @Override
     public @NotNull String getDescription() {
         return "Matches a spotify songId to a youtube songId. " +
-                "Usage: `[prefix] mp a match [SpotifyId] [YoutubeId]`";
+                "Usage: `[prefix] mp a match [SpotifyId/link] [YoutubeId/link]`";
     }
 
     @Override
@@ -143,14 +146,14 @@ public class MatchSongCommand implements Command {
         OptionData spotifyField = new OptionData(
                 OptionType.STRING,
                 "spotifyid",
-                "The song ID on spotify",
+                "The song ID on spotify or link",
                 true
         );
 
         OptionData youtubeField = new OptionData(
                 OptionType.STRING,
                 "youtubeid",
-                "The song ID on youtube",
+                "The song ID on youtube or link",
                 true
         );
 
