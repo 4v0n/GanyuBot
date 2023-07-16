@@ -73,6 +73,6 @@ public class SkipSongCommand implements Command {
 
     @Override
     public String[] getSynonyms() {
-        return new String[0];
+        return new String[]{"s"};
     }
 }

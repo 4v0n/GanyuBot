@@ -142,6 +142,6 @@ public class SkipToCommand implements Command {
 
     @Override
     public String[] getSynonyms() {
-        return new String[0];
+        return new String[]{"st"};
     }
 }

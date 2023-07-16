@@ -6,7 +6,6 @@ import bot.util.message.Help;
 import bot.util.message.MultiPageEmbed;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
-import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
@@ -107,7 +106,7 @@ import java.util.Scanner;
 
                     @Override
                     public String[] getSynonyms() {
-                        return new String[0];
+                        return new String[]{"aliases"};
                     }
                 });
     }

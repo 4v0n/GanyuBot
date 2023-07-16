@@ -9,11 +9,7 @@ import bot.util.message.MultiPageEmbed;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,7 +23,7 @@ public class ShowQueueCommand implements Command {
 
     @Override
     public void run(CommandContext context, List<String> args) {
-        if (!playerActive(context, true)) {
+        if (playerActive(context, true)) {
             showSongQueue(context);
         }
     }

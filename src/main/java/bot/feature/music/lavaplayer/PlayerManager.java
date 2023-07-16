@@ -20,6 +20,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import static bot.command.music.MusicUtil.*;
 
@@ -51,6 +52,10 @@ public class PlayerManager {
             guild.getAudioManager().setSendingHandler(musicManager.getSentHandler());
             return musicManager;
         });
+    }
+
+    public void removeMusicManager(Guild guild) {
+        musicManagers.remove(guild);
     }
 
     public void loadAndPlay(CommandContext context, String url, Member member) {
@@ -178,6 +183,58 @@ public class PlayerManager {
                 sendErrorEmbed(embed, context);
             }
         });
+    }
+
+    public AudioTrack silentLoad(CommandContext context, String url, Member member) {
+        Event event = context.getEvent();
+        MusicManager musicManager = null;
+        AudioTrack[] foundTrack = {null};
+
+        if (event instanceof MessageReceivedEvent){
+            musicManager = this.getMusicManager(((MessageReceivedEvent) event).getGuild());
+        }
+
+        if (event instanceof SlashCommandInteractionEvent){
+            musicManager = this.getMusicManager(((SlashCommandInteractionEvent) event).getGuild());
+        }
+
+
+
+        MusicManager finalMusicManager = musicManager;
+        try {
+            this.audioPlayerManager.loadItemOrdered(finalMusicManager, url, new AudioLoadResultHandler() {
+                @Override
+                public void trackLoaded(AudioTrack audioTrack) {
+                    audioTrack.setUserData(member);
+                    finalMusicManager.getScheduler().queue(audioTrack);
+                    foundTrack[0] = audioTrack;
+                }
+
+                @Override
+                public void playlistLoaded(AudioPlaylist audioPlaylist) {
+                    AudioTrack selectedTrack = audioPlaylist.getSelectedTrack();
+                    if (selectedTrack == null){
+                        selectedTrack = audioPlaylist.getTracks().get(0);
+                    }
+                    selectedTrack.setUserData(member);
+                    finalMusicManager.getScheduler().queue(selectedTrack);
+                    foundTrack[0] = selectedTrack;
+                }
+
+                @Override
+                public void noMatches() {
+                }
+
+                @Override
+                public void loadFailed(FriendlyException e) {
+                    e.printStackTrace();
+                }
+            }).get();
+        } catch (InterruptedException | ExecutionException e) {
+            return null;
+        }
+
+        return foundTrack[0];
     }
 
     public void reQueue(Guild guild, String url, Member member) {
