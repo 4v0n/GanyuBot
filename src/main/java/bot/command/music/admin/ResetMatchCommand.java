@@ -6,9 +6,7 @@ import bot.command.CommandContext;
 import bot.db.music.DiscoveredVidId;
 import bot.feature.music.spotify.SpotifyManager;
 import bot.util.ColorScheme;
-import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
-import com.sedmelluq.discord.lavaplayer.track.AudioItem;
-import com.sedmelluq.discord.lavaplayer.track.AudioReference;
+import dev.morphia.Datastore;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -20,21 +18,16 @@ import se.michaelthelin.spotify.model_objects.specification.Track;
 
 import java.net.URL;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static bot.command.music.MusicUtil.isURL;
 import static bot.command.music.MusicUtil.sendErrorEmbed;
 
-public class MatchSongCommand implements Command {
-
+public class ResetMatchCommand implements Command {
     @Override
     public void run(CommandContext context, List<String> args) {
         String spotifyId;
-        String youtubeId;
-
         if (context.getEvent() instanceof MessageReceivedEvent) {
-            if (args.size() < 2) {
+            if (args.size() < 1) {
                 EmbedBuilder embed = new EmbedBuilder();
                 embed.setColor(ColorScheme.ERROR);
                 embed.setDescription("You have missed out on some/all of the required fields!");
@@ -43,11 +36,9 @@ public class MatchSongCommand implements Command {
             }
 
             spotifyId = args.get(0);
-            youtubeId = args.get(1);
         } else if (context.getEvent() instanceof SlashCommandInteractionEvent) {
             SlashCommandInteractionEvent event = (SlashCommandInteractionEvent) context.getEvent();
             spotifyId = event.getOption("spotifyid").getAsString();
-            youtubeId = event.getOption("youtubeid").getAsString();
 
         } else {
             EmbedBuilder embed = new EmbedBuilder();
@@ -59,8 +50,6 @@ public class MatchSongCommand implements Command {
         }
 
         spotifyId = extractSpotifyIdIfNeeded(spotifyId);
-        youtubeId = extractYoutubeIdIdNeeded(youtubeId);
-
         if (!isSpotifyId(spotifyId)) {
             EmbedBuilder embed = new EmbedBuilder();
             embed.setColor(ColorScheme.ERROR);
@@ -68,16 +57,20 @@ public class MatchSongCommand implements Command {
             sendErrorEmbed(embed, context);
             return;
         }
+        resetSong(context, spotifyId);
+    }
 
-        if (!isYoutubeId(youtubeId)) {
-            EmbedBuilder embed = new EmbedBuilder();
-            embed.setColor(ColorScheme.ERROR);
-            embed.setDescription("The youtube ID provided is invalid!");
-            sendErrorEmbed(embed, context);
-            return;
+    private void resetSong(CommandContext context, String spotifyId) {
+        Datastore datastore = Bot.getINSTANCE().getDatastore();
+        DiscoveredVidId item = DiscoveredVidId.getFromSpotifyId(spotifyId);
+        if (item != null) {
+            datastore.delete(item);
         }
-
-        matchSong(context, spotifyId, youtubeId);
+        EmbedBuilder embed = new EmbedBuilder();
+        embed.setTitle("Reset song");
+        embed.setColor(ColorScheme.RESPONSE);
+        embed.setDescription("Song has been unlinked");
+        context.respondEmbed(embed);
     }
 
     private String extractSpotifyIdIfNeeded(String spotifyId) {
@@ -91,79 +84,38 @@ public class MatchSongCommand implements Command {
         return spotifyId;
     }
 
-    private String extractYoutubeIdIdNeeded(String youtubeId) {
-        if (isURL(youtubeId)) {
-            String pattern = "(?<=youtu.be/|watch\\?v=|/videos/|embed\\/)[^#\\&\\?]*";
-            Pattern compiledPattern = Pattern.compile(pattern);
-            Matcher matcher = compiledPattern.matcher(youtubeId);
-            if(matcher.find()){
-                return matcher.group();
-            }
-        }
-        return youtubeId;
-    }
-
-    private void matchSong(CommandContext context, String spotifyId, String youtubeId) {
-        Track track = SpotifyManager.getINSTANCE().getSongById(spotifyId);
-        DiscoveredVidId song = new DiscoveredVidId(spotifyId, youtubeId, track.getName());
-        Bot.getINSTANCE().getDatastore().save(song);
-
-        EmbedBuilder embed = new EmbedBuilder();
-        embed.setTitle("Matched song");
-        embed.setThumbnail("http://img.youtube.com/vi/" + youtubeId + "/0.jpg");
-        embed.setColor(ColorScheme.RESPONSE);
-        embed.setDescription(track.getName() + " will now play this: " +
-                "\nhttps://www.youtube.com/watch?v=" + youtubeId);
-        context.respondEmbed(embed);
-    }
-
     private boolean isSpotifyId(String spotifyId) {
         Track track = SpotifyManager.getINSTANCE().getSongById(spotifyId);
         return track != null;
     }
 
-    private boolean isYoutubeId(String youtubeId) {
-        YoutubeAudioSourceManager yasm = new YoutubeAudioSourceManager();
-        AudioItem track = yasm.loadTrackWithVideoId(youtubeId, false);
-        return track != AudioReference.NO_TRACK;
-    }
-
     @Override
     public @NotNull String getCommandWord() {
-        return "match";
+        return "resetmatch";
     }
 
     @Override
     public @NotNull String getDescription() {
-        return "Matches a spotify songId to a youtube songId. " +
-                "Usage: `[prefix] mp a match [SpotifyId/link] [YoutubeId/link]`";
+        return "Unbinds a spotify song from a youtube song. " +
+                "Usage: `[prefix] mp a rm [SpotifyId/link]`";
     }
 
     @Override
     public @NotNull CommandDataImpl getCommandData() {
-        CommandDataImpl commandData = new CommandDataImpl(getCommandWord(), "Matches a spotify songId to a youtube songId");
-
-        OptionData spotifyField = new OptionData(
-                OptionType.STRING,
-                "spotifyid",
-                "The song ID on spotify or link",
-                true
+        CommandDataImpl commandData = new CommandDataImpl(getCommandWord(), "Unbinds a spotify song from a youtube song.");
+        commandData.addOptions(
+                new OptionData(
+                        OptionType.STRING,
+                        "spotifyid",
+                        "The song ID on spotify or song link",
+                        true
+                )
         );
-
-        OptionData youtubeField = new OptionData(
-                OptionType.STRING,
-                "youtubeid",
-                "The song ID on youtube or link",
-                true
-        );
-
-        commandData.addOptions(spotifyField, youtubeField);
-
         return commandData;
     }
 
     @Override
     public String[] getSynonyms() {
-        return new String[0];
+        return new String[]{"rm","reset"};
     }
 }
