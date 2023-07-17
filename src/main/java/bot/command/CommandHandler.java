@@ -153,13 +153,13 @@ public abstract class CommandHandler {
     }
 
     public void upsertCommands(Guild guild) {
-        ServerData serverData = Bot.getINSTANCE().getGuildData(guild);
+        ServerData serverData = Bot.getInstance().getGuildData(guild);
 
         if (serverData.getCommandSetVersion() != BaseCommandHandler.getINSTANCE().hashCode()) {
             serverData.setCommandSetVersion(BaseCommandHandler.getINSTANCE().hashCode());
 
             try {
-                Datastore datastore = Bot.getINSTANCE().getDatastore();
+                Datastore datastore = Bot.getInstance().getDatastore();
                 datastore.save(serverData);
 
             } catch (Exception e) {
@@ -179,17 +179,17 @@ public abstract class CommandHandler {
     }
 
     public void forceUpsertCommands(Guild guild) {
-        ServerData serverData = Bot.getINSTANCE().getGuildData(guild);
+        ServerData serverData = Bot.getInstance().getGuildData(guild);
 
         if (serverData == null) {
             serverData = new ServerData(guild);
-            Bot.getINSTANCE().addGuildData(serverData);
+            Bot.getInstance().addGuildData(serverData);
         }
 
         serverData.setCommandSetVersion(BaseCommandHandler.getINSTANCE().hashCode());
 
         try {
-            Datastore datastore = Bot.getINSTANCE().getDatastore();
+            Datastore datastore = Bot.getInstance().getDatastore();
             datastore.save(serverData);
         } catch (Exception e) {
             throw new RuntimeException(e);

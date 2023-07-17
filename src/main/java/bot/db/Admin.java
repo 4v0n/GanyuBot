@@ -20,7 +20,7 @@ public class Admin {
     }
 
     public static Admin getAdminListing(String userId) {
-        Datastore datastore = Bot.getINSTANCE().getDatastore();
+        Datastore datastore = Bot.getInstance().getDatastore();
         return datastore.find(Admin.class)
                 .filter(Filters.eq("userId", userId))
                 .iterator().tryNext();

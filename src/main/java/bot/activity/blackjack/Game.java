@@ -74,8 +74,8 @@ public class Game extends Activity {
 
         addToFooter("You have bet " + bet + " credits." +
                 "\nHere is a list of commands:" +
-                "\n '" + Bot.getINSTANCE().getPrefix(event.getGuild()) + " hit' Deals you another card" +
-                "\n '" + Bot.getINSTANCE().getPrefix(event.getGuild()) + " stand' Finishes your turn");
+                "\n '" + Bot.getInstance().getPrefix(event.getGuild()) + " hit' Deals you another card" +
+                "\n '" + Bot.getInstance().getPrefix(event.getGuild()) + " stand' Finishes your turn");
         channel.editMessageEmbedsById(messageID, this.embed.build()).queue();
     }
 
@@ -111,8 +111,8 @@ public class Game extends Activity {
 
         addToFooter("You have bet " + bet + " credits." +
                 "\nHere is a list of commands:" +
-                "\n '" + Bot.getINSTANCE().getPrefix(event.getGuild()) + " hit' Deals you another card" +
-                "\n '" + Bot.getINSTANCE().getPrefix(event.getGuild()) + " stand' Finishes your turn");
+                "\n '" + Bot.getInstance().getPrefix(event.getGuild()) + " hit' Deals you another card" +
+                "\n '" + Bot.getInstance().getPrefix(event.getGuild()) + " stand' Finishes your turn");
         channel.editMessageEmbedsById(messageID, this.embed.build()).queue();
     }
 

@@ -71,7 +71,7 @@ public class SaveToPlaylistCommand implements Command {
 
     public void createNewPlaylistFromQueue(String name, User owner, ArrayList<AudioTrack> songs) {
         Playlist playlist = new Playlist(owner, name, songs);
-        Bot.getINSTANCE().getDatastore().save(playlist);
+        Bot.getInstance().getDatastore().save(playlist);
     }
 
     @Override

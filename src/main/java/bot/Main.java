@@ -38,7 +38,7 @@ public class Main {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
-        Bot botData = Bot.getINSTANCE();
+        Bot botData = Bot.getInstance();
         settings = new HashMap<>();
 
         if (!loadConfig()) {
@@ -76,7 +76,7 @@ public class Main {
                 .applyConnectionString(new ConnectionString(settings.get("DB_URI")))
                 .build();
 
-        Bot.getINSTANCE().setJDA(jda.build().awaitReady());
+        Bot.getInstance().setJDA(jda.build().awaitReady());
 
         MongoClient mongoClient;
         try {
@@ -115,7 +115,7 @@ public class Main {
     private static void setupAdmins(HashMap<String, String> settings) {
         if (!Admin.isAdmin(settings.get("OWNER_ID"))) {
             Admin admin = new Admin(settings.get("OWNER_ID"));
-            Bot.getINSTANCE().getDatastore().save(admin);
+            Bot.getInstance().getDatastore().save(admin);
         }
     }
 

@@ -63,7 +63,7 @@ public class CommandMethods {
 
     public static boolean isCommand(Message msg) {
         String content = msg.getContentRaw();
-        return content.contains(Bot.getINSTANCE().getPrefix(msg.getGuild())) || content.contains(">g");
+        return content.contains(Bot.getInstance().getPrefix(msg.getGuild())) || content.contains(">g");
     }
 
     public static boolean hasImage(Message msg) {

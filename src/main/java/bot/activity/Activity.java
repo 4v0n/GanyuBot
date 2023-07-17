@@ -35,7 +35,7 @@ public abstract class Activity implements Serializable {
         this.channel = event.getChannel();
         this.userID = event.getAuthor().getId();
         this.message = message;
-        this.bot = Bot.getINSTANCE();
+        this.bot = Bot.getInstance();
         this.parser = parser;
         this.isActive = true;
     }
@@ -44,7 +44,7 @@ public abstract class Activity implements Serializable {
         this.channel = event.getChannel();
         this.userID = event.getUser().getId();
         this.message = message;
-        this.bot = Bot.getINSTANCE();
+        this.bot = Bot.getInstance();
         this.parser = parser;
         this.isActive = true;
     }

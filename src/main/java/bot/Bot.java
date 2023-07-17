@@ -36,7 +36,7 @@ public class Bot {
         this.activities = new HashMap<>();
     }
 
-    public static Bot getINSTANCE() {
+    public static Bot getInstance() {
 
         if (INSTANCE == null) {
             INSTANCE = new Bot();

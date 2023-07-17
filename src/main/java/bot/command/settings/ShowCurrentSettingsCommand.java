@@ -7,22 +7,17 @@ import bot.db.legacy.server.ServerData;
 import bot.util.ColorScheme;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-
-import static bot.command.CommandMethods.sendEmbed;
 
 public class ShowCurrentSettingsCommand implements Command {
     @Override
     public void run(CommandContext context, List<String> args) {
         Guild guild = context.getGuild();
 
-        ServerData data = Bot.getINSTANCE().getGuildData(guild);
+        ServerData data = Bot.getInstance().getGuildData(guild);
         EmbedBuilder embed = new EmbedBuilder();
         embed.setTitle("Current settings", guild.getIconUrl());
         embed.setDescription(

@@ -23,7 +23,7 @@ public class ServerData {
 
     public ServerData(){}
     public ServerData(Guild guild) {
-        this.prefix = Bot.getINSTANCE().getGlobalPrefix();
+        this.prefix = Bot.getInstance().getGlobalPrefix();
         this.DJRoleName = "DJ";
         this.guildID = guild.getId();
         commandSetVersion = 0;

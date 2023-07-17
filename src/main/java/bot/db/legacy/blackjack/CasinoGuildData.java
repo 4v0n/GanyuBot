@@ -38,7 +38,7 @@ public class CasinoGuildData {
     }
 
     private void loadFromDB() {
-        Datastore datastore = Bot.getINSTANCE().getDatastore();
+        Datastore datastore = Bot.getInstance().getDatastore();
 
         List<UserData> userDataList = datastore.find(UserData.class)
                 .filter(Filters.eq("guildID", guildID))
@@ -59,7 +59,7 @@ public class CasinoGuildData {
     }
 
     public void save() {
-        Datastore ds = Bot.getINSTANCE().getDatastore();
+        Datastore ds = Bot.getInstance().getDatastore();
         for (UserData user : players.values()) {
             ds.save(user);
         }

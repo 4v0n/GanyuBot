@@ -17,7 +17,7 @@ public class BlackJackParser extends CommandHandler {
 
     public BlackJackParser() {
         super(null);
-        this.bot = Bot.getINSTANCE();
+        this.bot = Bot.getInstance();
     }
 
     @Override

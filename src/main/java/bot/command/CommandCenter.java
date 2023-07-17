@@ -32,7 +32,7 @@ import java.util.Scanner;
 
     public CommandCenter(int layer) {
         this.commands = new HashMap<>();
-        this.bot = Bot.getINSTANCE();
+        this.bot = Bot.getInstance();
         this.layer = layer;
         this.synonyms = new HashMap<>();
 
