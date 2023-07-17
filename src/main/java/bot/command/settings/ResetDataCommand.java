@@ -4,13 +4,9 @@ import bot.Bot;
 import bot.command.Command;
 import bot.command.CommandContext;
 import bot.db.legacy.server.ServerData;
-import bot.command.CommandMethods;
 import bot.feature.root.BaseCommandHandler;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.events.Event;
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,9 +18,9 @@ public class ResetDataCommand implements Command {
         Guild guild = context.getGuild();
 
         ServerData serverData = new ServerData(guild);
-        serverData.setCommandSetVersion(BaseCommandHandler.getINSTANCE().hashCode());
+        serverData.setCommandSetVersion(BaseCommandHandler.getInstance().hashCode());
 
-        Bot.getINSTANCE().addGuildData(serverData);
+        Bot.getInstance().addGuildData(serverData);
 
         guild.getSelfMember().modifyNickname(guild.getSelfMember().getUser().getName()).queue();
 

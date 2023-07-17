@@ -35,7 +35,7 @@ public class AutoLeaveVC extends ListenerAdapter {
     @Override
     public void onGuildVoiceUpdate(@NotNull GuildVoiceUpdateEvent event) {
         if (inVC(event)) {
-            Bot bot = Bot.getINSTANCE();
+            Bot bot = Bot.getInstance();
 
             AudioChannel audioChannel = findChannelByGuild(event.getGuild());
 

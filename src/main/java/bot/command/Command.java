@@ -1,6 +1,5 @@
 package bot.command;
 
-import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 

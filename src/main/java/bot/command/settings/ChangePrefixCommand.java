@@ -18,7 +18,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import static bot.command.CommandMethods.sendEmbed;
 import static bot.command.CommandMethods.sendEphemeralEmbed;
 
 public class ChangePrefixCommand implements Command {
@@ -44,14 +43,14 @@ public class ChangePrefixCommand implements Command {
             newPrefix = ((SlashCommandInteractionEvent) event).getOption("prefix").getAsString();
         }
 
-        ServerData data = Bot.getINSTANCE().getGuildData(guild);
+        ServerData data = Bot.getInstance().getGuildData(guild);
 
         data.setPrefix(newPrefix);
 
         self.modifyNickname("(" + data.getPrefix() + ") " + self.getUser().getName()).queue();
 
         try {
-            Datastore datastore = Bot.getINSTANCE().getDatastore();
+            Datastore datastore = Bot.getInstance().getDatastore();
             datastore.save(data);
 
         } catch (Exception e) {

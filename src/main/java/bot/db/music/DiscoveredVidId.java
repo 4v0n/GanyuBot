@@ -15,7 +15,7 @@ public class DiscoveredVidId {
     private String title;
 
     public static String getYoutubeIdFromSpotifyId(String spotifyID) {
-        Datastore datastore = Bot.getINSTANCE().getDatastore();
+        Datastore datastore = Bot.getInstance().getDatastore();
         DiscoveredVidId spotifyId = datastore.find(DiscoveredVidId.class)
                 .filter(Filters.eq("spotifyId", spotifyID))
                 .iterator().tryNext();

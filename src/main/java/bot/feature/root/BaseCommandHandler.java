@@ -15,7 +15,7 @@ public class BaseCommandHandler extends CommandHandler {
         super(null);
     }
 
-    public static BaseCommandHandler getINSTANCE(){
+    public static BaseCommandHandler getInstance(){
         if (INSTANCE == null){
             INSTANCE = new BaseCommandHandler();
         }

@@ -40,7 +40,7 @@ public class PlayCommand implements Command {
     private void handleMessageReceivedEvent(MessageReceivedEvent event, List<String> args) {
         EmbedBuilder embed = new EmbedBuilder();
         MessageChannel channel = event.getChannel();
-        Bot bot = Bot.getINSTANCE();
+        Bot bot = Bot.getInstance();
         UserData playerData = CasinoData.getInstance().getGuildData(event.getGuild()).getPlayer(event.getMember());
 
         Activity activity = bot.getActivities().get(event.getAuthor().getId() + event.getChannel().getId());
@@ -82,7 +82,7 @@ public class PlayCommand implements Command {
     }
 
     private void handleSlashCommandEvent(SlashCommandInteractionEvent event, List<String> args) {
-        Bot bot = Bot.getINSTANCE();
+        Bot bot = Bot.getInstance();
         EmbedBuilder embed = new EmbedBuilder();
 
         Activity activity = bot.getActivities().get(event.getUser().getId() + event.getChannel().getId());
@@ -122,7 +122,7 @@ public class PlayCommand implements Command {
     }
 
     private void startGame(MessageReceivedEvent event, int bet) {
-        Bot bot = Bot.getINSTANCE();
+        Bot bot = Bot.getInstance();
         MessageChannel channel = event.getChannel();
         EmbedBuilder embed = new EmbedBuilder();
         embed.setDescription("The game will be starting soon!");
@@ -131,7 +131,7 @@ public class PlayCommand implements Command {
     }
 
     private void startGame(SlashCommandInteractionEvent event, int bet) {
-        Bot bot = Bot.getINSTANCE();
+        Bot bot = Bot.getInstance();
         MessageChannel channel = event.getChannel();
         EmbedBuilder embed = new EmbedBuilder();
         embed.setDescription("The game will be starting soon!");

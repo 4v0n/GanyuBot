@@ -189,7 +189,7 @@ public class PlayListCommand implements Command {
                         continue;
                     }
                     DiscoveredVidId discovered = new DiscoveredVidId(spotifyIds.get(song), audioTrack.getIdentifier(), audioTrack.getInfo().title);
-                    Bot.getINSTANCE().getDatastore().save(discovered);
+                    Bot.getInstance().getDatastore().save(discovered);
                 }
                 queuedSongs.add(audioTrack);
             }

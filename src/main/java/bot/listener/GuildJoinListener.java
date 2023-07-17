@@ -8,6 +8,6 @@ import org.jetbrains.annotations.NotNull;
 public class GuildJoinListener extends ListenerAdapter {
     @Override
     public void onGuildJoin(@NotNull GuildJoinEvent event) {
-        BaseCommandHandler.getINSTANCE().upsertCommands(event.getGuild());
+        BaseCommandHandler.getInstance().upsertCommands(event.getGuild());
     }
 }

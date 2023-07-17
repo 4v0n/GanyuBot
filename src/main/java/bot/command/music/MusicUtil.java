@@ -3,8 +3,6 @@ package bot.command.music;
 import bot.Bot;
 import bot.command.CommandContext;
 import bot.db.legacy.server.ServerData;
-import bot.feature.music.MusicManager;
-import bot.feature.music.lavaplayer.PlayerManager;
 import bot.util.ColorScheme;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -19,8 +17,6 @@ import java.net.URISyntaxException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-
-import static bot.command.music.MusicUtil.hasPermissions;
 
 public class MusicUtil {
 
@@ -104,7 +100,7 @@ public class MusicUtil {
     public static boolean hasPermissions(CommandContext context, boolean announce) {
         Member user = context.getMember();
         List<Role> roles = user.getRoles();
-        ServerData serverData = Bot.getINSTANCE().getGuildData(user.getGuild());
+        ServerData serverData = Bot.getInstance().getGuildData(user.getGuild());
 
         if (user.isOwner()) {
             return true;
@@ -124,7 +120,7 @@ public class MusicUtil {
 
         if (announce) {
             EmbedBuilder embed = new EmbedBuilder();
-            ServerData data = Bot.getINSTANCE().getGuildData(context.getGuild());
+            ServerData data = Bot.getInstance().getGuildData(context.getGuild());
             embed.setDescription("You don't have the permissions to use this command!");
             embed.setFooter("This command requires the `" + data.getDJRoleName() + "` (case sensitive) role or a role with the 'Manage Channels' permission to use.");
             sendErrorEmbed(embed, context);

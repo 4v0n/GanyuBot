@@ -24,8 +24,8 @@ public class GuildMessageListener extends ListenerAdapter {
     private final BaseCommandHandler commandHandler;
 
     public GuildMessageListener() {
-        this.bot = Bot.getINSTANCE();
-        this.commandHandler = BaseCommandHandler.getINSTANCE();
+        this.bot = Bot.getInstance();
+        this.commandHandler = BaseCommandHandler.getInstance();
     }
 
     /**

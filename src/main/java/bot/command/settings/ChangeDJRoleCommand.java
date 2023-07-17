@@ -17,7 +17,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-import static bot.command.CommandMethods.sendEmbed;
 import static bot.command.CommandMethods.sendEphemeralEmbed;
 
 public class ChangeDJRoleCommand implements Command {
@@ -41,12 +40,12 @@ public class ChangeDJRoleCommand implements Command {
             newRoleName = ((SlashCommandInteractionEvent) event).getOption("role").getAsRole().getName();
         }
 
-        ServerData data = Bot.getINSTANCE().getGuildData(guild);
+        ServerData data = Bot.getInstance().getGuildData(guild);
 
         data.setDJRoleName(newRoleName);
 
         try {
-            Datastore datastore = Bot.getINSTANCE().getDatastore();
+            Datastore datastore = Bot.getInstance().getDatastore();
             datastore.save(data);
 
         } catch (Exception e){
