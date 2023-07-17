@@ -11,7 +11,7 @@ public class SlashCommandListener extends ListenerAdapter {
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
 
         if (event.getGuild() != null){
-            BaseCommandHandler.getINSTANCE().parse(event);
+            BaseCommandHandler.getInstance().parse(event);
         }
     }
 }

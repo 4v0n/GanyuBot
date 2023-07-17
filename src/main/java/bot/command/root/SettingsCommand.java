@@ -57,7 +57,7 @@ public class SettingsCommand implements Command {
             }
         }
 
-        BaseCommandHandler.getINSTANCE().getChildren().get(getCommandWord()).parse(event);
+        BaseCommandHandler.getInstance().getChildren().get(getCommandWord()).parse(event);
     }
 
     @Override

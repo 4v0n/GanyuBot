@@ -4,7 +4,6 @@ import bot.command.Command;
 import bot.command.CommandContext;
 import bot.feature.root.BaseCommandHandler;
 import bot.feature.blackjack.BlackJackHandler;
-import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,7 +19,7 @@ public class BlackjackCommand implements Command {
 
     @Override
     public void run(CommandContext context, List<String> args) {
-        BlackJackHandler handler = (BlackJackHandler) BaseCommandHandler.getINSTANCE().getChildren().get(getCommandWord());
+        BlackJackHandler handler = (BlackJackHandler) BaseCommandHandler.getInstance().getChildren().get(getCommandWord());
         handler.parse(context.getEvent());
     }
 

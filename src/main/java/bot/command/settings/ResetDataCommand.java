@@ -18,7 +18,7 @@ public class ResetDataCommand implements Command {
         Guild guild = context.getGuild();
 
         ServerData serverData = new ServerData(guild);
-        serverData.setCommandSetVersion(BaseCommandHandler.getINSTANCE().hashCode());
+        serverData.setCommandSetVersion(BaseCommandHandler.getInstance().hashCode());
 
         Bot.getInstance().addGuildData(serverData);
 

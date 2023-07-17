@@ -76,9 +76,9 @@ public abstract class CommandHandler {
     protected abstract void buildCommands();
 
     private void buildSynonyms() {
-        for (Command ICommand : commandCenter.getCommands().values()) {
-            for (String synonym : ICommand.getSynonyms()) {
-                addSynonym(synonym, ICommand.getCommandWord());
+        for (Command command : commandCenter.getCommands().values()) {
+            for (String synonym : command.getSynonyms()) {
+                addSynonym(synonym, command.getCommandWord());
             }
         }
 
@@ -93,24 +93,24 @@ public abstract class CommandHandler {
     protected abstract void buildChildrenCommandHandlers();
 
     private void mapCommands() {
-        for (Command ICommand : commandCenter.getCommands().values()) {
-            if (ICommand.getCommandWord().equals("help") || ICommand.getCommandWord().equals("synonyms")) {
+        for (Command command : commandCenter.getCommands().values()) {
+            if (command.getCommandWord().equals("help") || command.getCommandWord().equals("synonyms")) {
                 continue;
             }
 
-            CommandHandler handler = childrenCommandHandlers.get(ICommand.getCommandWord());
+            CommandHandler handler = childrenCommandHandlers.get(command.getCommandWord());
 
             if (handler != null) {
                 // the command has children
-                CommandDataImpl commandData = ICommand.getCommandData();
+                CommandDataImpl commandData = command.getCommandData();
 
-                for (Command subICommand : handler.getCommandCenter().getCommands().values()) {
+                for (Command subCommand : handler.getCommandCenter().getCommands().values()) {
 
-                    if (subICommand.getCommandWord().equals("help") || subICommand.getCommandWord().equals("synonyms")) {
+                    if (subCommand.getCommandWord().equals("help") || subCommand.getCommandWord().equals("synonyms")) {
                         continue;
                     }
 
-                    commandData.addSubcommands(convertToSubCommand(subICommand.getCommandData()));
+                    commandData.addSubcommands(convertToSubCommand(subCommand.getCommandData()));
                 }
             }
         }
@@ -128,8 +128,8 @@ public abstract class CommandHandler {
     }
 
 
-    protected void addCommand(Command ICommand) {
-        commandCenter.addCommand(ICommand);
+    protected void addCommand(Command command) {
+        commandCenter.addCommand(command);
     }
 
     protected void addSynonym(String synonym, String original) {
@@ -155,8 +155,8 @@ public abstract class CommandHandler {
     public void upsertCommands(Guild guild) {
         ServerData serverData = Bot.getInstance().getGuildData(guild);
 
-        if (serverData.getCommandSetVersion() != BaseCommandHandler.getINSTANCE().hashCode()) {
-            serverData.setCommandSetVersion(BaseCommandHandler.getINSTANCE().hashCode());
+        if (serverData.getCommandSetVersion() != BaseCommandHandler.getInstance().hashCode()) {
+            serverData.setCommandSetVersion(BaseCommandHandler.getInstance().hashCode());
 
             try {
                 Datastore datastore = Bot.getInstance().getDatastore();
@@ -166,12 +166,12 @@ public abstract class CommandHandler {
                 throw new RuntimeException(e);
             }
 
-            for (Command ICommand : commandCenter.getCommands().values()) {
-                if (ICommand.getCommandWord().equals("help") || ICommand.getCommandWord().equals("synonyms")) {
+            for (Command command : commandCenter.getCommands().values()) {
+                if (command.getCommandWord().equals("help") || command.getCommandWord().equals("synonyms")) {
                     continue;
                 }
 
-                guild.upsertCommand(ICommand.getCommandData()).queue();
+                guild.upsertCommand(command.getCommandData()).queue();
             }
 
             guild.updateCommands().queue();
@@ -186,7 +186,7 @@ public abstract class CommandHandler {
             Bot.getInstance().addGuildData(serverData);
         }
 
-        serverData.setCommandSetVersion(BaseCommandHandler.getINSTANCE().hashCode());
+        serverData.setCommandSetVersion(BaseCommandHandler.getInstance().hashCode());
 
         try {
             Datastore datastore = Bot.getInstance().getDatastore();
@@ -195,12 +195,12 @@ public abstract class CommandHandler {
             throw new RuntimeException(e);
         }
 
-        for (Command ICommand : commandCenter.getCommands().values()) {
-            if (ICommand.getCommandWord().equals("help") || ICommand.getCommandWord().equals("synonyms")) {
+        for (Command command : commandCenter.getCommands().values()) {
+            if (command.getCommandWord().equals("help") || command.getCommandWord().equals("synonyms")) {
                 continue;
             }
 
-            guild.upsertCommand(ICommand.getCommandData()).queue();
+            guild.upsertCommand(command.getCommandData()).queue();
         }
 
         guild.updateCommands().queue();
@@ -217,13 +217,13 @@ public abstract class CommandHandler {
     public int hashCode() {
         ArrayList<String> commandStrings = new ArrayList<>();
 
-        for (Command ICommand : commandCenter.getCommands().values()) {
-            commandStrings.add(ICommand.getCommandWord());
+        for (Command command : commandCenter.getCommands().values()) {
+            commandStrings.add(command.getCommandWord());
         }
 
         for (CommandHandler handler : childrenCommandHandlers.values()) {
-            for (Command ICommand : handler.getCommandCenter().getCommands().values()) {
-                commandStrings.add(ICommand.getCommandWord());
+            for (Command command : handler.getCommandCenter().getCommands().values()) {
+                commandStrings.add(command.getCommandWord());
             }
         }
 

@@ -60,6 +60,7 @@ public class Main {
         jda.setStatus(OnlineStatus.ONLINE);
 
         jda.addEventListeners(new GuildMessageListener());
+        jda.addEventListeners(new PrivateMessageListener());
         jda.addEventListeners(reactionListener);
         jda.addEventListeners(buttonInteractionListener);
         jda.addEventListeners(new AutoLeaveVC());
@@ -102,7 +103,7 @@ public class Main {
         setupAdmins(settings);
 
         for (Guild guild : Bot.getJDA().getGuilds()){
-            BaseCommandHandler.getINSTANCE().upsertCommands(guild);
+            BaseCommandHandler.getInstance().upsertCommands(guild);
         }
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {

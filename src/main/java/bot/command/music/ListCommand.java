@@ -17,7 +17,7 @@ public class ListCommand implements Command {
 
     @Override
     public void run(CommandContext context, List<String> args) {
-        BaseCommandHandler.getINSTANCE().getChildren().get("musicplayer").getChildren().get(getCommandWord()).parse(context.getEvent());
+        BaseCommandHandler.getInstance().getChildren().get("musicplayer").getChildren().get(getCommandWord()).parse(context.getEvent());
     }
 
     @Override
