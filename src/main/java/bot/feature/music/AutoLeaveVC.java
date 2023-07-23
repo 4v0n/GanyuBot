@@ -69,6 +69,8 @@ public class AutoLeaveVC extends ListenerAdapter {
                         if (memberCount1 == 0) {
                             Guild guild = event.getGuild();
                             guild.getAudioManager().closeAudioConnection();
+                            PlayerManager.getInstance().getMusicManager(guild).getAudioPlayer().destroy();
+                            PlayerManager.getInstance().getMusicManager(guild).getScheduler().getSongQueue().clear();
                             PlayerManager.getInstance().removeMusicManager(guild);
                         }
 

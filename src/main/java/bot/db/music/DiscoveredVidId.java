@@ -28,7 +28,7 @@ public class DiscoveredVidId {
     }
 
     public static DiscoveredVidId getFromSpotifyId(String spotifyID) {
-        Datastore datastore = Bot.getINSTANCE().getDatastore();
+        Datastore datastore = Bot.getInstance().getDatastore();
         return datastore.find(DiscoveredVidId.class)
                 .filter(Filters.eq("spotifyId", spotifyID))
                 .iterator().tryNext();

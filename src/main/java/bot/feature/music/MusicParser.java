@@ -57,6 +57,10 @@ public class MusicParser extends CommandHandler {
         addCommand(new ListCommand());
         addCommand(new AdminCommand());
 
+        addCommand(new LinkSpotifyCommand());
+        addCommand(new CheckSpotifyLinkCommand());
+        addCommand(new UnlinkSpotifyCommand());
+
         addHelpMessage("Note that these commands can be directly accessed using `[prefix]m [command]`");
     }
 

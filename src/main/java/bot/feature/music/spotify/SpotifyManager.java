@@ -1,11 +1,13 @@
 package bot.feature.music.spotify;
 
+import net.dv8tion.jda.api.entities.User;
 import org.apache.hc.core5.http.ParseException;
 import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.SpotifyHttpManager;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
 import se.michaelthelin.spotify.model_objects.credentials.ClientCredentials;
 import se.michaelthelin.spotify.model_objects.specification.*;
+import se.michaelthelin.spotify.requests.authorization.authorization_code.AuthorizationCodeUriRequest;
 import se.michaelthelin.spotify.requests.authorization.client_credentials.ClientCredentialsRequest;
 import se.michaelthelin.spotify.requests.data.albums.GetAlbumRequest;
 import se.michaelthelin.spotify.requests.data.playlists.GetPlaylistRequest;
@@ -13,20 +15,42 @@ import se.michaelthelin.spotify.requests.data.playlists.GetPlaylistsItemsRequest
 import se.michaelthelin.spotify.requests.data.tracks.GetTrackRequest;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
 
 public class SpotifyManager {
 
     private static SpotifyManager INSTANCE;
+    private static HashMap<String, SpotifyManager> LOGGED_IN_INSTANCES = new HashMap<>();
 
     private SpotifyApi spotifyApi;
     private ClientCredentialsRequest clientCredentialsRequest;
+    private AuthorizationCodeUriRequest authorizationCodeUriRequest;
 
-    private SpotifyManager() {
+    protected SpotifyManager() {
     }
 
-    public static SpotifyManager getINSTANCE() {
+    public static SpotifyManager getInstance(User user) {
+
+        if (INSTANCE == null) {
+            INSTANCE = new SpotifyManager();
+        }
+
+        if (INSTANCE.spotifyApi != null) {
+            INSTANCE.authenticateClient();
+        }
+
+        SpotifyManager loggedInInstance = attemptLoadUser(user);
+        if (loggedInInstance != null) {
+            return loggedInInstance;
+        }
+
+        return INSTANCE;
+    }
+
+    public static SpotifyManager getInstance() {
+
         if (INSTANCE == null) {
             INSTANCE = new SpotifyManager();
         }
@@ -38,6 +62,21 @@ public class SpotifyManager {
         return INSTANCE;
     }
 
+    private static SpotifyManager attemptLoadUser(User user) {
+        return LOGGED_IN_INSTANCES.get(user.getId());
+    }
+
+    public static LoggedInSpotifyManager logInUser(User user, String authCode) {
+        LoggedInSpotifyManager lsm = new LoggedInSpotifyManager(user);
+        lsm.setup(authCode);
+        LOGGED_IN_INSTANCES.put(user.getId(), lsm);
+        return lsm;
+    }
+
+    public URI getauthCodeUri() {
+        return authorizationCodeUriRequest.execute();
+    }
+
     public void setup(HashMap<String, String> settings) {
         this.spotifyApi = new SpotifyApi.Builder()
                 .setClientId(settings.get("SPOTIFY_CLIENT_ID"))
@@ -45,6 +84,7 @@ public class SpotifyManager {
                 .setRedirectUri(SpotifyHttpManager.makeUri(settings.get("REDIRECT_URL")))
                 .build();
         this.clientCredentialsRequest = spotifyApi.clientCredentials().build();
+        this.authorizationCodeUriRequest = spotifyApi.authorizationCodeUri().build();
     }
 
     private void authenticateClient() {
@@ -121,5 +161,9 @@ public class SpotifyManager {
 
     public SpotifyApi getSpotifyApi() {
         return spotifyApi;
+    }
+
+    public static void removeUser(User user) {
+        LOGGED_IN_INSTANCES.remove(user.getId());
     }
 }

@@ -61,7 +61,7 @@ public class ResetMatchCommand implements Command {
     }
 
     private void resetSong(CommandContext context, String spotifyId) {
-        Datastore datastore = Bot.getINSTANCE().getDatastore();
+        Datastore datastore = Bot.getInstance().getDatastore();
         DiscoveredVidId item = DiscoveredVidId.getFromSpotifyId(spotifyId);
         if (item != null) {
             datastore.delete(item);
@@ -85,7 +85,7 @@ public class ResetMatchCommand implements Command {
     }
 
     private boolean isSpotifyId(String spotifyId) {
-        Track track = SpotifyManager.getINSTANCE().getSongById(spotifyId);
+        Track track = SpotifyManager.getInstance().getSongById(spotifyId);
         return track != null;
     }
 

@@ -113,12 +113,14 @@ public class PlayListCommand implements Command {
     private void queueSpotifyList(CommandContext context, String link) {
         EmbedBuilder warning = new EmbedBuilder();
         warning.setAuthor("Queuing playlist");
-        warning.setDescription("**The loading process will only include songs from the preview embed.**\nSongs found from spotify links may not be accurate or may not even be found!");
-        warning.setFooter("This process may take a while.\nSongs queued during the process will be added in the middle of the playlist.");
+        warning.setDescription("**The loading process will only include songs from the preview embed.**" +
+                "\nSongs found from spotify links may not be accurate or may not even be found!");
+        warning.setFooter("This process may take a while." +
+                "\nSongs queued during the process will be added in the middle of the playlist.");
         warning.setColor(ColorScheme.INFO);
 
 
-        SpotifyManager spotifyManager = SpotifyManager.getINSTANCE();
+        SpotifyManager spotifyManager = SpotifyManager.getInstance(context.getAuthor());
 
         URI uri = null;
         try {
@@ -162,12 +164,14 @@ public class PlayListCommand implements Command {
                     spotifyIds.put(query, track.getId());
                 }
             }
-        } catch (NullPointerException e) {
+        } catch (Exception e) {
             EmbedBuilder error = new EmbedBuilder();
             error.setColor(ColorScheme.ERROR);
             error.setTitle("Error");
             error.setDescription("Something went wrong!" +
-                    "\nIt is possible that the link does not direct to a playlist, or the playlist could be set to private.");
+                    "\nIt is possible that the link does not point to a playlist, or the playlist could be set to private.");
+            error.setFooter("Linking your spotify account will let you access your private playlists.");
+            context.respondEmbed(error);
             return;
         }
 
@@ -184,7 +188,7 @@ public class PlayListCommand implements Command {
                     audioTrack.setUserData(context.getMember());
                     PlayerManager.getInstance().getMusicManager(context.getGuild()).getScheduler().queue(audioTrack);
                 } else {
-                    audioTrack = PlayerManager.getInstance().silentLoad(context, "ytsearch:" + song, context.getMember());
+                    audioTrack = PlayerManager.getInstance().silentLoad(context, "ytsearch:" + song + " audio", context.getMember());
                     if (audioTrack == null) {
                         continue;
                     }

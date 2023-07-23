@@ -1,6 +1,7 @@
 package bot.feature.root;
 
 import bot.command.directMessage.DMCommandHandler;
+import bot.command.music.authSpotifyDMCommand;
 
 public class BaseDMCommandHandler extends DMCommandHandler {
 
@@ -20,7 +21,7 @@ public class BaseDMCommandHandler extends DMCommandHandler {
 
     @Override
     protected void buildCommands() {
-
+        addCommand(new authSpotifyDMCommand());
     }
 
     @Override

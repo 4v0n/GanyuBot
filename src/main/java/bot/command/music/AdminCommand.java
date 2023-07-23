@@ -31,7 +31,7 @@ public class AdminCommand implements Command {
             return;
         }
 
-        BaseCommandHandler.getINSTANCE().getChildren().get("musicplayer").getChildren().get(getCommandWord()).parse(context.getEvent());
+        BaseCommandHandler.getInstance().getChildren().get("musicplayer").getChildren().get(getCommandWord()).parse(context.getEvent());
     }
 
     @Override

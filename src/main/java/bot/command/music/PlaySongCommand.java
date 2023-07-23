@@ -63,7 +63,7 @@ public class PlaySongCommand implements Command {
 
     private void queueSong(CommandContext context, String link) {
         if (!isURL(link)){
-            link = "ytsearch:" + link + "audio";
+            link = "ytsearch:" + link + " audio";
         } else {
             URI uri = null;
             try {
@@ -87,7 +87,7 @@ public class PlaySongCommand implements Command {
         warning.setColor(ColorScheme.INFO);
         context.getMessageChannel().sendMessageEmbeds(warning.build()).queue();
 
-        Track track = SpotifyManager.getINSTANCE().getSong(link);
+        Track track = SpotifyManager.getInstance().getSong(link);
         String ytId = DiscoveredVidId.getYoutubeIdFromSpotifyId(track.getId());
         String query;
 

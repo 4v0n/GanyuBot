@@ -104,9 +104,9 @@ public class MatchSongCommand implements Command {
     }
 
     private void matchSong(CommandContext context, String spotifyId, String youtubeId) {
-        Track track = SpotifyManager.getINSTANCE().getSongById(spotifyId);
+        Track track = SpotifyManager.getInstance().getSongById(spotifyId);
         DiscoveredVidId song = new DiscoveredVidId(spotifyId, youtubeId, track.getName());
-        Bot.getINSTANCE().getDatastore().save(song);
+        Bot.getInstance().getDatastore().save(song);
 
         EmbedBuilder embed = new EmbedBuilder();
         embed.setTitle("Matched song");
@@ -118,7 +118,7 @@ public class MatchSongCommand implements Command {
     }
 
     private boolean isSpotifyId(String spotifyId) {
-        Track track = SpotifyManager.getINSTANCE().getSongById(spotifyId);
+        Track track = SpotifyManager.getInstance().getSongById(spotifyId);
         return track != null;
     }
 

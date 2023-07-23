@@ -95,7 +95,7 @@ public class Main {
             return;
         }
 
-        SpotifyManager instance = SpotifyManager.getINSTANCE();
+        SpotifyManager instance = SpotifyManager.getInstance();
         instance.setup(settings);
 
         System.out.println("Bot started");
