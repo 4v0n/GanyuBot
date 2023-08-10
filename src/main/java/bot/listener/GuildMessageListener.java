@@ -2,9 +2,9 @@ package bot.listener;
 
 import bot.activity.Activity;
 import bot.Bot;
-import bot.feature.root.BaseCommandHandler;
+import bot.feature.root.BaseCommandBranch;
 import bot.db.legacy.server.ServerData;
-import bot.feature.music.MusicParser;
+import bot.feature.music.MusicCommandBranch;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -21,11 +21,11 @@ import java.util.Scanner;
  */
 public class GuildMessageListener extends ListenerAdapter {
     private final Bot bot;
-    private final BaseCommandHandler commandHandler;
+    private final BaseCommandBranch commandHandler;
 
     public GuildMessageListener() {
         this.bot = Bot.getInstance();
-        this.commandHandler = BaseCommandHandler.getInstance();
+        this.commandHandler = BaseCommandBranch.getInstance();
     }
 
     /**
@@ -55,7 +55,7 @@ public class GuildMessageListener extends ListenerAdapter {
         if (words.size() > 0) {
             // allow parsing of music player commands directly
             if (words.get(0).equals( bot.getPrefix(event.getGuild()) + "m" )){
-                MusicParser mp = new MusicParser(commandHandler);
+                MusicCommandBranch mp = new MusicCommandBranch(commandHandler);
                 mp.parse(event);
                 return;
             }

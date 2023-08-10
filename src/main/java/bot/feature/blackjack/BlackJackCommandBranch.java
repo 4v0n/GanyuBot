@@ -7,7 +7,7 @@ import bot.command.blackjack.ProfileCommand;
 import bot.db.legacy.blackjack.CasinoData;
 import bot.db.legacy.blackjack.CasinoGuildData;
 import bot.db.legacy.blackjack.UserData;
-import bot.command.CommandHandler;
+import bot.command.CommandBranch;
 import bot.util.ColorScheme;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -23,13 +23,13 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
  * @author Aron Navodh Kumarawatta
  * @version 28.03.2023
  */
-public class BlackJackHandler extends CommandHandler {
+public class BlackJackCommandBranch extends CommandBranch {
 
-    public BlackJackHandler(CommandHandler parent) {
+    public BlackJackCommandBranch(CommandBranch parent) {
         super(parent);
     }
 
-    public BlackJackHandler(CommandHandler parent, String accessCommand) {
+    public BlackJackCommandBranch(CommandBranch parent, String accessCommand) {
         super(parent, accessCommand);
     }
 

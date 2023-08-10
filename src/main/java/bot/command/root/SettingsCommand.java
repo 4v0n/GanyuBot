@@ -2,7 +2,7 @@ package bot.command.root;
 
 import bot.command.Command;
 import bot.command.CommandContext;
-import bot.feature.root.BaseCommandHandler;
+import bot.feature.root.BaseCommandBranch;
 import bot.util.ColorScheme;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
@@ -57,7 +57,7 @@ public class SettingsCommand implements Command {
             }
         }
 
-        BaseCommandHandler.getInstance().getChildren().get(getCommandWord()).parse(event);
+        BaseCommandBranch.getInstance().getChildren().get(getCommandWord()).parse(event);
     }
 
     @Override

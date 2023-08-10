@@ -1,11 +1,11 @@
 package bot.feature.music;
 
-import bot.command.CommandHandler;
+import bot.command.CommandBranch;
 import bot.command.music.playlist.SaveToPlaylistCommand;
 
-public class PlaylistParser extends CommandHandler {
+public class PlaylistParser extends CommandBranch {
 
-    public PlaylistParser(CommandHandler parent, String accessCommand) {
+    public PlaylistParser(CommandBranch parent, String accessCommand) {
         super(parent, accessCommand);
     }
 

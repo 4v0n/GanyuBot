@@ -1,7 +1,7 @@
 package bot.activity;
 
 import bot.Bot;
-import bot.command.CommandHandler;
+import bot.command.CommandBranch;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -19,7 +19,7 @@ import java.io.Serializable;
 public abstract class Activity implements Serializable {
     private final MessageChannel channel;
     private final String userID;
-    private final CommandHandler parser;
+    private final CommandBranch parser;
     private final Message message;
     private final Bot bot;
     private boolean isActive;
@@ -31,7 +31,7 @@ public abstract class Activity implements Serializable {
      * @param parser  The parser that handles the commands for the respective activity.
      * @param message The message that will be edited during the activity.
      */
-    public Activity(MessageReceivedEvent event, CommandHandler parser, Message message) {
+    public Activity(MessageReceivedEvent event, CommandBranch parser, Message message) {
         this.channel = event.getChannel();
         this.userID = event.getAuthor().getId();
         this.message = message;
@@ -40,7 +40,7 @@ public abstract class Activity implements Serializable {
         this.isActive = true;
     }
 
-    public Activity(SlashCommandInteractionEvent event, CommandHandler parser, Message message) {
+    public Activity(SlashCommandInteractionEvent event, CommandBranch parser, Message message) {
         this.channel = event.getChannel();
         this.userID = event.getUser().getId();
         this.message = message;
@@ -59,7 +59,7 @@ public abstract class Activity implements Serializable {
     /**
      * @return The command parser for the activity.
      */
-    public CommandHandler getParser() {
+    public CommandBranch getParser() {
         return parser;
     }
 

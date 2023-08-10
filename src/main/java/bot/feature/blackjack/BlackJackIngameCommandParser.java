@@ -1,8 +1,7 @@
 package bot.feature.blackjack;
 
-import bot.Bot;
+import bot.command.CommandBranch;
 import bot.command.blackjack.InGameHitCommand;
-import bot.command.CommandHandler;
 import bot.command.blackjack.InGameStandCommand;
 
 /**
@@ -11,13 +10,10 @@ import bot.command.blackjack.InGameStandCommand;
  * @author Aron Navodh Kumarawatta
  * @version 28.03.2023
  */
-public class BlackJackParser extends CommandHandler {
+public class BlackJackIngameCommandParser extends CommandBranch {
 
-    private final Bot bot;
-
-    public BlackJackParser() {
+    public BlackJackIngameCommandParser() {
         super(null);
-        this.bot = Bot.getInstance();
     }
 
     @Override

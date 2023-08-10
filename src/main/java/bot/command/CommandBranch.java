@@ -2,7 +2,7 @@ package bot.command;
 
 import bot.Bot;
 import bot.db.legacy.server.ServerData;
-import bot.feature.root.BaseCommandHandler;
+import bot.feature.root.BaseCommandBranch;
 import dev.morphia.Datastore;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.Event;
@@ -21,15 +21,15 @@ import java.util.HashMap;
  * @author Aron Navodh Kumarawatta
  * @version 09.06.2022
  */
-public abstract class CommandHandler {
-    private final CommandCenter commandCenter;
-    private final CommandHandler parent;
+public abstract class CommandBranch {
+    private final CommandParser commandParser;
+    private final CommandBranch parent;
     private final int layer;
 
-    private final HashMap<String, CommandHandler> childrenCommandHandlers;
+    private final HashMap<String, CommandBranch> childrenCommandHandlers;
     private final String accessCommand;
 
-    protected CommandHandler(CommandHandler parent) {
+    protected CommandBranch(CommandBranch parent) {
         this.parent = parent;
         this.childrenCommandHandlers = new HashMap<>();
         this.accessCommand = " ";
@@ -40,14 +40,14 @@ public abstract class CommandHandler {
             layer = parent.getNewLayer();
         }
 
-        commandCenter = new CommandCenter(layer);
+        commandParser = new CommandParser(layer);
         buildCommands();
         buildSynonyms();
         buildChildrenCommandHandlers();
         mapCommands();
     }
 
-    protected CommandHandler(CommandHandler parent, String accessCommand) {
+    protected CommandBranch(CommandBranch parent, String accessCommand) {
         this.parent = parent;
         this.childrenCommandHandlers = new HashMap<>();
         this.accessCommand = accessCommand;
@@ -58,7 +58,7 @@ public abstract class CommandHandler {
             layer = parent.getNewLayer();
         }
 
-        commandCenter = new CommandCenter(layer);
+        commandParser = new CommandParser(layer);
         buildCommands();
         buildSynonyms();
         buildChildrenCommandHandlers();
@@ -76,14 +76,14 @@ public abstract class CommandHandler {
     protected abstract void buildCommands();
 
     private void buildSynonyms() {
-        for (Command command : commandCenter.getCommands().values()) {
+        for (Command command : commandParser.getCommands().values()) {
             for (String synonym : command.getSynonyms()) {
                 addSynonym(synonym, command.getCommandWord());
             }
         }
 
-        if (commandCenter.getSynonyms().isEmpty()) {
-            commandCenter.getCommands().remove("synonyms");
+        if (commandParser.getSynonyms().isEmpty()) {
+            commandParser.getCommands().remove("synonyms");
         }
     }
 
@@ -93,12 +93,12 @@ public abstract class CommandHandler {
     protected abstract void buildChildrenCommandHandlers();
 
     private void mapCommands() {
-        for (Command command : commandCenter.getCommands().values()) {
+        for (Command command : commandParser.getCommands().values()) {
             if (command.getCommandWord().equals("help") || command.getCommandWord().equals("synonyms")) {
                 continue;
             }
 
-            CommandHandler handler = childrenCommandHandlers.get(command.getCommandWord());
+            CommandBranch handler = childrenCommandHandlers.get(command.getCommandWord());
 
             if (handler != null) {
                 // the command has children
@@ -118,45 +118,45 @@ public abstract class CommandHandler {
 
     public void parse(Event event) {
         if (event instanceof MessageReceivedEvent) {
-            commandCenter.parse((MessageReceivedEvent) event);
+            commandParser.parse((MessageReceivedEvent) event);
             return;
         }
 
         if (event instanceof SlashCommandInteractionEvent) {
-            commandCenter.parse((SlashCommandInteractionEvent) event);
+            commandParser.parse((SlashCommandInteractionEvent) event);
         }
     }
 
 
     protected void addCommand(Command command) {
-        commandCenter.addCommand(command);
+        commandParser.addCommand(command);
     }
 
     protected void addSynonym(String synonym, String original) {
-        commandCenter.addSynonym(synonym.toLowerCase(), original.toLowerCase());
+        commandParser.addSynonym(synonym.toLowerCase(), original.toLowerCase());
     }
 
-    protected void addHandler(CommandHandler commandHandler) {
-        childrenCommandHandlers.put(commandHandler.accessCommand, commandHandler);
+    protected void addHandler(CommandBranch commandBranch) {
+        childrenCommandHandlers.put(commandBranch.accessCommand, commandBranch);
     }
 
     protected void addHelpMessage(String text) {
-        commandCenter.addHelpMessage(text);
+        commandParser.addHelpMessage(text);
     }
 
-    public CommandCenter getCommandCenter() {
-        return commandCenter;
+    public CommandParser getCommandCenter() {
+        return commandParser;
     }
 
-    public HashMap<String, CommandHandler> getChildren() {
+    public HashMap<String, CommandBranch> getChildren() {
         return childrenCommandHandlers;
     }
 
     public void upsertCommands(Guild guild) {
         ServerData serverData = Bot.getInstance().getGuildData(guild);
 
-        if (serverData.getCommandSetVersion() != BaseCommandHandler.getInstance().hashCode()) {
-            serverData.setCommandSetVersion(BaseCommandHandler.getInstance().hashCode());
+        if (serverData.getCommandSetVersion() != BaseCommandBranch.getInstance().hashCode()) {
+            serverData.setCommandSetVersion(BaseCommandBranch.getInstance().hashCode());
 
             try {
                 Datastore datastore = Bot.getInstance().getDatastore();
@@ -166,7 +166,7 @@ public abstract class CommandHandler {
                 throw new RuntimeException(e);
             }
 
-            for (Command command : commandCenter.getCommands().values()) {
+            for (Command command : commandParser.getCommands().values()) {
                 if (command.getCommandWord().equals("help") || command.getCommandWord().equals("synonyms")) {
                     continue;
                 }
@@ -186,7 +186,7 @@ public abstract class CommandHandler {
             Bot.getInstance().addGuildData(serverData);
         }
 
-        serverData.setCommandSetVersion(BaseCommandHandler.getInstance().hashCode());
+        serverData.setCommandSetVersion(BaseCommandBranch.getInstance().hashCode());
 
         try {
             Datastore datastore = Bot.getInstance().getDatastore();
@@ -195,7 +195,7 @@ public abstract class CommandHandler {
             throw new RuntimeException(e);
         }
 
-        for (Command command : commandCenter.getCommands().values()) {
+        for (Command command : commandParser.getCommands().values()) {
             if (command.getCommandWord().equals("help") || command.getCommandWord().equals("synonyms")) {
                 continue;
             }
@@ -217,11 +217,11 @@ public abstract class CommandHandler {
     public int hashCode() {
         ArrayList<String> commandStrings = new ArrayList<>();
 
-        for (Command command : commandCenter.getCommands().values()) {
+        for (Command command : commandParser.getCommands().values()) {
             commandStrings.add(command.getCommandWord());
         }
 
-        for (CommandHandler handler : childrenCommandHandlers.values()) {
+        for (CommandBranch handler : childrenCommandHandlers.values()) {
             for (Command command : handler.getCommandCenter().getCommands().values()) {
                 commandStrings.add(command.getCommandWord());
             }

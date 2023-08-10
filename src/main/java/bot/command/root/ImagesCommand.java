@@ -2,8 +2,8 @@ package bot.command.root;
 
 import bot.command.Command;
 import bot.command.CommandContext;
-import bot.feature.root.BaseCommandHandler;
-import bot.feature.booru.ImageHandler;
+import bot.feature.root.BaseCommandBranch;
+import bot.feature.booru.ImageCommandBranch;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,8 +19,8 @@ public class ImagesCommand implements Command {
 
     @Override
     public void run(CommandContext context, List<String> args) {
-        BaseCommandHandler baseCommandHandler = BaseCommandHandler.getInstance();
-        ImageHandler handler = (ImageHandler) baseCommandHandler.getChildren().get(getCommandWord());
+        BaseCommandBranch baseCommandHandler = BaseCommandBranch.getInstance();
+        ImageCommandBranch handler = (ImageCommandBranch) baseCommandHandler.getChildren().get(getCommandWord());
 
         handler.parse(context.getEvent());
     }

@@ -3,7 +3,7 @@ package bot;
 import bot.db.Admin;
 import bot.feature.music.AutoLeaveVC;
 import bot.feature.music.spotify.SpotifyManager;
-import bot.feature.root.BaseCommandHandler;
+import bot.feature.root.BaseCommandBranch;
 import bot.listener.*;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
@@ -103,7 +103,7 @@ public class Main {
         setupAdmins(settings);
 
         for (Guild guild : Bot.getJDA().getGuilds()){
-            BaseCommandHandler.getInstance().upsertCommands(guild);
+            BaseCommandBranch.getInstance().upsertCommands(guild);
         }
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {

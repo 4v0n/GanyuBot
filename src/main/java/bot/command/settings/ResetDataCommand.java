@@ -4,7 +4,7 @@ import bot.Bot;
 import bot.command.Command;
 import bot.command.CommandContext;
 import bot.db.legacy.server.ServerData;
-import bot.feature.root.BaseCommandHandler;
+import bot.feature.root.BaseCommandBranch;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
@@ -18,7 +18,7 @@ public class ResetDataCommand implements Command {
         Guild guild = context.getGuild();
 
         ServerData serverData = new ServerData(guild);
-        serverData.setCommandSetVersion(BaseCommandHandler.getInstance().hashCode());
+        serverData.setCommandSetVersion(BaseCommandBranch.getInstance().hashCode());
 
         Bot.getInstance().addGuildData(serverData);
 

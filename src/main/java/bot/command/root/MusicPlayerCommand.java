@@ -2,7 +2,7 @@ package bot.command.root;
 
 import bot.command.Command;
 import bot.command.CommandContext;
-import bot.feature.root.BaseCommandHandler;
+import bot.feature.root.BaseCommandBranch;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,7 +18,7 @@ public class MusicPlayerCommand implements Command {
 
     @Override
     public void run(CommandContext context, List<String> args) {
-        BaseCommandHandler.getInstance().getChildren().get(getCommandWord()).parse(context.getEvent());
+        BaseCommandBranch.getInstance().getChildren().get(getCommandWord()).parse(context.getEvent());
     }
 
     @Override

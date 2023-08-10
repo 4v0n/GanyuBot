@@ -1,7 +1,7 @@
 package bot.feature.music;
 
 import bot.command.music.*;
-import bot.command.CommandHandler;
+import bot.command.CommandBranch;
 import bot.command.music.AdminCommand;
 
 /**
@@ -10,13 +10,13 @@ import bot.command.music.AdminCommand;
  * @author Aron Navodh Kumarawatta
  * @version 28.03.2023
  */
-public class MusicParser extends CommandHandler {
+public class MusicCommandBranch extends CommandBranch {
 
-    public MusicParser(CommandHandler parent) {
+    public MusicCommandBranch(CommandBranch parent) {
         super(parent);
     }
 
-    public MusicParser(CommandHandler parent, String accessCommand) {
+    public MusicCommandBranch(CommandBranch parent, String accessCommand) {
         super(parent, accessCommand);
     }
 

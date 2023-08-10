@@ -1,6 +1,6 @@
 package bot.feature.booru;
 
-import bot.command.CommandHandler;
+import bot.command.CommandBranch;
 import bot.command.booru.R34Command;
 import bot.command.booru.SFWICommand;
 import net.kodehawa.lib.imageboards.ImageBoard;
@@ -15,15 +15,15 @@ import net.kodehawa.lib.imageboards.ImageBoard;
  * @author Aron Navodh Kumarawatta
  * @version 28.03.2023
  */
-public class ImageHandler extends CommandHandler {
+public class ImageCommandBranch extends CommandBranch {
 
 
-    public ImageHandler(CommandHandler parent) {
+    public ImageCommandBranch(CommandBranch parent) {
         super(parent);
         ImageBoard.setUserAgent("http.agent");
     }
 
-    public ImageHandler(CommandHandler parent, String accessCommand) {
+    public ImageCommandBranch(CommandBranch parent, String accessCommand) {
         super(parent, accessCommand);
         ImageBoard.setUserAgent("http.agent");
     }

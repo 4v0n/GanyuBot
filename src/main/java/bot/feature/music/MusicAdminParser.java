@@ -1,12 +1,12 @@
 package bot.feature.music;
 
-import bot.command.CommandHandler;
+import bot.command.CommandBranch;
 import bot.command.music.admin.MatchSongCommand;
 import bot.command.music.admin.ResetMatchCommand;
 
-public class MusicAdminParser extends CommandHandler {
+public class MusicAdminParser extends CommandBranch {
 
-    protected MusicAdminParser(CommandHandler parent, String accessCommand) {
+    protected MusicAdminParser(CommandBranch parent, String accessCommand) {
         super(parent, accessCommand);
     }
 

@@ -23,14 +23,14 @@ import java.util.Scanner;
  * @author Aron Navodh Kumarawatta
  * @version 09.06.2022
  */
- public class CommandCenter {
+ public class CommandParser {
 
     private final HashMap<String, Command> commands;
     private final int layer;
     private final Bot bot;
     private final HashMap<String, String> synonyms;
 
-    public CommandCenter(int layer) {
+    public CommandParser(int layer) {
         this.commands = new HashMap<>();
         this.bot = Bot.getInstance();
         this.layer = layer;

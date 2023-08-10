@@ -5,7 +5,7 @@ import bot.activity.Activity;
 import bot.db.legacy.blackjack.CasinoData;
 import bot.db.legacy.blackjack.CasinoGuildData;
 import bot.db.legacy.blackjack.UserData;
-import bot.feature.blackjack.BlackJackParser;
+import bot.feature.blackjack.BlackJackIngameCommandParser;
 import bot.util.ColorScheme;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
@@ -44,7 +44,7 @@ public class Game extends Activity {
      * @param bet     The amount of credits that has been wagered
      */
     public Game(MessageReceivedEvent event, Message message, long bet) {
-        super(event, new BlackJackParser(), message);
+        super(event, new BlackJackIngameCommandParser(), message);
         this.dealer = new Dealer(event.getGuild().getSelfMember().getId());
         this.embed = new EmbedBuilder();
         this.channel = event.getChannel();
@@ -77,7 +77,7 @@ public class Game extends Activity {
     }
 
     public Game(SlashCommandInteractionEvent event, Message message, int bet) {
-        super(event, new BlackJackParser(), message);
+        super(event, new BlackJackIngameCommandParser(), message);
 
         this.dealer = new Dealer(event.getGuild().getSelfMember().getId());
         this.embed = new EmbedBuilder();
