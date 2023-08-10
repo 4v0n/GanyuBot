@@ -5,11 +5,13 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * Represents a new branch of DM commands.
+ */
 public abstract class DMCommandHandler {
     private final DMCommandCenter commandCenter;
     private final DMCommandHandler parent;
     private final int layer;
-
     private final HashMap<String, DMCommandHandler> childrenCommandHandlers;
     private final String accessCommand;
 

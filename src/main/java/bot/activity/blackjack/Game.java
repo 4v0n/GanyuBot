@@ -51,7 +51,6 @@ public class Game extends Activity {
         this.messageID = message.getId();
         this.bet = bet;
 
-
         this.activityData = CasinoData.getInstance().getGuildData(event.getGuild());
 
         this.player = new Player(event.getAuthor().getId(), event.getAuthor());
@@ -62,9 +61,7 @@ public class Game extends Activity {
         this.dealer.addCard(deck);
         this.selfMember = event.getGuild().getSelfMember();
 
-
         this.playerData = activityData.getPlayer(event.getMember());
-
         this.playerData.setCredits(this.playerData.getCredits() - bet);
 
         this.embed.setTitle("Blackjack");

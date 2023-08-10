@@ -93,10 +93,17 @@ public abstract class Activity implements Serializable {
         return bot;
     }
 
+    /**
+     * @return Whether the activity is currently active or not.
+     */
     public boolean isActive() {
         return isActive;
     }
 
+    /**
+     * Sets the active state of the activity.
+     * @param state The new active state of the activity.
+     */
     public void setActive(boolean state) {
         isActive = state;
     }

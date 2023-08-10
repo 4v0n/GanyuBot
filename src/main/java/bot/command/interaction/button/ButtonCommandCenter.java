@@ -8,6 +8,9 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * Identifies and executes button interactions issued by the user.
+ */
 public class ButtonCommandCenter {
 
     private final HashMap<Button, ButtonAction> commandList;

@@ -5,6 +5,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+/**
+ * A command that is accessed in a private channel (Direct Message channel)
+ */
 public interface DMCommand {
     void run(MessageReceivedEvent event, List<String> args);
 

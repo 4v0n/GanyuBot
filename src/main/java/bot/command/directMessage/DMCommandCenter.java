@@ -15,6 +15,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
+/**
+ * This class identifies and executes DM commands issued by the user.
+ */
 public class DMCommandCenter {
     private final HashMap<String, DMCommand> commands;
     private final int layer;
@@ -30,12 +33,10 @@ public class DMCommandCenter {
         this.addCommand(new DMCommand() {
             @Override
             public void run(MessageReceivedEvent event, List<String> args) {
-
                 HashMap<String, String> commandStrings = new HashMap<>();
                 for (DMCommand command : commands.values()){
                     commandStrings.put(command.getCommandWord(), command.getDescription());
                 }
-
                 Help.help(bot.getGlobalPrefix(), commandStrings, event);
             }
 
@@ -92,13 +93,16 @@ public class DMCommandCenter {
         });
     }
 
+    /**
+     * Add a message to this command branch's help message.
+     * @param message
+     */
     public void addHelpMessage(String message){
         this.commands.remove("help");
 
         DMCommand helpCommand = new DMCommand() {
             @Override
             public void run(MessageReceivedEvent event, List<String> args) {
-
                 HashMap<String, String> commandStrings = new HashMap<>();
                 for (DMCommand command : commands.values()){
                     commandStrings.put(command.getCommandWord(), command.getDescription());
@@ -126,16 +130,17 @@ public class DMCommandCenter {
     }
 
     public void addCommand(DMCommand command) {
+        //check if a command with the command name/alias exists
         if (commands.containsKey(command.getCommandWord().toLowerCase())) {
             throw new CommandExistsException(command.getCommandWord());
         }
-
         for (String synonym : command.getSynonyms()) {
             if (synonyms.containsKey(synonym)) {
                 throw new CommandExistsException(command.getCommandWord());
             }
         }
 
+        //add command
         commands.put(command.getCommandWord().toLowerCase(), command);
     }
 
@@ -155,14 +160,18 @@ public class DMCommandCenter {
     }
 
     private ArrayList<String> addToBeginning(String newItem, ArrayList<String> list) {
-
         ArrayList<String> tempList = new ArrayList<>();
         tempList.add(newItem);
         tempList.addAll(list);
-
         return tempList;
     }
 
+    /**
+     * Looks through a tokenized command string and replaces
+     * synonyms (aliases) with their respective command name
+     * @param words Tokenized command string
+     * @param synonyms Set of synonyms
+     */
     private void replaceSynonyms(ArrayList<String> words, HashMap<String, String> synonyms) {
         int index = 0;
         for (String word : words) {
@@ -173,6 +182,10 @@ public class DMCommandCenter {
         }
     }
 
+    /**
+     * Look for an issued command and execute it.
+     * @param event The event which is issuing the command
+     */
     public void parse(MessageReceivedEvent event) {
         ArrayList<String> commandWords = splitString(event.getMessage().getContentRaw());
 
@@ -186,7 +199,6 @@ public class DMCommandCenter {
         DMCommand command;
         try {
             command = commands.get(commandWords.get(layer).toLowerCase());
-
         } catch (Exception e) {
             MessageChannel channel = event.getChannel();
             EmbedBuilder embed = new EmbedBuilder();
@@ -215,9 +227,7 @@ public class DMCommandCenter {
                     commandWords.remove(0);
                 }
             }
-
             command.run(event, commandWords);
-
         }
     }
 
