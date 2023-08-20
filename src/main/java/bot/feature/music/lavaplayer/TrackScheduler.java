@@ -77,6 +77,10 @@ public class TrackScheduler extends AudioEventAdapter {
         if (!this.player.startTrack(track, true)) {
             this.songQueue.offer(track);
         }
+
+        if (track == null) {
+            System.out.println("track is null");
+        }
     }
 
     public BlockingQueue<AudioTrack> getSongQueue() {
