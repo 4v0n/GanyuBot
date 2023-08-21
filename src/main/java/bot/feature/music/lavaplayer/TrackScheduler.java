@@ -4,9 +4,7 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -47,15 +45,16 @@ public class TrackScheduler extends AudioEventAdapter {
         }
 
         if (loopQueue) {
-            AudioTrackInfo trackInfo = track.getInfo();
-            PlayerManager.getInstance().reQueue(guild, trackInfo.uri, (Member) track.getUserData());
+//            AudioTrackInfo trackInfo = track.getInfo();
+//            AudioTrack newTrack = PlayerManager.getInstance().loadTrack(trackInfo.uri);
+//            this.queue(newTrack);
+            queue(track.makeClone());
         }
 
         if (endReason.mayStartNext) {
             nextTrack();
         }
     }
-
 
     public void nextTrack() {
         if (shuffle) {
@@ -77,6 +76,30 @@ public class TrackScheduler extends AudioEventAdapter {
         if (!this.player.startTrack(track, true)) {
             this.songQueue.offer(track);
         }
+    }
+
+    public int getPositionOfTrack(AudioTrack track) {
+        ArrayList<AudioTrack> songs = new ArrayList<>(songQueue);
+        return songs.indexOf(track);
+    }
+
+    public long getTimeUntilTrack(AudioTrack track) {
+        ArrayList<AudioTrack> songs = new ArrayList<>(songQueue);
+        long position = songs.indexOf(track);
+
+        long timeUntilSong = 0;
+
+
+        for (int i = 0; i < position; i++){
+            timeUntilSong = timeUntilSong + songs.get(i).getDuration();
+        }
+
+        AudioTrack currentTrack = player.getPlayingTrack();
+        if (currentTrack != null){
+            timeUntilSong = timeUntilSong + ( currentTrack.getDuration() - currentTrack.getPosition() );
+            position++;
+        }
+        return timeUntilSong;
     }
 
     public BlockingQueue<AudioTrack> getSongQueue() {

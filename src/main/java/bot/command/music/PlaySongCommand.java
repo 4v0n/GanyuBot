@@ -4,8 +4,10 @@ import bot.command.Command;
 import bot.command.CommandContext;
 import bot.db.music.DiscoveredVidId;
 import bot.feature.music.lavaplayer.PlayerManager;
+import bot.feature.music.lavaplayer.TrackScheduler;
 import bot.feature.music.spotify.SpotifyManager;
 import bot.util.ColorScheme;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.events.Event;
@@ -77,7 +79,8 @@ public class PlaySongCommand implements Command {
                 return;
             }
         }
-        PlayerManager.getInstance().loadAndPlay(context, link, context.getMember());
+
+        loadSong(context, link);
     }
 
     private void queueSpotifySong(CommandContext context, String link) {
@@ -97,7 +100,31 @@ public class PlaySongCommand implements Command {
             query = ("ytsearch:" + buildArtistString(track.getArtists()) + "- " + track.getName());
         }
 
-        PlayerManager.getInstance().loadAndPlay(context, query, context.getMember());
+        loadSong(context, query);
+    }
+
+    private void loadSong(CommandContext context, String identifier) {
+        AudioTrack audioTrack = PlayerManager.getInstance().loadTrack(identifier);
+        TrackScheduler scheduler = PlayerManager.getInstance().getMusicManager(context.getGuild()).getScheduler();
+        audioTrack.setUserData(context.getMember());
+        scheduler.queue(audioTrack);
+
+        EmbedBuilder embed = new EmbedBuilder();
+        embed.setColor(ColorScheme.RESPONSE);
+
+        embed.setAuthor("Added to queue");
+        embed.setTitle(audioTrack.getInfo().author + " - " + audioTrack.getInfo().title, audioTrack.getInfo().uri);
+        embed.setThumbnail("http://img.youtube.com/vi/" + audioTrack.getInfo().identifier + "/0.jpg");
+
+        int position = scheduler.getPositionOfTrack(audioTrack);
+        if (position > 0) {
+            embed.setDescription("Position in queue: " + (position));
+            embed.setFooter("Duration: " + formatTime(audioTrack.getDuration()) + " | Time until song: " + formatTime(scheduler.getTimeUntilTrack(audioTrack)));
+        } else {
+            embed.setFooter("Duration: " + formatTime(audioTrack.getDuration()));
+        }
+
+        context.respondEmbed(embed);
     }
 
     private String buildArtistString(ArtistSimplified[] artists) {

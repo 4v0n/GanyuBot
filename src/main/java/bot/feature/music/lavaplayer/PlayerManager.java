@@ -58,131 +58,69 @@ public class PlayerManager {
         musicManagers.remove(guild);
     }
 
-    public void loadAndPlay(CommandContext context, String url, Member member) {
-        Event event = context.getEvent();
-        MusicManager musicManager = null;
+    public AudioTrack loadTrack(String identifier) {
+        final AudioTrack[] loadedTrack = {null};
+        try {
+            this.audioPlayerManager.loadItem(identifier, new AudioLoadResultHandler() {
+                @Override
+                public void trackLoaded(AudioTrack audioTrack) {
+                    loadedTrack[0] = audioTrack;
+                }
 
-        if (event instanceof MessageReceivedEvent){
-            musicManager = this.getMusicManager(((MessageReceivedEvent) event).getGuild());
+                @Override
+                public void playlistLoaded(AudioPlaylist audioPlaylist) {
+                    loadedTrack[0] = audioPlaylist.getSelectedTrack();
+
+                    if (loadedTrack[0] == null){
+                        loadedTrack[0] = audioPlaylist.getTracks().get(0);
+                    }
+                }
+
+                @Override
+                public void noMatches() {
+                    if (isURL(identifier)) {
+                        String newIdentifier = "ytsearch:" + identifier;
+                        loadedTrack[0] = loadTrack(newIdentifier);
+                    }
+                }
+
+                @Override
+                public void loadFailed(FriendlyException e) {
+                }
+            }).get();
+        } catch (InterruptedException | ExecutionException ignored) {
         }
 
-        if (event instanceof SlashCommandInteractionEvent){
-            musicManager = this.getMusicManager(((SlashCommandInteractionEvent) event).getGuild());
+        return loadedTrack[0];
+    }
+
+    public AudioPlaylist loadPlayList(String identifier) {
+        final AudioPlaylist[] playlist = {null};
+        try {
+            this.audioPlayerManager.loadItem(identifier, new AudioLoadResultHandler() {
+                @Override
+                public void trackLoaded(AudioTrack audioTrack) {
+                    //ignore
+                }
+
+                @Override
+                public void playlistLoaded(AudioPlaylist audioPlaylist) {
+                    playlist[0] = audioPlaylist;
+                }
+
+                @Override
+                public void noMatches() {
+                    //ignore
+                }
+
+                @Override
+                public void loadFailed(FriendlyException e) {
+                    //ignore
+                }
+            }).get();
+        } catch (InterruptedException | ExecutionException ignored) {
         }
-
-
-        MusicManager finalMusicManager = musicManager;
-        this.audioPlayerManager.loadItemOrdered(finalMusicManager, url, new AudioLoadResultHandler() {
-            @Override
-            public void trackLoaded(AudioTrack audioTrack) {
-
-                audioTrack.setUserData(member);
-                finalMusicManager.getScheduler().queue(audioTrack);
-
-                ArrayList<AudioTrack> songQueue = new ArrayList<>(finalMusicManager.getScheduler().getSongQueue());
-                long position = songQueue.indexOf(audioTrack);
-
-                long timeUntilSong = 0;
-
-
-                for (int i = 0; i < position; i++){
-                    timeUntilSong = timeUntilSong + songQueue.get(i).getDuration();
-                }
-
-                AudioTrack playingTrack = finalMusicManager.getAudioPlayer().getPlayingTrack();
-                if (playingTrack != null){
-                    timeUntilSong = timeUntilSong + ( playingTrack.getDuration() - playingTrack.getPosition() );
-                    position++;
-                }
-
-                EmbedBuilder embed = new EmbedBuilder();
-                embed.setColor(ColorScheme.RESPONSE);
-
-                embed.setAuthor("Added to queue");
-                embed.setTitle(audioTrack.getInfo().author + " - " + audioTrack.getInfo().title, audioTrack.getInfo().uri);
-                embed.setThumbnail("http://img.youtube.com/vi/" + audioTrack.getInfo().identifier + "/0.jpg");
-
-                if (position > 0) {
-                    embed.setDescription("Position in queue: " + (position));
-                    embed.setFooter("Duration: " + formatTime(audioTrack.getDuration()) + " | Time until song: " + formatTime(timeUntilSong));
-                } else {
-                    embed.setFooter("Duration: " + formatTime(audioTrack.getDuration()));
-                }
-
-                context.respondEmbed(embed);
-            }
-
-            @Override
-            public void playlistLoaded(AudioPlaylist audioPlaylist) {
-
-                AudioTrack selectedTrack = audioPlaylist.getSelectedTrack();
-
-                if (selectedTrack == null){
-                    selectedTrack = audioPlaylist.getTracks().get(0);
-                }
-
-                selectedTrack.setUserData(member);
-
-                finalMusicManager.getScheduler().queue(selectedTrack);
-
-                ArrayList<AudioTrack> songQueue = new ArrayList<>(finalMusicManager.getScheduler().getSongQueue());
-                long position = songQueue.indexOf(selectedTrack);
-
-                long timeUntilSong = 0;
-
-                for (int i = 0; i < position; i++){
-                    timeUntilSong = timeUntilSong + songQueue.get(i).getDuration();
-                }
-
-                AudioTrack playingTrack = finalMusicManager.getAudioPlayer().getPlayingTrack();
-                if (playingTrack != null){
-                    timeUntilSong = timeUntilSong + ( playingTrack.getDuration() - playingTrack.getPosition() );
-                    position++;
-                }
-
-                EmbedBuilder embed = new EmbedBuilder();
-                embed.setColor(ColorScheme.RESPONSE);
-
-                embed.setAuthor("Added to queue");
-                embed.setTitle(selectedTrack.getInfo().author + " - " + selectedTrack.getInfo().title, selectedTrack.getInfo().uri);
-                embed.setThumbnail("http://img.youtube.com/vi/" + selectedTrack.getInfo().identifier + "/0.jpg");
-
-                if (position > 0) {
-                    embed.setDescription("Position in queue: " + (position));
-                    embed.setFooter("Duration: " + formatTime(selectedTrack.getDuration()) + " | Time until song: " + formatTime(timeUntilSong));
-                } else {
-                    embed.setFooter("Duration: " + formatTime(selectedTrack.getDuration()));
-                }
-
-                context.respondEmbed(embed);
-            }
-
-            @Override
-            public void noMatches() {
-
-                if (isURL(url)) {
-                    String link = "ytsearch:" + url;
-
-                    loadAndPlay(context, link, member);
-                    return;
-                }
-
-                EmbedBuilder embed = new EmbedBuilder();
-                embed.setColor(ColorScheme.ERROR);
-                embed.setDescription("No close matches were found! \nTry a more precise search query.");
-                embed.setFooter("Remember that only youtube songs may be requested");
-                sendErrorEmbed(embed, context);
-            }
-
-            @Override
-            public void loadFailed(FriendlyException e) {
-                EmbedBuilder embed = new EmbedBuilder();
-                embed.setColor(ColorScheme.ERROR);
-                embed.setDescription("An error has occurred! \nPerhaps the song / query is invalid");
-                embed.setFooter("Remember that only youtube songs may be requested");
-                sendErrorEmbed(embed, context);
-            }
-        });
+        return playlist[0];
     }
 
     public AudioTrack silentLoad(CommandContext context, String url, Member member) {
