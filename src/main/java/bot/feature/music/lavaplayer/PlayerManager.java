@@ -19,7 +19,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import static bot.command.music.MusicUtil.*;
@@ -173,38 +172,6 @@ public class PlayerManager {
         }
 
         return foundTrack[0];
-    }
-
-    public void reQueue(Guild guild, String url, Member member) {
-        MusicManager musicManager = this.getMusicManager(guild);
-        this.audioPlayerManager.loadItemOrdered(musicManager, url, new AudioLoadResultHandler() {
-            @Override
-            public void trackLoaded(AudioTrack audioTrack) {
-                audioTrack.setUserData(member);
-                musicManager.getScheduler().queue(audioTrack);
-            }
-
-            @Override
-            public void playlistLoaded(AudioPlaylist audioPlaylist) {
-                List<AudioTrack> tracks = audioPlaylist.getTracks();
-                tracks.get(0).setUserData(member);
-                musicManager.getScheduler().queue(tracks.get(0));
-            }
-
-            @Override
-            public void noMatches() {
-                if (isURL(url)) {
-                    String link = "ytsearch:" + url;
-
-                    reQueue(guild, link, member);
-                }
-            }
-
-            @Override
-            public void loadFailed(FriendlyException e) {
-
-            }
-        });
     }
 
     public void loadPlaylist(CommandContext context, String url, Member member) {
