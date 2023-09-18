@@ -1,6 +1,7 @@
 package bot.db.music;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import dev.morphia.annotations.Entity;
 import dev.morphia.annotations.Id;
 import net.dv8tion.jda.api.entities.User;
@@ -26,17 +27,17 @@ public class Playlist {
         this.videoIds = new ArrayList<>();
     }
 
-    public Playlist(User user, String playlistName, ArrayList<AudioTrack> tracks) {
+    public Playlist(User user, String playlistName, ArrayList<AudioTrackInfo> tracks) {
         this.userId = user.getId();
         this.listId = String.valueOf((userId + playlistName).hashCode());
         this.playlistName = playlistName;
         this.videoIds = buildTrackList(tracks);
     }
 
-    private ArrayList<String> buildTrackList(ArrayList<AudioTrack> tracks) {
+    private ArrayList<String> buildTrackList(ArrayList<AudioTrackInfo> tracks) {
         ArrayList<String> trackList = new ArrayList<>();
-        for (AudioTrack track : tracks) {
-            trackList.add(track.getInfo().identifier);
+        for (AudioTrackInfo trackInfo : tracks) {
+            trackList.add(trackInfo.identifier);
         }
         return trackList;
     }

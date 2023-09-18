@@ -2,8 +2,8 @@ package bot.command.music;
 
 import bot.command.Command;
 import bot.command.CommandContext;
-import bot.feature.music.MusicManager;
 import bot.feature.music.lavaplayer.PlayerManager;
+import bot.feature.music.lavaplayer.TrackScheduler;
 import bot.util.ColorScheme;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
@@ -17,6 +17,7 @@ import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
@@ -70,16 +71,17 @@ public class RemoveSongCommand implements Command {
     }
 
     private void removeSong(CommandContext context, int choice) {
-        MusicManager musicManager = PlayerManager.getInstance().getMusicManager(context.getGuild());
-        BlockingQueue<AudioTrack> songQueue = musicManager.getScheduler().getSongQueue();
+        TrackScheduler scheduler = PlayerManager.getInstance().getMusicManager(context.getGuild()).getScheduler();
+        BlockingQueue<AudioTrackInfo> songQueue = scheduler.getSongQueue();
+        HashMap<AudioTrackInfo, AudioTrack> songSet = scheduler.getSongSet();
 
 
-        final List<AudioTrack> trackList = new ArrayList<>(songQueue);
+        final List<AudioTrackInfo> trackList = new ArrayList<>(songQueue);
 
         AudioTrackInfo removedSong;
 
         try {
-            removedSong = trackList.get(choice).getInfo();
+            removedSong = trackList.get(choice);
 
         } catch (Exception e) {
             EmbedBuilder embed = new EmbedBuilder();
@@ -94,8 +96,9 @@ public class RemoveSongCommand implements Command {
 
         songQueue.clear();
 
-        for (AudioTrack track : trackList) {
-            musicManager.getScheduler().queue(track);
+        for (AudioTrackInfo trackInfo : trackList) {
+            AudioTrack track = songSet.get(trackInfo);
+            scheduler.queue(track, context.getMember());
         }
 
         EmbedBuilder embed = new EmbedBuilder();

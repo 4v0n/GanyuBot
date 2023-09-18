@@ -14,6 +14,7 @@ import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
@@ -30,7 +31,7 @@ public class ShowQueueCommand implements Command {
 
     private void showSongQueue(CommandContext context) {
         MusicManager musicManager = PlayerManager.getInstance().getMusicManager(context.getGuild());
-        final BlockingQueue<AudioTrack> queue = musicManager.getScheduler().getSongQueue();
+        final BlockingQueue<AudioTrackInfo> queue = musicManager.getScheduler().getSongQueue();
 
         if (queue.isEmpty() && (musicManager.getAudioPlayer().getPlayingTrack() == null || musicManager.getAudioPlayer().isPaused())) {
             EmbedBuilder embed = new EmbedBuilder();
@@ -55,23 +56,23 @@ public class ShowQueueCommand implements Command {
             return;
         }
 
-        ArrayList<AudioTrack> trackList = new ArrayList<>(queue);
+        ArrayList<AudioTrackInfo> trackInfoList = new ArrayList<>(queue);
         ArrayList<String> trackStrings = new ArrayList<>();
+        HashMap<AudioTrackInfo, Member> songRequesters = musicManager.getScheduler().getSongRequesters();
 
         int i = 0;
         long totalTime = 0;
-        for (AudioTrack track : trackList) {
+        for (AudioTrackInfo info : trackInfoList) {
             i++;
-            AudioTrackInfo info = track.getInfo();
 
-            String id = "<@" + ((Member) track.getUserData()).getId() + ">";
+            String id = "<@" + songRequesters.get(info).getId() + ">";
 
             String string = i + " - `" + info.title + "` by `" + info.author + "` - " +
-                    " `" + formatTime(track.getDuration()) + "` - " +
+                    " `" + formatTime(info.length) + "` - " +
                     id;
             trackStrings.add(string);
 
-            totalTime = totalTime + track.getDuration();
+            totalTime = totalTime + info.length;
         }
 
         MultiPageEmbed queueListMessage = new MultiPageEmbed(trackStrings, 10);

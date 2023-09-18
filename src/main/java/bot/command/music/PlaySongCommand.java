@@ -16,7 +16,6 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
-import se.michaelthelin.spotify.model_objects.specification.ArtistSimplified;
 import se.michaelthelin.spotify.model_objects.specification.Track;
 
 import java.net.URI;
@@ -28,18 +27,18 @@ import static bot.command.music.MusicUtil.*;
 public class PlaySongCommand implements Command {
     @Override
     public void run(CommandContext context, List<String> args) {
-        String link = null;
+        String identifier = null;
         Event event = context.getEvent();
 
         if (event instanceof MessageReceivedEvent) {
-            link = String.join(" ", args);
+            identifier = String.join(" ", args);
         }
 
         if (event instanceof SlashCommandInteractionEvent) {
-            link = ((SlashCommandInteractionEvent) event).getOption("query").getAsString();
+            identifier = ((SlashCommandInteractionEvent) event).getOption("query").getAsString();
         }
 
-        if (link == null || link.isBlank() || link.isEmpty()){
+        if (identifier == null || identifier.isBlank() || identifier.isEmpty()){
             EmbedBuilder embed = new EmbedBuilder();
             embed.setColor(ColorScheme.ERROR);
             embed.setDescription("You haven't provided a link / search query for a song!");
@@ -50,7 +49,7 @@ public class PlaySongCommand implements Command {
         if (!playerActive(context, false)) {
             if (isVCEmpty(context, true)) {
                 joinVoiceChannel(context);
-                queueSong(context, link);
+                queueSong(context, identifier);
             }
             return;
         }
@@ -60,37 +59,37 @@ public class PlaySongCommand implements Command {
         if (!inSameVC(context, true)) {
             return;
         }
-        queueSong(context, link);
+        queueSong(context, identifier);
     }
 
-    private void queueSong(CommandContext context, String link) {
-        if (!isURL(link)){
-            link = "ytsearch:" + link + " audio";
+    private void queueSong(CommandContext context, String identifier) {
+        if (!isURL(identifier)){
+            identifier = "ytsearch:" + identifier + " audio";
         } else {
             URI uri = null;
             try {
-                uri = new URI(link);
+                uri = new URI(identifier);
             } catch (URISyntaxException ignored) {
                 // will always be ignored due to guard clause
             }
 
             if (uri.getAuthority().equals("open.spotify.com")) {
-                queueSpotifySong(context, link);
+                loadSpotifySong(context, identifier);
                 return;
             }
         }
 
-        loadSong(context, link);
+        loadSong(context, identifier);
     }
 
-    private void queueSpotifySong(CommandContext context, String link) {
+    private void loadSpotifySong(CommandContext context, String identifier) {
         EmbedBuilder warning = new EmbedBuilder();
         warning.setAuthor("Queuing song");
         warning.setDescription("Songs found from spotify links may not be accurate or may not even be found!");
         warning.setColor(ColorScheme.INFO);
         context.getMessageChannel().sendMessageEmbeds(warning.build()).queue();
 
-        Track track = SpotifyManager.getInstance().getSong(link);
+        Track track = SpotifyManager.getInstance().getSong(identifier);
         String ytId = DiscoveredVidId.getYoutubeIdFromSpotifyId(track.getId());
         String query;
 
@@ -100,14 +99,26 @@ public class PlaySongCommand implements Command {
             query = ("ytsearch:" + buildArtistString(track.getArtists()) + "- " + track.getName());
         }
 
-        loadSong(context, query);
+        System.out.println(trackInfoFromSpotifyTrack(track).hashCode());
+
+        PlayerManager.getInstance().getMusicManager(context.getGuild()).getScheduler().queue(track, context.getMember());
+
+        //loadSong(context, query);
     }
 
     private void loadSong(CommandContext context, String identifier) {
         AudioTrack audioTrack = PlayerManager.getInstance().loadTrack(identifier);
+
+        if (audioTrack == null) {
+            EmbedBuilder embed = new EmbedBuilder();
+            embed.setColor(ColorScheme.ERROR);
+            embed.setDescription("No close matches were found! \nTry a more precise search query.");
+            sendErrorEmbed(embed, context);
+            return;
+        }
+
         TrackScheduler scheduler = PlayerManager.getInstance().getMusicManager(context.getGuild()).getScheduler();
-        audioTrack.setUserData(context.getMember());
-        scheduler.queue(audioTrack);
+        scheduler.queue(audioTrack, context.getMember());
 
         EmbedBuilder embed = new EmbedBuilder();
         embed.setColor(ColorScheme.RESPONSE);
@@ -124,16 +135,9 @@ public class PlaySongCommand implements Command {
             embed.setFooter("Duration: " + formatTime(audioTrack.getDuration()));
         }
 
-        context.respondEmbed(embed);
-    }
+        System.out.println(audioTrack.getInfo().hashCode());
 
-    private String buildArtistString(ArtistSimplified[] artists) {
-        StringBuilder sb = new StringBuilder();
-        for (ArtistSimplified artist : artists) {
-            sb.append(artist.getName());
-            sb.append(" ");
-        }
-        return sb.toString();
+        context.respondEmbed(embed);
     }
 
     private void joinVoiceChannel(CommandContext context) {

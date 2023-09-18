@@ -6,6 +6,7 @@ import bot.feature.music.MusicManager;
 import bot.feature.music.lavaplayer.PlayerManager;
 import bot.util.ColorScheme;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -16,6 +17,7 @@ import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
@@ -77,7 +79,7 @@ public class MoveSongCommand implements Command {
 
     private void moveSong(int oldPos, int newPos, CommandContext context) {
         MusicManager musicManager = PlayerManager.getInstance().getMusicManager(context.getGuild());
-        BlockingQueue<AudioTrack> songQueue = musicManager.getScheduler().getSongQueue();
+        BlockingQueue<AudioTrackInfo> songQueue = musicManager.getScheduler().getSongQueue();
 
         if (songQueue.size() < 2){
             EmbedBuilder embed = new EmbedBuilder();
@@ -90,9 +92,9 @@ public class MoveSongCommand implements Command {
         oldPos--;
         newPos--;
 
-        final List<AudioTrack> trackList = new ArrayList<>(songQueue);
+        final List<AudioTrackInfo> trackList = new ArrayList<>(songQueue);
 
-        AudioTrack movedSong;
+        AudioTrackInfo movedSong;
 
         try {
             movedSong = trackList.get(oldPos);
@@ -107,13 +109,15 @@ public class MoveSongCommand implements Command {
 
         songQueue.clear();
 
-        for (AudioTrack track : trackList) {
-            musicManager.getScheduler().queue(track);
+        HashMap<AudioTrackInfo, AudioTrack> songSet = musicManager.getScheduler().getSongSet();
+        for (AudioTrackInfo trackInfo : trackList) {
+            AudioTrack track = songSet.get(trackInfo);
+            musicManager.getScheduler().queue(track, context.getMember());
         }
 
         EmbedBuilder embed = new EmbedBuilder();
         embed.setColor(ColorScheme.RESPONSE);
-        embed.setDescription("Moved `" + movedSong.getInfo().title + "` to position `" + (newPos + 1) + "`");
+        embed.setDescription("Moved `" + movedSong.title + "` to position `" + (newPos + 1) + "`");
         context.respondEmbed(embed);
     }
 

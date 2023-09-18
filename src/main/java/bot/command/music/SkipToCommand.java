@@ -6,6 +6,7 @@ import bot.feature.music.MusicManager;
 import bot.feature.music.lavaplayer.PlayerManager;
 import bot.util.ColorScheme;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.Event;
@@ -66,7 +67,7 @@ public class SkipToCommand implements Command {
 
     private void skiptoSong(int target, CommandContext context) {
         MusicManager musicManager = PlayerManager.getInstance().getMusicManager(context.getGuild());
-        BlockingQueue<AudioTrack> songQueue = musicManager.getScheduler().getSongQueue();
+        BlockingQueue<AudioTrackInfo> songQueue = musicManager.getScheduler().getSongQueue();
 
         if (songQueue.size() < target){
             EmbedBuilder embed = new EmbedBuilder();

@@ -4,6 +4,7 @@ import bot.Bot;
 import bot.command.CommandContext;
 import bot.db.legacy.server.ServerData;
 import bot.util.ColorScheme;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Member;
@@ -11,6 +12,8 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.events.Event;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import se.michaelthelin.spotify.model_objects.specification.ArtistSimplified;
+import se.michaelthelin.spotify.model_objects.specification.Track;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -219,5 +222,25 @@ public class MusicUtil {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public static AudioTrackInfo trackInfoFromSpotifyTrack(Track track) {
+        return new AudioTrackInfo(
+                track.getName(),
+                buildArtistString(track.getArtists()),
+                track.getDurationMs(),
+                track.getId(),
+                false,
+                track.getUri()
+        );
+    }
+
+    public static String buildArtistString(ArtistSimplified[] artists) {
+        StringBuilder sb = new StringBuilder();
+        for (ArtistSimplified artist : artists) {
+            sb.append(artist.getName());
+            sb.append(" ");
+        }
+        return sb.toString();
     }
 }

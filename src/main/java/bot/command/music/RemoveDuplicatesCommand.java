@@ -3,14 +3,17 @@ package bot.command.music;
 import bot.command.Command;
 import bot.command.CommandContext;
 import bot.feature.music.lavaplayer.PlayerManager;
+import bot.feature.music.lavaplayer.TrackScheduler;
 import bot.util.ColorScheme;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.internal.interactions.CommandDataImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
@@ -52,19 +55,23 @@ public class RemoveDuplicatesCommand implements Command {
      */
     private void removeDuplicates(CommandContext context) {
         Guild guild = context.getGuild();
-        BlockingQueue<AudioTrack> songQueue = PlayerManager.getInstance().getMusicManager(guild).getScheduler().getSongQueue();
+        TrackScheduler scheduler = PlayerManager.getInstance().getMusicManager(guild).getScheduler();
+        BlockingQueue<AudioTrackInfo> songQueue = scheduler.getSongQueue();
+        HashMap<AudioTrackInfo, AudioTrack> songSet = scheduler.getSongSet();
+
         int initialSize = songQueue.size();
         ArrayList<String> songs = new ArrayList<>();
 
         AudioTrack playingTrack = PlayerManager.getInstance().getMusicManager(guild).getAudioPlayer().getPlayingTrack();
         songs.add(playingTrack.getIdentifier());
 
-        for (AudioTrack song : songQueue) {
-            if (songs.contains(song.getIdentifier())) {
+        for (AudioTrackInfo song : songQueue) {
+            if (songs.contains(song.identifier)) {
                 songQueue.remove(song);
+                songSet.remove(song);
 
             } else {
-                songs.add(song.getIdentifier());
+                songs.add(song.identifier);
             }
         }
 
