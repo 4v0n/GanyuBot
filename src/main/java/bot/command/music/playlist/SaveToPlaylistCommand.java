@@ -9,6 +9,7 @@ import bot.feature.music.MusicManager;
 import bot.feature.music.lavaplayer.PlayerManager;
 import bot.util.ColorScheme;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.Event;
@@ -52,7 +53,7 @@ public class SaveToPlaylistCommand implements Command {
 
         MusicManager musicManager = PlayerManager.getInstance().getMusicManager(context.getGuild());
         AudioTrack playingTrack = musicManager.getAudioPlayer().getPlayingTrack();
-        BlockingQueue<AudioTrack> songQueue = musicManager.getScheduler().getSongQueue();
+        BlockingQueue<AudioTrackInfo> songQueue = musicManager.getScheduler().getSongQueue();
 
         if (playingTrack == null || songQueue.isEmpty()) {
             EmbedBuilder embed = new EmbedBuilder();
@@ -62,14 +63,14 @@ public class SaveToPlaylistCommand implements Command {
             return;
         }
 
-        ArrayList<AudioTrack> songs = new ArrayList<>();
-        songs.add(playingTrack);
+        ArrayList<AudioTrackInfo> songs = new ArrayList<>();
+        songs.add(playingTrack.getInfo());
         songs.addAll(songQueue);
         createNewPlaylistFromQueue(name, context.getAuthor(), songs);
         context.respondMessage("done");
     }
 
-    public void createNewPlaylistFromQueue(String name, User owner, ArrayList<AudioTrack> songs) {
+    public void createNewPlaylistFromQueue(String name, User owner, ArrayList<AudioTrackInfo> songs) {
         Playlist playlist = new Playlist(owner, name, songs);
         Bot.getInstance().getDatastore().save(playlist);
     }
