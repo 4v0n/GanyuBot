@@ -9,14 +9,14 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 
 /**
  * This class details a bot object which simply holds all the variables required by the bot.
  *
-
  * @author Aron Navodh Kumarawatta
- * @version 29.05.2022
+ * @version 13.01.2024
  */
 public class Bot {
 
@@ -28,12 +28,17 @@ public class Bot {
     private final HashMap<String, Activity> activities;
     private Datastore datastore;
 
+    private final HashMap<Guild, ServerData> serverDataBuffer;
+    private final HashMap<ServerData, Thread> serverDataRemovalThreads;
+
     /**
      * Constructor method.
      * Singleton so class cannot be constructed
      */
     private Bot() {
         this.activities = new HashMap<>();
+        this.serverDataBuffer = new HashMap<>();
+        this.serverDataRemovalThreads = new HashMap<>();
     }
 
     public static Bot getInstance() {
@@ -151,16 +156,50 @@ public class Bot {
         return JDA;
     }
 
+    private void createServerDataDeletionThread(Guild guild, ServerData serverData) {
+        Thread thread = new Thread(() -> {
+            try {
+                Thread.sleep(TimeUnit.HOURS.toMillis(24));
+                this.serverDataBuffer.remove(guild);
+                this.serverDataRemovalThreads.remove(serverData);
+
+            } catch (InterruptedException ignored) {
+            }
+        });
+        thread.start();
+        this.serverDataRemovalThreads.put(serverData, thread);
+    }
+
     public ServerData getGuildData(Guild guild) {
-        ServerData serverData = datastore.find(ServerData.class)
-                    .filter(Filters.eq("guildID", guild.getId()))
-                    .iterator()
-                    .tryNext();
+        // load from buffer before connecting to DB
+        ServerData serverData = this.serverDataBuffer.get(guild);
+        if (serverData != null) {
+            Thread deletionThread = this.serverDataRemovalThreads.get(serverData);
+
+            try {
+                deletionThread.join();
+                this.serverDataBuffer.put(guild, serverData);
+                createServerDataDeletionThread(guild, serverData);
+
+
+            } catch (InterruptedException ignored) {
+            }
+
+            return serverData;
+        }
+
+        serverData = datastore.find(ServerData.class)
+                .filter(Filters.eq("guildID", guild.getId()))
+                .iterator()
+                .tryNext();
 
         if (serverData == null) {
             serverData = new ServerData(guild);
             addGuildData(serverData);
         }
+
+        this.serverDataBuffer.put(guild, serverData);
+        createServerDataDeletionThread(guild, serverData);
 
         return serverData;
     }
