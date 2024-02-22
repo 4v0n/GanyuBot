@@ -214,6 +214,7 @@ public class R34Command implements Command {
     @Override
     public @NotNull CommandDataImpl getCommandData() {
         CommandDataImpl commandData = new CommandDataImpl(getCommandWord(), "Searches Rule34 for an image");
+        commandData.setNSFW(true);
         commandData.addOption(OptionType.STRING, "tags", "Enter search tags here. (Separate by space)", true);
 
         return commandData;
